@@ -1,41 +1,56 @@
 /* Hides vault name */
-.hider-vault .workspace-sidedock-vault-profile,
+.zenmode-active .workspace-sidedock-vault-profile,
 body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-sidedock-vault-profile {
-  display:none;
+  display: none;
 }
 
 /* Hide tabs */
-.hider-tabs .mod-root .workspace-tabs .workspace-tab-header-container {
+.zenmode-active .mod-root .workspace-tabs .workspace-tab-header-container {
   display: none;
 }
 
-/* Hide sidebar buttons */
-.hider-sidebar-buttons .sidebar-toggle-button.mod-right,
-.hider-sidebar-buttons .sidebar-toggle-button.mod-left {
+/* Hide tabs */
+.zenmode-active .pdf-toolbar {
   display: none;
 }
-.hider-sidebar-buttons.mod-macos.is-hidden-frameless:not(.is-popout-window) .workspace .workspace-tabs.mod-top-right-space .workspace-tab-header-container {
-  padding-right: 4px;
+
+/* Hide navbar */
+.zenmode-active .mobile-navbar {
+  display: none;
+}
+
+/* body>div.app-container>div.horizontal-main-container>div>div.workspace-split.mod-vertical.mod-root.mod-visible>div>div.workspace-tab-container>div>div>div.view-header {
+  display: none;
+} */
+.zenmode-active div.app-container > div.horizontal-main-container > div > div.workspace-split.mod-vertical.mod-root.mod-visible > div > div.workspace-tab-container > div > div > div.view-header {
+  display: none;
+}
+
+
+/* Hide sidebar buttons */
+.zenmode-active .sidebar-toggle-button.mod-right,
+.zenmode-active .sidebar-toggle-button.mod-left {
+  display: none;
 }
 
 /* Hide meta */
-.hider-meta .markdown-reading-view .metadata-container {
-  display:none;
+.zenmode-active .markdown-reading-view .metadata-container {
+  display: none;
 }
 
 /* Hide scrollbars */
 .hider-scroll ::-webkit-scrollbar {
-  display:none;
+  display: none;
 }
 
 /* Hide status */
-.hider-status .status-bar {
-  display:none;
+.zenmode-active .status-bar {
+  display: none;
 }
 
 /* Hide tooltips */
-.hider-tooltips .tooltip {
-  display:none;
+.zenmode-active .tooltip {
+  display: none;
 }
 
 /* Hide search suggestions */
@@ -44,16 +59,16 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
 }
 
 /* Hide search count flair */
-.hider-search-counts .tree-item-flair:not(.tag-pane-tag-count) { 
-  display:none;
+.zenmode-active .tree-item-flair:not(.tag-pane-tag-count) {
+  display: none;
 }
 
 /* Hide instructions */
-.hider-instructions .prompt-instructions {
-  display:none;
+.zenmode-active .prompt-instructions {
+  display: none;
 }
 
 /* Hide file nav header */
-.hider-file-nav-header .workspace-leaf-content[data-type=file-explorer] .nav-header {
+.zenmode-active .workspace-leaf-content[data-type=file-explorer] .nav-header {
   display: none;
 }
