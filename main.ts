@@ -23,6 +23,11 @@ export default class ZenMode extends Plugin {
         this.refresh();
       }
     });
+    this.addRibbonIcon('expand', 'Toggle Zen Mode', async () => {
+      this.settings.zenMode = !this.settings.zenMode;
+      this.saveData(this.settings);
+      this.refresh();
+    });
 
     this.refresh()
   }
