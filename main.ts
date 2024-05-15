@@ -1,7 +1,10 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, ButtonComponent, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 export default class ZenMode extends Plugin {
   settings: ZenModeSettings;
+  hasButton: boolean;
+  private button: ButtonComponent;
+  private buttonContainer: HTMLDivElement;
 
   async onload() {
     // load settings
@@ -32,6 +35,38 @@ export default class ZenMode extends Plugin {
     this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
   }
 
+  createButton() {
+    this.buttonContainer = document.createElement('div');
+    this.buttonContainer.style.position = 'fixed';
+    this.buttonContainer.style.bottom = '10px';
+    this.buttonContainer.style.right = '10px';
+    this.buttonContainer.style.zIndex = '1000';
+
+    this.button = new ButtonComponent(this.buttonContainer);
+    this.button.setIcon('shrink');
+    this.button.onClick(() => {
+      this.settings.zenMode = !this.settings.zenMode;
+      this.saveSettings();
+      this.refresh();
+    });
+
+    document.body.appendChild(this.buttonContainer);
+  }
+
+  setButtonVisibility() {
+    if (this.settings.zenMode) {
+      if (!this.hasButton) {
+        this.createButton();
+        this.hasButton = true;
+      }
+      this.buttonContainer.style.display = 'block';
+    } else {
+      if (this.hasButton) {
+        this.buttonContainer.style.display = 'none';
+      }
+    }
+  }
+
   async saveSettings() {
     await this.saveData(this.settings);
   }
@@ -40,6 +75,7 @@ export default class ZenMode extends Plugin {
   refresh = () => {
     // re-load the style
     this.updateStyle()
+    this.setButtonVisibility();
   }
 
   // update the styles (at the start, or as the result of a settings change)
@@ -65,7 +101,7 @@ class ZenModeSettingTab extends PluginSettingTab {
   }
 
   display(): void {
-    let {containerEl} = this;
+    let { containerEl } = this;
 
     containerEl.empty();
 
@@ -73,12 +109,12 @@ class ZenModeSettingTab extends PluginSettingTab {
       .setName('Enable Zen Mode')
       .setDesc('Hides most UI Elements')
       .addToggle(toggle => toggle.setValue(this.plugin.settings.zenMode)
-          .onChange((value) => {
-            this.plugin.settings.zenMode = value;
-            this.plugin.saveData(this.plugin.settings);
-            this.plugin.refresh();
-            })
-          );
+        .onChange((value) => {
+          this.plugin.settings.zenMode = value;
+          this.plugin.saveData(this.plugin.settings);
+          this.plugin.refresh();
+        })
+      );
 
 
   }
