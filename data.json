@@ -1,16 +1,3 @@
 {
-  "zenMode": false,
-  "hideHeader": false,
-  "hideNavBar": true,
-  "hideStatus": false,
-  "hideTabs": false,
-  "hideScroll": false,
-  "hideSidebarButtons": false,
-  "hideTooltips": false,
-  "hideFileNavButtons": false,
-  "hideSearchSuggestions": false,
-  "hideSearchCounts": false,
-  "hideInstructions": false,
-  "hidePropertiesReading": false,
-  "hideVault": false
+  "zenMode": false
 }
