@@ -12,4 +12,4 @@ On mobile, viewing a PDF results in less than 40% of the screen being used for t
 
 ## Making your theme compatible with ZenMode
 
-Hider injects the `zenmode-active` class on the `body` element when zen mode is active.
+ZenMode injects the `zenmode-active` class on the `body` element when zen mode is active.
