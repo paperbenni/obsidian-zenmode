@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-zenmode",
-	"name": "Zenmode",
-	"version": "1.0.5",
+	"id": "zenmode",
+	"name": "Zen Mode",
+	"version": "1.0.6",
 	"minAppVersion": "1.6.0",
 	"description": "Hide UI most UI elements",
 	"author": "@paperbenni",
