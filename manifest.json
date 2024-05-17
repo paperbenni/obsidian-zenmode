@@ -1,8 +1,8 @@
 {
 	"id": "zenmode",
 	"name": "Zen Mode",
-	"version": "1.0.6",
-	"minAppVersion": "1.6.0",
+	"version": "1.0.7",
+	"minAppVersion": "1.5.0",
 	"description": "Hide UI most UI elements",
 	"author": "@paperbenni",
 	"authorUrl": "https://www.twitter.com/paperbenni",
