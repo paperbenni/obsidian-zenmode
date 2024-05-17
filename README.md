@@ -2,7 +2,7 @@
 
 Based on https://github.com/kepano/obsidian-hider
 
-This plugin enables you to hide most Obsidian UI to be able 
+This plugin enables you to hide most Obsidian UI to be able to focus on the content.
 
 ## Why
 
