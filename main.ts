@@ -80,8 +80,26 @@ export default class ZenMode extends Plugin {
   refresh = () => {
     // re-load the style
     this.updateStyle()
+    this.setSidebarVisibility();
     this.setButtonVisibility();
   }
+
+  setSidebarVisibility() {
+    //collapse sidebars if zen mode is active
+    const app = this.app;
+    if (!this.settings.zenMode) {
+      return;
+    }
+    if (app.workspace.leftSplit.collapsed != this.settings.zenMode) {
+      app.workspace.leftSplit.collapse();
+    }
+
+    if (app.workspace.rightSplit.collapsed != this.settings.zenMode) {
+      app.workspace.rightSplit.collapse();
+    }
+
+  }
+
 
   // update the styles (at the start, or as the result of a settings change)
   updateStyle = () => {

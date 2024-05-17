@@ -19,10 +19,13 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
-/* body>div.app-container>div.horizontal-main-container>div>div.workspace-split.mod-vertical.mod-root.mod-visible>div>div.workspace-tab-container>div>div>div.view-header {
-  display: none;
-} */
+/* Mobile view header */
 .zenmode-active div.app-container > div.horizontal-main-container > div > div.workspace-split.mod-vertical.mod-root.mod-visible > div > div.workspace-tab-container > div > div > div.view-header {
+  display: none;
+}
+
+/* Desktop view header */
+.zenmode-active div.workspace-tab-container > div > div > div.view-header {
   display: none;
 }
 
