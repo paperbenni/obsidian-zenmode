@@ -90,7 +90,11 @@ export default class ZenMode extends Plugin {
     if (!this.settings.zenMode) {
       return;
     }
-    //TODO: deal with collapsed undefined
+
+    if (app.workspace.leftSplit == undefined || app.workspace.rightSplit == undefined) {
+      return;
+    }
+
     if (app.workspace.leftSplit.collapsed != this.settings.zenMode) {
       app.workspace.leftSplit.collapse();
     }
