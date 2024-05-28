@@ -1,4 +1,12 @@
-import { App, ButtonComponent, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {
+  App,
+  ButtonComponent,
+  Modal,
+  Notice,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+} from "obsidian";
 
 export default class ZenMode extends Plugin {
   settings: ZenModeSettings;
@@ -15,25 +23,25 @@ export default class ZenMode extends Plugin {
     // add the toggle on/off command
 
     this.addCommand({
-      id: 'toggle-zen-mode',
-      name: 'Toggle Zen Mode',
+      id: "toggle-zen-mode",
+      name: "Toggle",
       callback: () => {
         this.settings.zenMode = !this.settings.zenMode;
         this.saveData(this.settings);
         this.refresh();
-      }
+      },
     });
-    this.addRibbonIcon('expand', 'Toggle Zen Mode', async () => {
+    this.addRibbonIcon("expand", "Toggle Zen Mode", async () => {
       this.settings.zenMode = !this.settings.zenMode;
       this.saveData(this.settings);
       this.refresh();
     });
 
-    this.refresh()
+    this.refresh();
   }
 
   onunload() {
-    console.log('Unloading Zen Mode plugin');
+    console.log("Unloading Zen Mode plugin");
   }
 
   async loadSettings() {
@@ -41,14 +49,14 @@ export default class ZenMode extends Plugin {
   }
 
   createButton() {
-    this.buttonContainer = document.createElement('div');
-    this.buttonContainer.style.position = 'fixed';
-    this.buttonContainer.style.bottom = '10px';
-    this.buttonContainer.style.right = '10px';
-    this.buttonContainer.style.zIndex = '1000';
+    this.buttonContainer = document.createElement("div");
+    this.buttonContainer.style.position = "fixed";
+    this.buttonContainer.style.bottom = "10px";
+    this.buttonContainer.style.right = "10px";
+    this.buttonContainer.style.zIndex = "1000";
 
     this.button = new ButtonComponent(this.buttonContainer);
-    this.button.setIcon('shrink');
+    this.button.setIcon("shrink");
     this.button.onClick(() => {
       this.settings.zenMode = !this.settings.zenMode;
       this.saveSettings();
@@ -64,10 +72,10 @@ export default class ZenMode extends Plugin {
         this.createButton();
         this.hasButton = true;
       }
-      this.buttonContainer.style.display = 'block';
+      this.buttonContainer.style.display = "block";
     } else {
       if (this.hasButton) {
-        this.buttonContainer.style.display = 'none';
+        this.buttonContainer.style.display = "none";
       }
     }
   }
@@ -79,49 +87,62 @@ export default class ZenMode extends Plugin {
   // refresh function for when we change settings
   refresh = () => {
     // re-load the style
-    this.updateStyle()
+    this.updateStyle();
     this.setSidebarVisibility();
     this.setButtonVisibility();
-  }
+  };
 
   setSidebarVisibility() {
     //collapse sidebars if zen mode is active
     const app = this.app;
+
+    if (
+      app.workspace.leftSplit == undefined ||
+      app.workspace.rightSplit == undefined
+    ) {
+      return;
+    }
+
     if (!this.settings.zenMode) {
-      return;
-    }
+      if (!this.settings.leftSidebar) {
+        app.workspace.leftSplit.expand();
+      }
+      if (!this.settings.rightSidebar) {
+        app.workspace.rightSplit.expand();
+      }
+    } else {
+      this.settings.rightSidebar = this.app.workspace.rightSplit.collapsed;
+      this.settings.leftSidebar = this.app.workspace.leftSplit.collapsed;
 
-    if (app.workspace.leftSplit == undefined || app.workspace.rightSplit == undefined) {
-      return;
-    }
+      if (app.workspace.leftSplit.collapsed != this.settings.zenMode) {
+        app.workspace.leftSplit.collapse();
+      }
 
-    if (app.workspace.leftSplit.collapsed != this.settings.zenMode) {
-      app.workspace.leftSplit.collapse();
+      if (app.workspace.rightSplit.collapsed != this.settings.zenMode) {
+        app.workspace.rightSplit.collapse();
+      }
     }
-
-    if (app.workspace.rightSplit.collapsed != this.settings.zenMode) {
-      app.workspace.rightSplit.collapse();
-    }
-
   }
-
 
   // update the styles (at the start, or as the result of a settings change)
   updateStyle = () => {
-    document.body.classList.toggle('zenmode-active', this.settings.zenMode);
-  }
-
+    document.body.classList.toggle("zenmode-active", this.settings.zenMode);
+  };
 }
 
 interface ZenModeSettings {
   zenMode: boolean;
+  leftSidebar: boolean;
+  rightSidebar: boolean;
 }
+
 const DEFAULT_SETTINGS: ZenModeSettings = {
-  zenMode: false
-}
+  zenMode: false,
+  leftSidebar: false,
+  rightSidebar: false,
+};
 
 class ZenModeSettingTab extends PluginSettingTab {
-
   plugin: ZenMode;
   constructor(app: App, plugin: ZenMode) {
     super(app, plugin);
@@ -134,16 +155,14 @@ class ZenModeSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
-      .setName('Enable Zen Mode')
-      .setDesc('Hides most UI Elements')
-      .addToggle(toggle => toggle.setValue(this.plugin.settings.zenMode)
-        .onChange((value) => {
+      .setName("Enable Zen Mode")
+      .setDesc("Hides most UI Elements")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.zenMode).onChange((value) => {
           this.plugin.settings.zenMode = value;
           this.plugin.saveData(this.plugin.settings);
           this.plugin.refresh();
         })
       );
-
-
   }
 }
