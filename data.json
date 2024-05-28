@@ -1,3 +1,5 @@
 {
-  "zenMode": false
+  "zenMode": false,
+  "leftSidebar": false,
+  "rightSidebar": false
 }
