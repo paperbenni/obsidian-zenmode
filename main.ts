@@ -50,10 +50,7 @@ export default class ZenMode extends Plugin {
 
   createButton() {
     this.buttonContainer = document.createElement("div");
-    this.buttonContainer.style.position = "fixed";
-    this.buttonContainer.style.bottom = "10px";
-    this.buttonContainer.style.right = "10px";
-    this.buttonContainer.style.zIndex = "1000";
+    this.buttonContainer.classList.add("zenmode-button");
 
     this.button = new ButtonComponent(this.buttonContainer);
     this.button.setIcon("shrink");

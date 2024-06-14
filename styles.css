@@ -49,6 +49,7 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
+
 /* Hide scrollbars */
 .hider-scroll ::-webkit-scrollbar {
   display: none;
@@ -82,4 +83,11 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
 /* Hide file nav header */
 .zenmode-active .workspace-leaf-content[data-type=file-explorer] .nav-header {
   display: none;
+}
+
+.zenmode-button {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
 }
