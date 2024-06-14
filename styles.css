@@ -29,6 +29,10 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
+.zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-left {
+    display: none;
+}
+
 .zenmode-active .view-header-nav-buttons {
     display: none;
 }
