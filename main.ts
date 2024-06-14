@@ -156,7 +156,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Enable Zen Mode")
-      .setDesc("Hides most UI Elements")
+      .setDesc("Hide most UI elements")
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.zenMode).onChange((value) => {
           this.plugin.settings.zenMode = value;
