@@ -19,6 +19,11 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
+.zenmode-active .mod-top-left-space .view-header {
+  padding-left: var(--frame-left-space);
+}
+
+
 /* Mobile view header */
 .zenmode-active div.app-container > div.horizontal-main-container > div > div.workspace-split.mod-vertical.mod-root.mod-visible > div > div.workspace-tab-container > div > div > div.view-header {
   display: none;

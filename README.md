@@ -28,3 +28,7 @@ when being toggled.
 ## Making your theme compatible with ZenMode
 
 ZenMode injects the `zenmode-active` class on the `body` element when zen mode is active.
+
+## Development
+
+npm run version minor/major/patch
