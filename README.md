@@ -31,4 +31,4 @@ ZenMode injects the `zenmode-active` class on the `body` element when zen mode i
 
 ## Development
 
-npm run version minor/major/patch
+npm version minor/major/patch
