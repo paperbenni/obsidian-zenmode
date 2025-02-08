@@ -85,6 +85,11 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
+/* Hide maximize minimize buttons */
+.zenmode-active div.titlebar > div > div.titlebar-button-container.mod-right {
+	display: none;
+}
+
 /* Hide file nav header */
 .zenmode-active .workspace-leaf-content[data-type=file-explorer] .nav-header {
   display: none;
