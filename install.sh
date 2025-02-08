@@ -23,6 +23,7 @@ fi
 bun run build
 
 installfile() {
+	echo "installing $1"
 	cp "$1" "$OBSIDIAN_DIR/.obsidian/plugins/zenmode/$1"
 }
 
