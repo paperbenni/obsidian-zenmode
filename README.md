@@ -32,3 +32,10 @@ ZenMode injects the `zenmode-active` class on the `body` element when zen mode i
 ## Development
 
 npm version minor/major/patch
+
+## TODO
+
+refactor CSS
+- lots of duplicate code
+- CSS formatter config?
+

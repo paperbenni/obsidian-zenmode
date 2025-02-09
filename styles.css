@@ -1,52 +1,41 @@
+/* Hide tabs */
+.zenmode-active .mod-root .workspace-tabs .workspace-tab-header-container ,
+/* Hide navbar */
+.zenmode-active .mobile-navbar ,
+.zenmode-active .pdf-toolbar ,
+/* Mobile view header */
+.zenmode-active div.app-container > div.horizontal-main-container > div > div.workspace-split.mod-vertical.mod-root.mod-visible > div > div.workspace-tab-container > div > div > div.view-header ,
+/* Desktop view header */
+.zenmode-active .view-header-nav-buttons ,
+.zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-left ,
+.zenmode-active div.workspace-tab-container > div > div > div.view-header ,
+/* Hide tooltips */
+.zenmode-active .tooltip ,
+/* Hide status */
+.zenmode-active .status-bar ,
+/* Hide sidebar buttons */
+.zenmode-active .sidebar-toggle-button.mod-right,
+.zenmode-active .sidebar-toggle-button.mod-left ,
+/* Hide search count flair */
+.zenmode-active .tree-item-flair:not(.tag-pane-tag-count) ,
+/* Hide file nav header */
+.zenmode-active .workspace-leaf-content[data-type=file-explorer] .nav-header ,
+/* Hide maximize minimize buttons */
+.zenmode-active div.titlebar > div > div.titlebar-button-container.mod-right ,
+/* Hide instructions */
+.zenmode-active .prompt-instructions {
+  display: none;
+}
+
 /* Hides vault name */
 .zenmode-active .workspace-sidedock-vault-profile,
 body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-sidedock-vault-profile {
   display: none;
 }
 
-/* Hide tabs */
-.zenmode-active .mod-root .workspace-tabs .workspace-tab-header-container {
-  display: none;
-}
-
-/* Hide tabs */
-.zenmode-active .pdf-toolbar {
-  display: none;
-}
-
-/* Hide navbar */
-.zenmode-active .mobile-navbar {
-  display: none;
-}
 
 .zenmode-active .mod-top-left-space .view-header {
   padding-left: var(--frame-left-space);
-}
-
-
-/* Mobile view header */
-.zenmode-active div.app-container > div.horizontal-main-container > div > div.workspace-split.mod-vertical.mod-root.mod-visible > div > div.workspace-tab-container > div > div > div.view-header {
-  display: none;
-}
-
-/* Desktop view header */
-.zenmode-active div.workspace-tab-container > div > div > div.view-header {
-  display: none;
-}
-
-.zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-left {
-    display: none;
-}
-
-.zenmode-active .view-header-nav-buttons {
-    display: none;
-}
-
-
-/* Hide sidebar buttons */
-.zenmode-active .sidebar-toggle-button.mod-right,
-.zenmode-active .sidebar-toggle-button.mod-left {
-  display: none;
 }
 
 /* Hide meta */
@@ -54,19 +43,8 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
-
 /* Hide scrollbars */
 .hider-scroll ::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide status */
-.zenmode-active .status-bar {
-  display: none;
-}
-
-/* Hide tooltips */
-.zenmode-active .tooltip {
   display: none;
 }
 
@@ -75,25 +53,6 @@ body.hider-vault:not(.is-mobile) .workspace-split.mod-left-split .workspace-side
   display: none;
 }
 
-/* Hide search count flair */
-.zenmode-active .tree-item-flair:not(.tag-pane-tag-count) {
-  display: none;
-}
-
-/* Hide instructions */
-.zenmode-active .prompt-instructions {
-  display: none;
-}
-
-/* Hide maximize minimize buttons */
-.zenmode-active div.titlebar > div > div.titlebar-button-container.mod-right {
-	display: none;
-}
-
-/* Hide file nav header */
-.zenmode-active .workspace-leaf-content[data-type=file-explorer] .nav-header {
-  display: none;
-}
 
 .zenmode-button {
     position: fixed;
