@@ -12,13 +12,13 @@
   "author": "@paperbenni",
   "license": "GPL-2.0",
   "devDependencies": {
-    "@types/node": "^16.18.126",
-    "@typescript-eslint/eslint-plugin": "5.29.0",
-    "@typescript-eslint/parser": "5.29.0",
-    "builtin-modules": "3.3.0",
-    "esbuild": "0.17.3",
+    "@types/node": "^22.13.5",
+    "@typescript-eslint/eslint-plugin": "8.25.0",
+    "@typescript-eslint/parser": "8.25.0",
+    "builtin-modules": "5.0.0",
+    "esbuild": "0.25.0",
     "obsidian": "latest",
-    "tslib": "2.4.0",
-    "typescript": "4.7.4"
+    "tslib": "2.8.1",
+    "typescript": "5.7.3"
   }
 }
