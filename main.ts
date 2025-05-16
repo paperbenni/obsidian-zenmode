@@ -1,8 +1,6 @@
 import {
 	App,
 	ButtonComponent,
-	Modal,
-	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
@@ -148,7 +146,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		let { containerEl } = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
 
@@ -162,7 +160,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 						this.plugin.settings.zenMode = value;
 						this.plugin.saveData(this.plugin.settings);
 						this.plugin.refresh();
-					}),
+					})
 			);
 	}
 }
