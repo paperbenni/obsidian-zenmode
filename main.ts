@@ -62,7 +62,7 @@ export default class ZenMode extends Plugin {
 	}
 
 	setButtonVisibility() {
-		if (this.settings.zenMode) {
+		if (this.settings.zenMode && this.settings.showExitButtonInZenMode) {
 			if (!this.hasButton) {
 				this.createButton();
 				this.hasButton = true;
@@ -130,12 +130,14 @@ interface ZenModeSettings {
 	zenMode: boolean;
 	leftSidebar: boolean;
 	rightSidebar: boolean;
+	showExitButtonInZenMode: boolean;
 }
 
 const DEFAULT_SETTINGS: ZenModeSettings = {
 	zenMode: false,
 	leftSidebar: false,
 	rightSidebar: false,
+	showExitButtonInZenMode: true,
 };
 
 class ZenModeSettingTab extends PluginSettingTab {
@@ -158,6 +160,31 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.zenMode)
 					.onChange((value) => {
 						this.plugin.settings.zenMode = value;
+						this.plugin.saveData(this.plugin.settings);
+						this.plugin.refresh();
+					})
+			);
+		new Setting(containerEl)
+			.setName("Show Exit Button in Zen Mode")
+			.setDesc(
+				createFragment((frag) => {
+					frag.createEl("span", {
+						text: "Show a button to exit Zen Mode with a click, for easier access.",
+					});
+					frag.createEl("br");
+					frag.createEl("span", {
+						text:
+							`Important: Zen Mode hides all UI elements, so make sure you` +
+							` can access the command palette or settings with a shortcut` +
+							` before turning this off.`,
+					});
+				})
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.showExitButtonInZenMode)
+					.onChange((value) => {
+						this.plugin.settings.showExitButtonInZenMode = value;
 						this.plugin.saveData(this.plugin.settings);
 						this.plugin.refresh();
 					})
