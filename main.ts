@@ -1,7 +1,16 @@
-import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import {
+	App,
+	ButtonComponent,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+} from "obsidian";
 
 export default class ZenMode extends Plugin {
 	settings: ZenModeSettings;
+	hasButton: boolean = false;
+	private button: ButtonComponent;
+	private buttonContainer: HTMLDivElement;
 
 	async onload() {
 		// load settings
@@ -15,31 +24,22 @@ export default class ZenMode extends Plugin {
 			id: "toggle-zen-mode",
 			name: "Toggle",
 			callback: () => {
-				this.settings.zenMode = !this.settings.zenMode;
-				this.saveData(this.settings);
-				this.refresh();
+				this.toggleZenMode();
 			},
 		});
 
-		this.addCommand({
-			id: "toggle-zen-mode-fullscreen",
-			name: "Toggle Zen Mode with Fullscreen",
-			callback: () => {
-				this.toggleZenModeWithFullscreen();
-			},
-		});
-
-		this.addRibbonIcon("expand", "Toggle Zen Mode", async () => {
-			this.settings.zenMode = !this.settings.zenMode;
-			this.saveData(this.settings);
-			this.refresh();
+		this.addRibbonIcon("expand", "Toggle zen mode", async () => {
+			this.toggleZenMode();
 		});
 
 		this.refresh();
 	}
 
 	onunload() {
-		console.log("Unloading Zen Mode plugin");
+		console.log("Unloading zen mode plugin");
+		if (this.buttonContainer) {
+			this.buttonContainer.remove();
+		}
 	}
 
 	async loadSettings() {
@@ -55,6 +55,7 @@ export default class ZenMode extends Plugin {
 		// re-load the style
 		this.updateStyle();
 		this.setSidebarVisibility();
+		this.setButtonVisibility();
 	};
 
 	setSidebarVisibility() {
@@ -95,41 +96,79 @@ export default class ZenMode extends Plugin {
 		document.body.classList.toggle("zenmode-active", this.settings.zenMode);
 	};
 
-	async toggleZenModeWithFullscreen() {
+	createButton() {
+		this.buttonContainer = document.createElement("div");
+		this.buttonContainer.classList.add("zenmode-button");
+
+		this.button = new ButtonComponent(this.buttonContainer);
+		this.button.setIcon("shrink");
+		this.button.onClick(() => {
+			this.toggleZenMode();
+		});
+
+		document.body.appendChild(this.buttonContainer);
+	}
+
+	setButtonVisibility() {
+		const shouldShow =
+			this.settings.zenMode &&
+			(this.settings.exitButtonVisibility === "always" ||
+				(this.settings.exitButtonVisibility === "mobile-only" &&
+					document.body.classList.contains("is-mobile")));
+
+		if (shouldShow) {
+			if (!this.hasButton) {
+				this.createButton();
+				this.hasButton = true;
+			}
+			this.buttonContainer.style.display = "block";
+		} else {
+			if (this.hasButton) {
+				this.buttonContainer.style.display = "none";
+			}
+		}
+	}
+
+	async toggleZenMode() {
 		const enteringZenMode = !this.settings.zenMode;
 
 		if (enteringZenMode) {
-			// Enter fullscreen first, then update zen mode
-			if (document.documentElement.requestFullscreen) {
+			// Enter zen mode
+			this.settings.zenMode = true;
+			this.saveData(this.settings);
+			this.refresh();
+
+			// Enter fullscreen if setting is enabled
+			if (this.settings.fullscreen) {
+				if (document.documentElement.requestFullscreen) {
+					try {
+						await document.documentElement.requestFullscreen();
+						// Wait for next frame to ensure fullscreen transition is smooth
+						await new Promise((resolve) =>
+							requestAnimationFrame(resolve)
+						);
+					} catch (e) {
+						// Fullscreen might fail (e.g., user cancelled), continue anyway
+					}
+				}
+			}
+		} else {
+			// Exit fullscreen first if active
+			if (document.fullscreenElement) {
 				try {
-					await document.documentElement.requestFullscreen();
-					// Wait for next frame to ensure fullscreen transition is smooth
+					await document.exitFullscreen();
+					// Wait for DOM updates to complete
 					await new Promise((resolve) =>
 						requestAnimationFrame(resolve)
 					);
 				} catch (e) {
-					// Fullscreen might fail (e.g., user cancelled), continue anyway
-				}
-			}
-			// Now update zen mode after fullscreen is active
-			this.settings.zenMode = true;
-			this.saveData(this.settings);
-			this.refresh();
-		} else {
-			// Exit zen mode first
-			this.settings.zenMode = false;
-			this.saveData(this.settings);
-			this.refresh();
-			// Wait for DOM updates to complete
-			await new Promise((resolve) => requestAnimationFrame(resolve));
-			// Then exit fullscreen
-			if (document.fullscreenElement) {
-				try {
-					await document.exitFullscreen();
-				} catch (e) {
 					// Ignore errors
 				}
 			}
+			// Exit zen mode
+			this.settings.zenMode = false;
+			this.saveData(this.settings);
+			this.refresh();
 		}
 	}
 }
@@ -138,12 +177,16 @@ interface ZenModeSettings {
 	zenMode: boolean;
 	leftSidebar: boolean;
 	rightSidebar: boolean;
+	fullscreen: boolean;
+	exitButtonVisibility: "mobile-only" | "always" | "never";
 }
 
 const DEFAULT_SETTINGS: ZenModeSettings = {
 	zenMode: false,
 	leftSidebar: false,
 	rightSidebar: false,
+	fullscreen: false,
+	exitButtonVisibility: "mobile-only",
 };
 
 class ZenModeSettingTab extends PluginSettingTab {
@@ -159,13 +202,41 @@ class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Enable Zen Mode")
-			.setDesc("Hide most UI elements")
+			.setName("Preview zen mode")
+			.setDesc("Preview zen mode (use a hotkey to toggle)")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.zenMode)
 					.onChange((value) => {
 						this.plugin.settings.zenMode = value;
+						this.plugin.saveData(this.plugin.settings);
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Full screen")
+			.setDesc("Automatically enter fullscreen when enabling zen mode")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.fullscreen)
+					.onChange((value) => {
+						this.plugin.settings.fullscreen = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Show zen mode exit button")
+			.setDesc("When to show the exit button in zen mode")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("mobile-only", "Mobile Only")
+					.addOption("always", "Always Show")
+					.addOption("never", "Never Show")
+					.setValue(this.plugin.settings.exitButtonVisibility)
+					.onChange((value: "mobile-only" | "always" | "never") => {
+						this.plugin.settings.exitButtonVisibility = value;
 						this.plugin.saveData(this.plugin.settings);
 						this.plugin.refresh();
 					})

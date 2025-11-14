@@ -70,3 +70,10 @@ body:not(.is-mobile).zenmode-active .titlebar {
 body:not(.is-mobile).zenmode-active .titlebar * {
 	-webkit-app-region: no-drag !important;
 }
+
+.zenmode-button {
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	z-index: 1000;
+}
