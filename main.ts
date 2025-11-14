@@ -1,16 +1,7 @@
-import {
-	App,
-	ButtonComponent,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 export default class ZenMode extends Plugin {
 	settings: ZenModeSettings;
-	hasButton: boolean;
-	private button: ButtonComponent;
-	private buttonContainer: HTMLDivElement;
 
 	async onload() {
 		// load settings
@@ -29,6 +20,15 @@ export default class ZenMode extends Plugin {
 				this.refresh();
 			},
 		});
+
+		this.addCommand({
+			id: "toggle-zen-mode-fullscreen",
+			name: "Toggle Zen Mode with Fullscreen",
+			callback: () => {
+				this.toggleZenModeWithFullscreen();
+			},
+		});
+
 		this.addRibbonIcon("expand", "Toggle Zen Mode", async () => {
 			this.settings.zenMode = !this.settings.zenMode;
 			this.saveData(this.settings);
@@ -46,35 +46,6 @@ export default class ZenMode extends Plugin {
 		this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
 	}
 
-	createButton() {
-		this.buttonContainer = document.createElement("div");
-		this.buttonContainer.classList.add("zenmode-button");
-
-		this.button = new ButtonComponent(this.buttonContainer);
-		this.button.setIcon("shrink");
-		this.button.onClick(() => {
-			this.settings.zenMode = !this.settings.zenMode;
-			this.saveSettings();
-			this.refresh();
-		});
-
-		document.body.appendChild(this.buttonContainer);
-	}
-
-	setButtonVisibility() {
-		if (this.settings.zenMode && this.settings.showExitButtonInZenMode) {
-			if (!this.hasButton) {
-				this.createButton();
-				this.hasButton = true;
-			}
-			this.buttonContainer.style.display = "block";
-		} else {
-			if (this.hasButton) {
-				this.buttonContainer.style.display = "none";
-			}
-		}
-	}
-
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
@@ -84,7 +55,6 @@ export default class ZenMode extends Plugin {
 		// re-load the style
 		this.updateStyle();
 		this.setSidebarVisibility();
-		this.setButtonVisibility();
 	};
 
 	setSidebarVisibility() {
@@ -124,20 +94,56 @@ export default class ZenMode extends Plugin {
 	updateStyle = () => {
 		document.body.classList.toggle("zenmode-active", this.settings.zenMode);
 	};
+
+	async toggleZenModeWithFullscreen() {
+		const enteringZenMode = !this.settings.zenMode;
+
+		if (enteringZenMode) {
+			// Enter fullscreen first, then update zen mode
+			if (document.documentElement.requestFullscreen) {
+				try {
+					await document.documentElement.requestFullscreen();
+					// Wait for next frame to ensure fullscreen transition is smooth
+					await new Promise((resolve) =>
+						requestAnimationFrame(resolve)
+					);
+				} catch (e) {
+					// Fullscreen might fail (e.g., user cancelled), continue anyway
+				}
+			}
+			// Now update zen mode after fullscreen is active
+			this.settings.zenMode = true;
+			this.saveData(this.settings);
+			this.refresh();
+		} else {
+			// Exit zen mode first
+			this.settings.zenMode = false;
+			this.saveData(this.settings);
+			this.refresh();
+			// Wait for DOM updates to complete
+			await new Promise((resolve) => requestAnimationFrame(resolve));
+			// Then exit fullscreen
+			if (document.fullscreenElement) {
+				try {
+					await document.exitFullscreen();
+				} catch (e) {
+					// Ignore errors
+				}
+			}
+		}
+	}
 }
 
 interface ZenModeSettings {
 	zenMode: boolean;
 	leftSidebar: boolean;
 	rightSidebar: boolean;
-	showExitButtonInZenMode: boolean;
 }
 
 const DEFAULT_SETTINGS: ZenModeSettings = {
 	zenMode: false,
 	leftSidebar: false,
 	rightSidebar: false,
-	showExitButtonInZenMode: true,
 };
 
 class ZenModeSettingTab extends PluginSettingTab {
@@ -160,31 +166,6 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.zenMode)
 					.onChange((value) => {
 						this.plugin.settings.zenMode = value;
-						this.plugin.saveData(this.plugin.settings);
-						this.plugin.refresh();
-					})
-			);
-		new Setting(containerEl)
-			.setName("Show Exit Button in Zen Mode")
-			.setDesc(
-				createFragment((frag) => {
-					frag.createEl("span", {
-						text: "Show a button to exit Zen Mode with a click, for easier access.",
-					});
-					frag.createEl("br");
-					frag.createEl("span", {
-						text:
-							`Important: Zen Mode hides all UI elements, so make sure you` +
-							` can access the command palette or settings with a shortcut` +
-							` before turning this off.`,
-					});
-				})
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.showExitButtonInZenMode)
-					.onChange((value) => {
-						this.plugin.settings.showExitButtonInZenMode = value;
 						this.plugin.saveData(this.plugin.settings);
 						this.plugin.refresh();
 					})
