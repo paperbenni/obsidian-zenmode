@@ -1,9 +1,11 @@
 import {
 	App,
 	ButtonComponent,
+	MarkdownView,
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	WorkspaceLeaf,
 } from "obsidian";
 
 export default class ZenMode extends Plugin {
@@ -28,15 +30,21 @@ export default class ZenMode extends Plugin {
 			},
 		});
 
-		this.addRibbonIcon("expand", "Toggle zen mode", async () => {
+		this.addRibbonIcon("expand", "Toggle Zen mode", async () => {
 			this.toggleZenMode();
 		});
+
+		// Register event listener for active leaf changes (for focused file mode)
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", () => {
+				this.updateFocusedFileMode();
+			})
+		);
 
 		this.refresh();
 	}
 
 	onunload() {
-		console.log("Unloading zen mode plugin");
 		if (this.buttonContainer) {
 			this.buttonContainer.remove();
 		}
@@ -56,6 +64,7 @@ export default class ZenMode extends Plugin {
 		this.updateStyle();
 		this.setSidebarVisibility();
 		this.setButtonVisibility();
+		this.updateFocusedFileMode();
 	};
 
 	setSidebarVisibility() {
@@ -94,6 +103,42 @@ export default class ZenMode extends Plugin {
 	// update the styles (at the start, or as the result of a settings change)
 	updateStyle = () => {
 		document.body.classList.toggle("zenmode-active", this.settings.zenMode);
+
+		// Set CSS custom properties for padding
+		document.documentElement.style.setProperty(
+			"--zen-mode-top-padding",
+			`${this.settings.topPadding}px`
+		);
+		document.documentElement.style.setProperty(
+			"--zen-mode-bottom-padding",
+			`${this.settings.bottomPadding}px`
+		);
+
+		// Use class toggle for properties hiding (like Hider plugin)
+		// Toggle the class based on setting (only when zen mode is active)
+		if (this.settings.zenMode) {
+			document.body.classList.toggle(
+				"zenmode-hide-properties",
+				this.settings.hideProperties
+			);
+		} else {
+			document.body.classList.remove("zenmode-hide-properties");
+		}
+
+		if (this.settings.zenMode) {
+			document.body.setAttribute(
+				"data-zen-hide-inline-title",
+				this.settings.hideInlineTitle.toString()
+			);
+			document.body.setAttribute(
+				"data-zen-focused-file",
+				this.settings.focusedFileMode.toString()
+			);
+		} else {
+			// Remove data attributes when zen mode is off
+			document.body.removeAttribute("data-zen-hide-inline-title");
+			document.body.removeAttribute("data-zen-focused-file");
+		}
 	};
 
 	createButton() {
@@ -127,6 +172,48 @@ export default class ZenMode extends Plugin {
 				this.buttonContainer.style.display = "none";
 			}
 		}
+	}
+
+	// Update focused file mode visibility
+	updateFocusedFileMode() {
+		if (!this.settings.zenMode || !this.settings.focusedFileMode) {
+			// Restore all tab containers when focused file mode is off
+			const allTabContainers =
+				document.querySelectorAll(".workspace-tabs");
+			allTabContainers.forEach((container) => {
+				const el = container as HTMLElement;
+				el.style.display = "";
+				el.style.width = "";
+				el.style.flex = "";
+			});
+			return;
+		}
+
+		// Get the active leaf (works for all view types, not just markdown)
+		const activeLeaf = this.app.workspace.activeLeaf;
+		if (!activeLeaf) return;
+
+		// Find the workspace-tabs container that holds the active leaf
+		const activeLeafContainer = (activeLeaf as any).containerEl;
+		if (!activeLeafContainer) return;
+
+		const activeTabContainer =
+			activeLeafContainer.closest(".workspace-tabs");
+		if (!activeTabContainer) return;
+
+		// Hide all workspace-tabs containers except the one containing the active leaf
+		const allTabContainers = document.querySelectorAll(".workspace-tabs");
+		allTabContainers.forEach((tabContainer) => {
+			if (tabContainer === activeTabContainer) {
+				// Show and expand the active tab container
+				(tabContainer as HTMLElement).style.display = "";
+				(tabContainer as HTMLElement).style.width = "100%";
+				(tabContainer as HTMLElement).style.flex = "1 1 100%";
+			} else {
+				// Hide non-active tab containers
+				(tabContainer as HTMLElement).style.display = "none";
+			}
+		});
 	}
 
 	async toggleZenMode() {
@@ -179,6 +266,11 @@ interface ZenModeSettings {
 	rightSidebar: boolean;
 	fullscreen: boolean;
 	exitButtonVisibility: "mobile-only" | "always" | "never";
+	hideProperties: boolean;
+	hideInlineTitle: boolean;
+	topPadding: number;
+	bottomPadding: number;
+	focusedFileMode: boolean;
 }
 
 const DEFAULT_SETTINGS: ZenModeSettings = {
@@ -187,6 +279,11 @@ const DEFAULT_SETTINGS: ZenModeSettings = {
 	rightSidebar: false,
 	fullscreen: false,
 	exitButtonVisibility: "mobile-only",
+	hideProperties: false,
+	hideInlineTitle: false,
+	topPadding: 0,
+	bottomPadding: 0,
+	focusedFileMode: false,
 };
 
 class ZenModeSettingTab extends PluginSettingTab {
@@ -202,8 +299,8 @@ class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Preview zen mode")
-			.setDesc("Preview zen mode (use a hotkey to toggle)")
+			.setName("Preview Zen mode")
+			.setDesc("Preview Zen mode (use a hotkey to toggle)")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.zenMode)
@@ -216,7 +313,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Full screen")
-			.setDesc("Automatically enter fullscreen when enabling zen mode")
+			.setDesc("Automatically enter fullscreen when enabling Zen mode")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.fullscreen)
@@ -227,8 +324,8 @@ class ZenModeSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Show zen mode exit button")
-			.setDesc("When to show the exit button in zen mode")
+			.setName("Show Zen mode exit button")
+			.setDesc("When to show the exit button in Zen mode")
 			.addDropdown((dropdown) =>
 				dropdown
 					.addOption("mobile-only", "Mobile Only")
@@ -238,6 +335,81 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.onChange((value: "mobile-only" | "always" | "never") => {
 						this.plugin.settings.exitButtonVisibility = value;
 						this.plugin.saveData(this.plugin.settings);
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Hide properties in Zen mode")
+			.setDesc(
+				"Hide properties (YAML frontmatter) when Zen mode is active"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideProperties)
+					.onChange((value) => {
+						this.plugin.settings.hideProperties = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Hide inline title in Zen mode")
+			.setDesc(
+				"Hide the inline title (note title) when Zen mode is active"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideInlineTitle)
+					.onChange((value) => {
+						this.plugin.settings.hideInlineTitle = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Top padding")
+			.setDesc("Top padding in pixels (0-100)")
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.topPadding)
+					.setDynamicTooltip()
+					.onChange((value) => {
+						this.plugin.settings.topPadding = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Bottom padding")
+			.setDesc("Bottom padding in pixels (0-100)")
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.bottomPadding)
+					.setDynamicTooltip()
+					.onChange((value) => {
+						this.plugin.settings.bottomPadding = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Focused file mode")
+			.setDesc(
+				"Only show the active file in Zen mode, hide all other panes"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.focusedFileMode)
+					.onChange((value) => {
+						this.plugin.settings.focusedFileMode = value;
+						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
 			);

@@ -39,9 +39,31 @@ body.hider-vault:not(.is-mobile)
 	padding-left: var(--frame-left-space);
 }
 
-/* Hide meta */
-.zenmode-active .markdown-reading-view .metadata-container {
+/* Hide properties - conditional based on hideProperties setting (exactly like Hider plugin) */
+.zenmode-hide-properties .markdown-reading-view .metadata-container {
 	display: none;
+}
+
+/* Hide properties in editing/source view by setting CSS variable */
+.zenmode-hide-properties {
+	--metadata-display-editing: none;
+}
+
+/* Hide inline title - conditional based on hideInlineTitle setting */
+.zenmode-active[data-zen-hide-inline-title="true"] .inline-title {
+	display: none;
+}
+
+/* Apply padding to markdown content */
+.zenmode-active .markdown-preview-view,
+.zenmode-active .markdown-source-view {
+	padding-top: var(--zen-mode-top-padding, 0px);
+	padding-bottom: var(--zen-mode-bottom-padding, 0px);
+}
+
+/* Focused file mode - handled by JavaScript, but add CSS as backup */
+.zenmode-active[data-zen-focused-file="true"] .workspace-leaf:not(.mod-active) {
+	display: none !important;
 }
 
 /* Hide scrollbars */
