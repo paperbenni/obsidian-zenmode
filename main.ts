@@ -1,7 +1,6 @@
 import {
 	App,
 	ButtonComponent,
-	MarkdownView,
 	Plugin,
 	PluginSettingTab,
 	Setting,
@@ -194,7 +193,11 @@ export default class ZenMode extends Plugin {
 		if (!activeLeaf) return;
 
 		// Find the workspace-tabs container that holds the active leaf
-		const activeLeafContainer = (activeLeaf as any).containerEl;
+		// Note: containerEl is an internal Obsidian API property, not exposed in public types
+		const activeLeafContainer =
+			activeLeaf && "containerEl" in activeLeaf
+				? (activeLeaf as any).containerEl
+				: null;
 		if (!activeLeafContainer) return;
 
 		const activeTabContainer =
