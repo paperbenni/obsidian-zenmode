@@ -1,6 +1,6 @@
 {
 	"name": "zen-mode",
-	"version": "1.4.3",
+	"version": "1.4.4",
 	"description": "Zen Mode",
 	"main": "main.js",
 	"scripts": {
