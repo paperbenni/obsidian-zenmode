@@ -4,7 +4,7 @@ Fork of the [Zen Mode](https://github.com/paperbenni/obsidian-zenmode) community
 
 ## Changes from Original Plugin
 
-- Top bar is draggable
+- Top bar is draggable in Zen mode
 - Added device-dependent "exit Zen mode" button option
 - Added "Full screen" option
 - Added "Hide properties" option

@@ -12,6 +12,7 @@ export default class ZenMode extends Plugin {
 	hasButton: boolean = false;
 	private button: ButtonComponent;
 	private buttonContainer: HTMLDivElement;
+	private _isTogglingZen: boolean = false;
 
 	async onload() {
 		// load settings
@@ -220,17 +221,22 @@ export default class ZenMode extends Plugin {
 	}
 
 	async toggleZenMode() {
-		const enteringZenMode = !this.settings.zenMode;
+		// Guard against concurrent invocations
+		if (this._isTogglingZen) {
+			return;
+		}
 
-		if (enteringZenMode) {
-			// Enter zen mode
-			this.settings.zenMode = true;
-			this.saveData(this.settings);
-			this.refresh();
+		this._isTogglingZen = true;
 
-			// Enter fullscreen if setting is enabled
-			if (this.settings.fullscreen) {
-				if (document.documentElement.requestFullscreen) {
+		try {
+			const enteringZenMode = !this.settings.zenMode;
+
+			if (enteringZenMode) {
+				// Enter fullscreen first if setting is enabled
+				if (
+					this.settings.fullscreen &&
+					document.documentElement.requestFullscreen
+				) {
 					try {
 						await document.documentElement.requestFullscreen();
 						// Wait for next frame to ensure fullscreen transition is smooth
@@ -239,26 +245,37 @@ export default class ZenMode extends Plugin {
 						);
 					} catch (e) {
 						// Fullscreen might fail (e.g., user cancelled), continue anyway
+						console.warn("Failed to enter fullscreen:", e);
 					}
 				}
-			}
-		} else {
-			// Exit fullscreen first if active
-			if (document.fullscreenElement) {
-				try {
-					await document.exitFullscreen();
-					// Wait for DOM updates to complete
-					await new Promise((resolve) =>
-						requestAnimationFrame(resolve)
-					);
-				} catch (e) {
-					// Ignore errors
+
+				// Update zen mode state after fullscreen operation completes
+				this.settings.zenMode = true;
+				await this.saveSettings();
+				this.refresh();
+			} else {
+				// Exit fullscreen first if active
+				if (document.fullscreenElement && document.exitFullscreen) {
+					try {
+						await document.exitFullscreen();
+						// Wait for DOM updates to complete
+						await new Promise((resolve) =>
+							requestAnimationFrame(resolve)
+						);
+					} catch (e) {
+						// Fullscreen exit might fail, continue anyway
+						console.warn("Failed to exit fullscreen:", e);
+					}
 				}
+
+				// Update zen mode state after fullscreen operation completes
+				this.settings.zenMode = false;
+				await this.saveSettings();
+				this.refresh();
 			}
-			// Exit zen mode
-			this.settings.zenMode = false;
-			this.saveData(this.settings);
-			this.refresh();
+		} finally {
+			// Always clear the lock, even if an error occurs
+			this._isTogglingZen = false;
 		}
 	}
 }
@@ -309,7 +326,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.zenMode)
 					.onChange((value) => {
 						this.plugin.settings.zenMode = value;
-						this.plugin.saveData(this.plugin.settings);
+						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
 			);
@@ -322,7 +339,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.fullscreen)
 					.onChange((value) => {
 						this.plugin.settings.fullscreen = value;
-						this.plugin.saveData(this.plugin.settings);
+						this.plugin.saveSettings();
 					})
 			);
 
@@ -337,7 +354,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.exitButtonVisibility)
 					.onChange((value: "mobile-only" | "always" | "never") => {
 						this.plugin.settings.exitButtonVisibility = value;
-						this.plugin.saveData(this.plugin.settings);
+						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
 			);
