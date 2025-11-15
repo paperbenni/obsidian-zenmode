@@ -4,13 +4,16 @@ import {
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	WorkspaceLeaf,
 } from "obsidian";
 
 export default class ZenMode extends Plugin {
 	settings: ZenModeSettings;
-	hasButton: boolean;
+	hasButton: boolean = false;
 	private button: ButtonComponent;
 	private buttonContainer: HTMLDivElement;
+	private _isTogglingZen: boolean = false;
+	private visualViewportResizeHandler: (() => void) | null = null;
 
 	async onload() {
 		// load settings
@@ -24,55 +27,39 @@ export default class ZenMode extends Plugin {
 			id: "toggle-zen-mode",
 			name: "Toggle",
 			callback: () => {
-				this.settings.zenMode = !this.settings.zenMode;
-				this.saveData(this.settings);
-				this.refresh();
+				this.toggleZenMode();
 			},
 		});
-		this.addRibbonIcon("expand", "Toggle Zen Mode", async () => {
-			this.settings.zenMode = !this.settings.zenMode;
-			this.saveData(this.settings);
-			this.refresh();
+
+		this.addRibbonIcon("expand", "Toggle Zen mode", async () => {
+			this.toggleZenMode();
 		});
+
+		// Register event listener for active leaf changes (for focused file mode)
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", () => {
+				this.updateFocusedFileMode();
+			})
+		);
 
 		this.refresh();
 	}
 
 	onunload() {
-		console.log("Unloading Zen Mode plugin");
+		if (this.buttonContainer) {
+			this.buttonContainer.remove();
+		}
+		// Clean up visualViewport event listener
+		if (this.visualViewportResizeHandler && window.visualViewport) {
+			window.visualViewport.removeEventListener(
+				"resize",
+				this.visualViewportResizeHandler
+			);
+		}
 	}
 
 	async loadSettings() {
 		this.settings = Object.assign(DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	createButton() {
-		this.buttonContainer = document.createElement("div");
-		this.buttonContainer.classList.add("zenmode-button");
-
-		this.button = new ButtonComponent(this.buttonContainer);
-		this.button.setIcon("shrink");
-		this.button.onClick(() => {
-			this.settings.zenMode = !this.settings.zenMode;
-			this.saveSettings();
-			this.refresh();
-		});
-
-		document.body.appendChild(this.buttonContainer);
-	}
-
-	setButtonVisibility() {
-		if (this.settings.zenMode && this.settings.showExitButtonInZenMode) {
-			if (!this.hasButton) {
-				this.createButton();
-				this.hasButton = true;
-			}
-			this.buttonContainer.style.display = "block";
-		} else {
-			if (this.hasButton) {
-				this.buttonContainer.style.display = "none";
-			}
-		}
 	}
 
 	async saveSettings() {
@@ -85,6 +72,7 @@ export default class ZenMode extends Plugin {
 		this.updateStyle();
 		this.setSidebarVisibility();
 		this.setButtonVisibility();
+		this.updateFocusedFileMode();
 	};
 
 	setSidebarVisibility() {
@@ -123,21 +111,255 @@ export default class ZenMode extends Plugin {
 	// update the styles (at the start, or as the result of a settings change)
 	updateStyle = () => {
 		document.body.classList.toggle("zenmode-active", this.settings.zenMode);
+
+		// Set CSS custom properties for padding
+		document.documentElement.style.setProperty(
+			"--zen-mode-top-padding",
+			`${this.settings.topPadding}px`
+		);
+		document.documentElement.style.setProperty(
+			"--zen-mode-bottom-padding",
+			`${this.settings.bottomPadding}px`
+		);
+
+		// Use class toggle for properties hiding (like Hider plugin)
+		// Toggle the class based on setting (only when zen mode is active)
+		if (this.settings.zenMode) {
+			document.body.classList.toggle(
+				"zenmode-hide-properties",
+				this.settings.hideProperties
+			);
+		} else {
+			document.body.classList.remove("zenmode-hide-properties");
+		}
+
+		if (this.settings.zenMode) {
+			document.body.setAttribute(
+				"data-zen-hide-inline-title",
+				this.settings.hideInlineTitle.toString()
+			);
+			document.body.setAttribute(
+				"data-zen-focused-file",
+				this.settings.focusedFileMode.toString()
+			);
+		} else {
+			// Remove data attributes when zen mode is off
+			document.body.removeAttribute("data-zen-hide-inline-title");
+			document.body.removeAttribute("data-zen-focused-file");
+		}
 	};
+
+	createButton() {
+		this.buttonContainer = document.createElement("div");
+		this.buttonContainer.classList.add("zenmode-button");
+
+		this.button = new ButtonComponent(this.buttonContainer);
+		this.button.setIcon("shrink");
+		this.button.onClick(() => {
+			this.toggleZenMode();
+		});
+
+		document.body.appendChild(this.buttonContainer);
+
+		// Adjust button position for mobile navigation bar
+		this.adjustButtonPosition();
+
+		// Listen for resize events to adjust position when navigation bar appears/disappears
+		this.registerDomEvent(window, "resize", () => {
+			this.adjustButtonPosition();
+		});
+
+		// Also listen to visualViewport resize for better mobile support
+		if (window.visualViewport) {
+			this.visualViewportResizeHandler = () => {
+				this.adjustButtonPosition();
+			};
+			window.visualViewport.addEventListener(
+				"resize",
+				this.visualViewportResizeHandler
+			);
+		}
+	}
+
+	adjustButtonPosition() {
+		if (
+			!this.buttonContainer ||
+			!document.body.classList.contains("is-mobile")
+		) {
+			return;
+		}
+
+		// Calculate safe bottom offset for mobile devices
+		// This accounts for Android navigation bars that may not be detected by CSS safe-area-inset
+		const viewportHeight =
+			window.visualViewport?.height || window.innerHeight;
+		const windowHeight = window.outerHeight;
+		const navigationBarHeight = Math.max(0, windowHeight - viewportHeight);
+
+		// Use a minimum offset to ensure button is always accessible
+		// 60px should be enough to clear most navigation bars
+		const minBottomOffset = 60;
+		const calculatedOffset = Math.max(
+			minBottomOffset,
+			navigationBarHeight + 10
+		);
+
+		// Apply the offset
+		this.buttonContainer.style.bottom = `${calculatedOffset}px`;
+	}
+
+	setButtonVisibility() {
+		const shouldShow =
+			this.settings.zenMode &&
+			(this.settings.exitButtonVisibility === "always" ||
+				(this.settings.exitButtonVisibility === "mobile-only" &&
+					document.body.classList.contains("is-mobile")));
+
+		if (shouldShow) {
+			if (!this.hasButton) {
+				this.createButton();
+				this.hasButton = true;
+			}
+			this.buttonContainer.style.display = "block";
+			// Adjust position when button becomes visible
+			this.adjustButtonPosition();
+		} else {
+			if (this.hasButton) {
+				this.buttonContainer.style.display = "none";
+			}
+		}
+	}
+
+	// Update focused file mode visibility
+	updateFocusedFileMode() {
+		if (!this.settings.zenMode || !this.settings.focusedFileMode) {
+			// Restore all tab containers when focused file mode is off
+			const allTabContainers =
+				document.querySelectorAll(".workspace-tabs");
+			allTabContainers.forEach((container) => {
+				const el = container as HTMLElement;
+				el.style.display = "";
+				el.style.width = "";
+				el.style.flex = "";
+			});
+			return;
+		}
+
+		// Get the active leaf (works for all view types, not just markdown)
+		const activeLeaf = this.app.workspace.activeLeaf;
+		if (!activeLeaf) return;
+
+		// Find the workspace-tabs container that holds the active leaf
+		// Note: containerEl is an internal Obsidian API property, not exposed in public types
+		const activeLeafContainer =
+			activeLeaf && "containerEl" in activeLeaf
+				? (activeLeaf as any).containerEl
+				: null;
+		if (!activeLeafContainer) return;
+
+		const activeTabContainer =
+			activeLeafContainer.closest(".workspace-tabs");
+		if (!activeTabContainer) return;
+
+		// Hide all workspace-tabs containers except the one containing the active leaf
+		const allTabContainers = document.querySelectorAll(".workspace-tabs");
+		allTabContainers.forEach((tabContainer) => {
+			if (tabContainer === activeTabContainer) {
+				// Show and expand the active tab container
+				(tabContainer as HTMLElement).style.display = "";
+				(tabContainer as HTMLElement).style.width = "100%";
+				(tabContainer as HTMLElement).style.flex = "1 1 100%";
+			} else {
+				// Hide non-active tab containers
+				(tabContainer as HTMLElement).style.display = "none";
+			}
+		});
+	}
+
+	async toggleZenMode() {
+		// Guard against concurrent invocations
+		if (this._isTogglingZen) {
+			return;
+		}
+
+		this._isTogglingZen = true;
+
+		try {
+			const enteringZenMode = !this.settings.zenMode;
+
+			if (enteringZenMode) {
+				// Enter fullscreen first if setting is enabled
+				if (
+					this.settings.fullscreen &&
+					document.documentElement.requestFullscreen
+				) {
+					try {
+						await document.documentElement.requestFullscreen();
+						// Wait for next frame to ensure fullscreen transition is smooth
+						await new Promise((resolve) =>
+							requestAnimationFrame(resolve)
+						);
+					} catch (e) {
+						// Fullscreen might fail (e.g., user cancelled), continue anyway
+						console.warn("Failed to enter fullscreen:", e);
+					}
+				}
+
+				// Update zen mode state after fullscreen operation completes
+				this.settings.zenMode = true;
+				await this.saveSettings();
+				this.refresh();
+			} else {
+				// Exit fullscreen first if active
+				if (document.fullscreenElement && document.exitFullscreen) {
+					try {
+						await document.exitFullscreen();
+						// Wait for DOM updates to complete
+						await new Promise((resolve) =>
+							requestAnimationFrame(resolve)
+						);
+					} catch (e) {
+						// Fullscreen exit might fail, continue anyway
+						console.warn("Failed to exit fullscreen:", e);
+					}
+				}
+
+				// Update zen mode state after fullscreen operation completes
+				this.settings.zenMode = false;
+				await this.saveSettings();
+				this.refresh();
+			}
+		} finally {
+			// Always clear the lock, even if an error occurs
+			this._isTogglingZen = false;
+		}
+	}
 }
 
 interface ZenModeSettings {
 	zenMode: boolean;
 	leftSidebar: boolean;
 	rightSidebar: boolean;
-	showExitButtonInZenMode: boolean;
+	fullscreen: boolean;
+	exitButtonVisibility: "mobile-only" | "always" | "never";
+	hideProperties: boolean;
+	hideInlineTitle: boolean;
+	topPadding: number;
+	bottomPadding: number;
+	focusedFileMode: boolean;
 }
 
 const DEFAULT_SETTINGS: ZenModeSettings = {
 	zenMode: false,
 	leftSidebar: false,
 	rightSidebar: false,
-	showExitButtonInZenMode: true,
+	fullscreen: false,
+	exitButtonVisibility: "mobile-only",
+	hideProperties: false,
+	hideInlineTitle: false,
+	topPadding: 0,
+	bottomPadding: 0,
+	focusedFileMode: false,
 };
 
 class ZenModeSettingTab extends PluginSettingTab {
@@ -153,39 +375,117 @@ class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Enable Zen Mode")
-			.setDesc("Hide most UI elements")
+			.setName("Preview Zen mode")
+			.setDesc("Preview Zen mode (use a hotkey to toggle)")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.zenMode)
 					.onChange((value) => {
 						this.plugin.settings.zenMode = value;
-						this.plugin.saveData(this.plugin.settings);
+						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
 			);
+
 		new Setting(containerEl)
-			.setName("Show Exit Button in Zen Mode")
+			.setName("Full screen")
+			.setDesc("Automatically enter fullscreen when enabling Zen mode")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.fullscreen)
+					.onChange((value) => {
+						this.plugin.settings.fullscreen = value;
+						this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Show Zen mode exit button")
+			.setDesc("When to show the exit button in Zen mode")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("mobile-only", "Mobile Only")
+					.addOption("always", "Always Show")
+					.addOption("never", "Never Show")
+					.setValue(this.plugin.settings.exitButtonVisibility)
+					.onChange((value: "mobile-only" | "always" | "never") => {
+						this.plugin.settings.exitButtonVisibility = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Hide properties in Zen mode")
 			.setDesc(
-				createFragment((frag) => {
-					frag.createEl("span", {
-						text: "Show a button to exit Zen Mode with a click, for easier access.",
-					});
-					frag.createEl("br");
-					frag.createEl("span", {
-						text:
-							`Important: Zen Mode hides all UI elements, so make sure you` +
-							` can access the command palette or settings with a shortcut` +
-							` before turning this off.`,
-					});
-				})
+				"Hide properties (YAML frontmatter) when Zen mode is active"
 			)
 			.addToggle((toggle) =>
 				toggle
-					.setValue(this.plugin.settings.showExitButtonInZenMode)
+					.setValue(this.plugin.settings.hideProperties)
 					.onChange((value) => {
-						this.plugin.settings.showExitButtonInZenMode = value;
-						this.plugin.saveData(this.plugin.settings);
+						this.plugin.settings.hideProperties = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Hide inline title in Zen mode")
+			.setDesc(
+				"Hide the inline title (note title) when Zen mode is active"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.hideInlineTitle)
+					.onChange((value) => {
+						this.plugin.settings.hideInlineTitle = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Top padding")
+			.setDesc("Top padding in pixels (0-100)")
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.topPadding)
+					.setDynamicTooltip()
+					.onChange((value) => {
+						this.plugin.settings.topPadding = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Bottom padding")
+			.setDesc("Bottom padding in pixels (0-100)")
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.bottomPadding)
+					.setDynamicTooltip()
+					.onChange((value) => {
+						this.plugin.settings.bottomPadding = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Focused file mode")
+			.setDesc(
+				"Only show the active file in Zen mode, hide all other panes"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.focusedFileMode)
+					.onChange((value) => {
+						this.plugin.settings.focusedFileMode = value;
+						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
 			);

@@ -1,6 +1,16 @@
 ## Overview
 
-Based on https://github.com/kepano/obsidian-hider
+Fork of the [Zen Mode](https://github.com/paperbenni/obsidian-zenmode) community plugin, based on the [Hider](https://github.com/kepano/obsidian-hider) plugin.
+
+## Changes from Original Plugin
+
+- Top bar is draggable in Zen mode
+- Added device-dependent "exit Zen mode" button option
+- Added "Full screen" option
+- Added "Hide properties" option
+- Added "Hide inline title" option
+- Added top/bottom padding options
+- Added focused file option
 
 This plugin enables you to hide most Obsidian UI to be able to focus on the content.
 
