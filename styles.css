@@ -99,3 +99,8 @@ body:not(.is-mobile).zenmode-active .titlebar * {
 	right: 10px;
 	z-index: 1000;
 }
+
+/* Account for mobile navigation bar and safe areas */
+.is-mobile .zenmode-button {
+	bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}

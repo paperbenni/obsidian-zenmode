@@ -13,6 +13,7 @@ export default class ZenMode extends Plugin {
 	private button: ButtonComponent;
 	private buttonContainer: HTMLDivElement;
 	private _isTogglingZen: boolean = false;
+	private visualViewportResizeHandler: (() => void) | null = null;
 
 	async onload() {
 		// load settings
@@ -47,6 +48,13 @@ export default class ZenMode extends Plugin {
 	onunload() {
 		if (this.buttonContainer) {
 			this.buttonContainer.remove();
+		}
+		// Clean up visualViewport event listener
+		if (this.visualViewportResizeHandler && window.visualViewport) {
+			window.visualViewport.removeEventListener(
+				"resize",
+				this.visualViewportResizeHandler
+			);
 		}
 	}
 
@@ -152,6 +160,52 @@ export default class ZenMode extends Plugin {
 		});
 
 		document.body.appendChild(this.buttonContainer);
+
+		// Adjust button position for mobile navigation bar
+		this.adjustButtonPosition();
+
+		// Listen for resize events to adjust position when navigation bar appears/disappears
+		this.registerDomEvent(window, "resize", () => {
+			this.adjustButtonPosition();
+		});
+
+		// Also listen to visualViewport resize for better mobile support
+		if (window.visualViewport) {
+			this.visualViewportResizeHandler = () => {
+				this.adjustButtonPosition();
+			};
+			window.visualViewport.addEventListener(
+				"resize",
+				this.visualViewportResizeHandler
+			);
+		}
+	}
+
+	adjustButtonPosition() {
+		if (
+			!this.buttonContainer ||
+			!document.body.classList.contains("is-mobile")
+		) {
+			return;
+		}
+
+		// Calculate safe bottom offset for mobile devices
+		// This accounts for Android navigation bars that may not be detected by CSS safe-area-inset
+		const viewportHeight =
+			window.visualViewport?.height || window.innerHeight;
+		const windowHeight = window.outerHeight;
+		const navigationBarHeight = Math.max(0, windowHeight - viewportHeight);
+
+		// Use a minimum offset to ensure button is always accessible
+		// 60px should be enough to clear most navigation bars
+		const minBottomOffset = 60;
+		const calculatedOffset = Math.max(
+			minBottomOffset,
+			navigationBarHeight + 10
+		);
+
+		// Apply the offset
+		this.buttonContainer.style.bottom = `${calculatedOffset}px`;
 	}
 
 	setButtonVisibility() {
@@ -167,6 +221,8 @@ export default class ZenMode extends Plugin {
 				this.hasButton = true;
 			}
 			this.buttonContainer.style.display = "block";
+			// Adjust position when button becomes visible
+			this.adjustButtonPosition();
 		} else {
 			if (this.hasButton) {
 				this.buttonContainer.style.display = "none";
