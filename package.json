@@ -1,7 +1,7 @@
 {
-	"name": "zenmode",
-	"version": "1.4.0",
-	"description": "Zenmode",
+	"name": "zen-mode",
+	"version": "1.4.1",
+	"description": "Zen Mode",
 	"main": "main.js",
 	"scripts": {
 		"format": "prettier . --write",
