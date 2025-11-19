@@ -104,3 +104,15 @@ body:not(.is-mobile).zenmode-active .titlebar * {
 .is-mobile .zenmode-button {
 	bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
+
+/* Auto-hide button on desktop - hidden by default, shown on hover */
+body:not(.is-mobile) .zenmode-button-auto-hide {
+	opacity: 0;
+	transition: opacity 0.3s ease-in-out;
+	/* Keep pointer-events enabled so the button area is still hoverable when invisible */
+}
+
+/* Reveal button on hover */
+body:not(.is-mobile) .zenmode-button-auto-hide:hover {
+	opacity: 1;
+}

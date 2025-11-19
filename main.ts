@@ -42,6 +42,18 @@ export default class ZenMode extends Plugin {
 			})
 		);
 
+		// Register ESC key to exit Zen mode
+		this.registerDomEvent(document, "keydown", (evt: KeyboardEvent) => {
+			if (evt.key === "Escape" && this.settings.zenMode) {
+				// Only exit if no modal is open (to avoid interfering with Obsidian modals)
+				const activeModal = document.querySelector(".modal");
+				if (!activeModal) {
+					this.toggleZenMode();
+					evt.preventDefault();
+				}
+			}
+		});
+
 		this.refresh();
 	}
 
@@ -209,11 +221,12 @@ export default class ZenMode extends Plugin {
 	}
 
 	setButtonVisibility() {
+		const isMobile = document.body.classList.contains("is-mobile");
 		const shouldShow =
 			this.settings.zenMode &&
 			(this.settings.exitButtonVisibility === "always" ||
 				(this.settings.exitButtonVisibility === "mobile-only" &&
-					document.body.classList.contains("is-mobile")));
+					isMobile));
 
 		if (shouldShow) {
 			if (!this.hasButton) {
@@ -221,6 +234,21 @@ export default class ZenMode extends Plugin {
 				this.hasButton = true;
 			}
 			this.buttonContainer.style.display = "block";
+
+			// Apply auto-hide class for desktop hover behavior
+			// Only applies when exitButtonVisibility is "always" and on desktop
+			if (
+				this.settings.autoHideButtonOnDesktop &&
+				!isMobile &&
+				this.settings.exitButtonVisibility === "always"
+			) {
+				this.buttonContainer.classList.add("zenmode-button-auto-hide");
+			} else {
+				this.buttonContainer.classList.remove(
+					"zenmode-button-auto-hide"
+				);
+			}
+
 			// Adjust position when button becomes visible
 			this.adjustButtonPosition();
 		} else {
@@ -342,6 +370,7 @@ interface ZenModeSettings {
 	rightSidebar: boolean;
 	fullscreen: boolean;
 	exitButtonVisibility: "mobile-only" | "always" | "never";
+	autoHideButtonOnDesktop: boolean;
 	hideProperties: boolean;
 	hideInlineTitle: boolean;
 	topPadding: number;
@@ -354,7 +383,8 @@ const DEFAULT_SETTINGS: ZenModeSettings = {
 	leftSidebar: false,
 	rightSidebar: false,
 	fullscreen: false,
-	exitButtonVisibility: "mobile-only",
+	exitButtonVisibility: "always",
+	autoHideButtonOnDesktop: false,
 	hideProperties: false,
 	hideInlineTitle: false,
 	topPadding: 0,
@@ -375,8 +405,8 @@ class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Preview Zen mode")
-			.setDesc("Preview Zen mode (use a hotkey to toggle)")
+			.setName("Enable Zen mode")
+			.setDesc("Enable Zen mode to hide UI elements and focus on content")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.zenMode)
@@ -401,15 +431,32 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Show Zen mode exit button")
-			.setDesc("When to show the exit button in Zen mode")
+			.setDesc(
+				"When to show the exit button in Zen mode. You can also exit via the command palette, by pressing ESC, or by assigning a hotkey to the 'Toggle Zen mode' command."
+			)
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption("mobile-only", "Mobile Only")
 					.addOption("always", "Always Show")
+					.addOption("mobile-only", "Mobile Only")
 					.addOption("never", "Never Show")
 					.setValue(this.plugin.settings.exitButtonVisibility)
 					.onChange((value: "mobile-only" | "always" | "never") => {
 						this.plugin.settings.exitButtonVisibility = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Auto-hide Zen mode exit button on desktop")
+			.setDesc(
+				"When enabled, the exit button is hidden on desktop but reveals itself on hover. This only applies when 'Show Zen mode exit button' is set to 'Always Show'. You can always exit Zen mode by pressing ESC."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.autoHideButtonOnDesktop)
+					.onChange((value) => {
+						this.plugin.settings.autoHideButtonOnDesktop = value;
 						this.plugin.saveSettings();
 						this.plugin.refresh();
 					})
