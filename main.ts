@@ -406,7 +406,9 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Enable Zen mode")
-			.setDesc("Enable Zen mode to hide UI elements and focus on content")
+			.setDesc(
+				"Enable Zen mode to hide UI elements and focus on content (use a hotkey to toggle)."
+			)
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.zenMode)
@@ -419,7 +421,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Full screen")
-			.setDesc("Automatically enter fullscreen when enabling Zen mode")
+			.setDesc("Automatically enter fullscreen when enabling Zen mode.")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.fullscreen)
@@ -436,9 +438,9 @@ class ZenModeSettingTab extends PluginSettingTab {
 			)
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption("always", "Always Show")
-					.addOption("mobile-only", "Mobile Only")
-					.addOption("never", "Never Show")
+					.addOption("always", "Always show")
+					.addOption("mobile-only", "Mobile only")
+					.addOption("never", "Never show")
 					.setValue(this.plugin.settings.exitButtonVisibility)
 					.onChange((value: "mobile-only" | "always" | "never") => {
 						this.plugin.settings.exitButtonVisibility = value;
@@ -450,7 +452,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Auto-hide Zen mode exit button on desktop")
 			.setDesc(
-				"When enabled, the exit button is hidden on desktop but reveals itself on hover. This only applies when 'Show Zen mode exit button' is set to 'Always Show'. You can always exit Zen mode by pressing ESC."
+				"When enabled, the exit button is hidden on desktop but reveals itself on hover. This only applies when 'Show Zen mode exit button' is set to 'Always show'. You can always exit Zen mode by pressing ESC."
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -464,9 +466,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Hide properties in Zen mode")
-			.setDesc(
-				"Hide properties (YAML frontmatter) when Zen mode is active"
-			)
+			.setDesc("Hide properties when Zen mode is active.")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.hideProperties)
@@ -480,7 +480,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Hide inline title in Zen mode")
 			.setDesc(
-				"Hide the inline title (note title) when Zen mode is active"
+				"Hide the inline title (note title) when Zen mode is active."
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -494,7 +494,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Top padding")
-			.setDesc("Top padding in pixels (0-100)")
+			.setDesc("Top padding in pixels (0-100).")
 			.addSlider((slider) =>
 				slider
 					.setLimits(0, 100, 1)
@@ -509,7 +509,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Bottom padding")
-			.setDesc("Bottom padding in pixels (0-100)")
+			.setDesc("Bottom padding in pixels (0-100).")
 			.addSlider((slider) =>
 				slider
 					.setLimits(0, 100, 1)
@@ -525,7 +525,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Focused file mode")
 			.setDesc(
-				"Only show the active file in Zen mode, hide all other panes"
+				"Only show the active file in Zen mode, hide all other panes."
 			)
 			.addToggle((toggle) =>
 				toggle
