@@ -15,6 +15,7 @@ export default class ZenMode extends Plugin {
 	private _isTogglingZen: boolean = false;
 	private visualViewportResizeHandler: (() => void) | null = null;
 	private _hasShownInitialHighlight: boolean = false;
+	private _highlightTimeouts: number[] = [];
 
 	async onload() {
 		// load settings
@@ -59,6 +60,8 @@ export default class ZenMode extends Plugin {
 	}
 
 	onunload() {
+		// Clear any pending animation timeouts
+		this._highlightTimeouts.forEach((id) => clearTimeout(id));
 		if (this.buttonContainer) {
 			this.buttonContainer.remove();
 		}
@@ -253,21 +256,23 @@ export default class ZenMode extends Plugin {
 					this._hasShownInitialHighlight = true;
 
 					// Remove highlight class after animation completes, then fade out
-					setTimeout(() => {
+					const timeout1 = window.setTimeout(() => {
 						if (this.buttonContainer) {
 							this.buttonContainer.classList.remove(
 								"zenmode-button-initial-highlight"
 							);
 							// Small delay before fading out
-							setTimeout(() => {
+							const timeout2 = window.setTimeout(() => {
 								if (this.buttonContainer) {
 									this.buttonContainer.classList.add(
 										"zenmode-button-fade-out"
 									);
 								}
 							}, 300);
+							this._highlightTimeouts.push(timeout2);
 						}
 					}, 1500);
+					this._highlightTimeouts.push(timeout1);
 				}
 			} else {
 				this.buttonContainer.classList.remove(
@@ -474,7 +479,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Auto-hide Zen mode exit button on desktop")
 			.setDesc(
-				"When enabled, the exit button is hidden on desktop but reveals itself on hover. This only applies when 'Show Zen mode exit button' is set to 'Always show'. You can always exit Zen mode by pressing ESC."
+				"When enabled, the exit button is hidden on desktop but reveals itself on hover as long as the Zen mode exit button is on."
 			)
 			.addToggle((toggle) =>
 				toggle
