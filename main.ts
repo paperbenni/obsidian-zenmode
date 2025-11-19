@@ -14,6 +14,7 @@ export default class ZenMode extends Plugin {
 	private buttonContainer: HTMLDivElement;
 	private _isTogglingZen: boolean = false;
 	private visualViewportResizeHandler: (() => void) | null = null;
+	private _hasShownInitialHighlight: boolean = false;
 
 	async onload() {
 		// load settings
@@ -243,9 +244,40 @@ export default class ZenMode extends Plugin {
 				this.settings.exitButtonVisibility === "always"
 			) {
 				this.buttonContainer.classList.add("zenmode-button-auto-hide");
+
+				// Show initial highlight animation on first entry to Zen mode
+				if (!this._hasShownInitialHighlight) {
+					this.buttonContainer.classList.add(
+						"zenmode-button-initial-highlight"
+					);
+					this._hasShownInitialHighlight = true;
+
+					// Remove highlight class after animation completes, then fade out
+					setTimeout(() => {
+						if (this.buttonContainer) {
+							this.buttonContainer.classList.remove(
+								"zenmode-button-initial-highlight"
+							);
+							// Small delay before fading out
+							setTimeout(() => {
+								if (this.buttonContainer) {
+									this.buttonContainer.classList.add(
+										"zenmode-button-fade-out"
+									);
+								}
+							}, 300);
+						}
+					}, 1500);
+				}
 			} else {
 				this.buttonContainer.classList.remove(
 					"zenmode-button-auto-hide"
+				);
+				this.buttonContainer.classList.remove(
+					"zenmode-button-initial-highlight"
+				);
+				this.buttonContainer.classList.remove(
+					"zenmode-button-fade-out"
 				);
 			}
 
@@ -314,6 +346,11 @@ export default class ZenMode extends Plugin {
 
 		try {
 			const enteringZenMode = !this.settings.zenMode;
+
+			// Reset highlight flag when exiting Zen mode
+			if (!enteringZenMode) {
+				this._hasShownInitialHighlight = false;
+			}
 
 			if (enteringZenMode) {
 				// Enter fullscreen first if setting is enabled
@@ -403,21 +440,6 @@ class ZenModeSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Enable Zen mode")
-			.setDesc(
-				"Enable Zen mode to hide UI elements and focus on content (use a hotkey to toggle)."
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.zenMode)
-					.onChange((value) => {
-						this.plugin.settings.zenMode = value;
-						this.plugin.saveSettings();
-						this.plugin.refresh();
-					})
-			);
 
 		new Setting(containerEl)
 			.setName("Full screen")
