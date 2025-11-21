@@ -47,6 +47,20 @@ export default class ZenMode extends Plugin {
 		// Register ESC key to exit Zen mode
 		this.registerDomEvent(document, "keydown", (evt: KeyboardEvent) => {
 			if (evt.key === "Escape" && this.settings.zenMode) {
+				// Don't interfere if vim mode is active (vim uses ESC frequently)
+				// Check if the event target is within a CodeMirror editor with vim enabled
+				const target = evt.target as HTMLElement;
+				if (target) {
+					const cmEditor = target.closest(".cm-editor");
+					if (cmEditor) {
+						// Check if vim mode is enabled in Obsidian settings
+						const vaultConfig = (this.app.vault as any).config;
+						if (vaultConfig && vaultConfig.vimMode === true) {
+							// Vim mode is enabled, don't interfere with ESC
+							return;
+						}
+					}
+				}
 				// Only exit if no modal is open (to avoid interfering with Obsidian modals)
 				const activeModal = document.querySelector(".modal");
 				if (!activeModal) {
