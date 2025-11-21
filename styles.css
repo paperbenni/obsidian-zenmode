@@ -111,11 +111,23 @@ body:not(.is-mobile) .zenmode-button-auto-hide {
 	opacity: 0;
 	transition: opacity 0.3s ease-in-out;
 	/* Keep pointer-events enabled so the button area is still hoverable when invisible */
+	pointer-events: auto;
+	/* Create a larger hover zone by expanding the clickable area */
+	/* Use padding to create hover zone, negative margin to prevent layout shift */
+	padding: 30px;
+	margin: -30px;
+	/* Ensure the container itself is the hover target */
+	cursor: pointer;
 }
 
-/* Reveal button on hover */
+/* Reveal button on hover - works when hovering anywhere in the expanded area */
 body:not(.is-mobile) .zenmode-button-auto-hide:hover {
-	opacity: 1;
+	opacity: 1 !important;
+}
+
+/* Ensure button inside is also visible when container is hovered */
+body:not(.is-mobile) .zenmode-button-auto-hide:hover button {
+	opacity: 1 !important;
 }
 
 /* Initial highlight animation when entering Zen mode with auto-hide enabled */
