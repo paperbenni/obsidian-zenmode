@@ -14,6 +14,8 @@ export default class ZenMode extends Plugin {
 	private buttonContainer: HTMLDivElement;
 	private _isTogglingZen: boolean = false;
 	private visualViewportResizeHandler: (() => void) | null = null;
+	private _hasShownInitialHighlight: boolean = false;
+	private _highlightTimeouts: number[] = [];
 
 	async onload() {
 		// load settings
@@ -42,10 +44,38 @@ export default class ZenMode extends Plugin {
 			})
 		);
 
+		// Register ESC key to exit Zen mode
+		this.registerDomEvent(document, "keydown", (evt: KeyboardEvent) => {
+			if (evt.key === "Escape" && this.settings.zenMode) {
+				// Don't interfere if vim mode is active (vim uses ESC frequently)
+				// Check if the event target is within a CodeMirror editor with vim enabled
+				const target = evt.target as HTMLElement;
+				if (target) {
+					const cmEditor = target.closest(".cm-editor");
+					if (cmEditor) {
+						// Check if vim mode is enabled in Obsidian settings
+						const vaultConfig = (this.app.vault as any).config;
+						if (vaultConfig && vaultConfig.vimMode === true) {
+							// Vim mode is enabled, don't interfere with ESC
+							return;
+						}
+					}
+				}
+				// Only exit if no modal is open (to avoid interfering with Obsidian modals)
+				const activeModal = document.querySelector(".modal");
+				if (!activeModal) {
+					this.toggleZenMode();
+					evt.preventDefault();
+				}
+			}
+		});
+
 		this.refresh();
 	}
 
 	onunload() {
+		// Clear any pending animation timeouts
+		this._highlightTimeouts.forEach((id) => clearTimeout(id));
 		if (this.buttonContainer) {
 			this.buttonContainer.remove();
 		}
@@ -209,11 +239,12 @@ export default class ZenMode extends Plugin {
 	}
 
 	setButtonVisibility() {
+		const isMobile = document.body.classList.contains("is-mobile");
 		const shouldShow =
 			this.settings.zenMode &&
 			(this.settings.exitButtonVisibility === "always" ||
 				(this.settings.exitButtonVisibility === "mobile-only" &&
-					document.body.classList.contains("is-mobile")));
+					isMobile));
 
 		if (shouldShow) {
 			if (!this.hasButton) {
@@ -221,6 +252,54 @@ export default class ZenMode extends Plugin {
 				this.hasButton = true;
 			}
 			this.buttonContainer.style.display = "block";
+
+			// Apply auto-hide class for desktop hover behavior
+			// Only applies when exitButtonVisibility is "always" and on desktop
+			if (
+				this.settings.autoHideButtonOnDesktop &&
+				!isMobile &&
+				this.settings.exitButtonVisibility === "always"
+			) {
+				this.buttonContainer.classList.add("zenmode-button-auto-hide");
+
+				// Show initial highlight animation on first entry to Zen mode
+				if (!this._hasShownInitialHighlight) {
+					this.buttonContainer.classList.add(
+						"zenmode-button-initial-highlight"
+					);
+					this._hasShownInitialHighlight = true;
+
+					// Remove highlight class after animation completes, then fade out
+					const timeout1 = window.setTimeout(() => {
+						if (this.buttonContainer) {
+							this.buttonContainer.classList.remove(
+								"zenmode-button-initial-highlight"
+							);
+							// Small delay before fading out
+							const timeout2 = window.setTimeout(() => {
+								if (this.buttonContainer) {
+									this.buttonContainer.classList.add(
+										"zenmode-button-fade-out"
+									);
+								}
+							}, 300);
+							this._highlightTimeouts.push(timeout2);
+						}
+					}, 1500);
+					this._highlightTimeouts.push(timeout1);
+				}
+			} else {
+				this.buttonContainer.classList.remove(
+					"zenmode-button-auto-hide"
+				);
+				this.buttonContainer.classList.remove(
+					"zenmode-button-initial-highlight"
+				);
+				this.buttonContainer.classList.remove(
+					"zenmode-button-fade-out"
+				);
+			}
+
 			// Adjust position when button becomes visible
 			this.adjustButtonPosition();
 		} else {
@@ -287,6 +366,11 @@ export default class ZenMode extends Plugin {
 		try {
 			const enteringZenMode = !this.settings.zenMode;
 
+			// Reset highlight flag when exiting Zen mode
+			if (!enteringZenMode) {
+				this._hasShownInitialHighlight = false;
+			}
+
 			if (enteringZenMode) {
 				// Enter fullscreen first if setting is enabled
 				if (
@@ -342,6 +426,7 @@ interface ZenModeSettings {
 	rightSidebar: boolean;
 	fullscreen: boolean;
 	exitButtonVisibility: "mobile-only" | "always" | "never";
+	autoHideButtonOnDesktop: boolean;
 	hideProperties: boolean;
 	hideInlineTitle: boolean;
 	topPadding: number;
@@ -354,7 +439,8 @@ const DEFAULT_SETTINGS: ZenModeSettings = {
 	leftSidebar: false,
 	rightSidebar: false,
 	fullscreen: false,
-	exitButtonVisibility: "mobile-only",
+	exitButtonVisibility: "always",
+	autoHideButtonOnDesktop: false,
 	hideProperties: false,
 	hideInlineTitle: false,
 	topPadding: 0,
@@ -375,21 +461,8 @@ class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Preview Zen mode")
-			.setDesc("Preview Zen mode (use a hotkey to toggle)")
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.zenMode)
-					.onChange((value) => {
-						this.plugin.settings.zenMode = value;
-						this.plugin.saveSettings();
-						this.plugin.refresh();
-					})
-			);
-
-		new Setting(containerEl)
 			.setName("Full screen")
-			.setDesc("Automatically enter fullscreen when enabling Zen mode")
+			.setDesc("Automatically enter fullscreen when enabling Zen mode.")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.fullscreen)
@@ -401,12 +474,14 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Show Zen mode exit button")
-			.setDesc("When to show the exit button in Zen mode")
+			.setDesc(
+				"When to show the exit button in Zen mode. You can also exit via the command palette, by pressing ESC, or by assigning a hotkey to the 'Toggle Zen mode' command."
+			)
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption("mobile-only", "Mobile Only")
-					.addOption("always", "Always Show")
-					.addOption("never", "Never Show")
+					.addOption("always", "Always show")
+					.addOption("mobile-only", "Mobile only")
+					.addOption("never", "Never show")
 					.setValue(this.plugin.settings.exitButtonVisibility)
 					.onChange((value: "mobile-only" | "always" | "never") => {
 						this.plugin.settings.exitButtonVisibility = value;
@@ -416,10 +491,23 @@ class ZenModeSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Hide properties in Zen mode")
+			.setName("Auto-hide Zen mode exit button on desktop")
 			.setDesc(
-				"Hide properties (YAML frontmatter) when Zen mode is active"
+				"When enabled, the exit button is hidden on desktop but reveals itself on hover as long as the Zen mode exit button is on."
 			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.autoHideButtonOnDesktop)
+					.onChange((value) => {
+						this.plugin.settings.autoHideButtonOnDesktop = value;
+						this.plugin.saveSettings();
+						this.plugin.refresh();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Hide properties in Zen mode")
+			.setDesc("Hide properties when Zen mode is active.")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.hideProperties)
@@ -433,7 +521,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Hide inline title in Zen mode")
 			.setDesc(
-				"Hide the inline title (note title) when Zen mode is active"
+				"Hide the inline title (note title) when Zen mode is active."
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -447,7 +535,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Top padding")
-			.setDesc("Top padding in pixels (0-100)")
+			.setDesc("Top padding in pixels (0-100).")
 			.addSlider((slider) =>
 				slider
 					.setLimits(0, 100, 1)
@@ -462,7 +550,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Bottom padding")
-			.setDesc("Bottom padding in pixels (0-100)")
+			.setDesc("Bottom padding in pixels (0-100).")
 			.addSlider((slider) =>
 				slider
 					.setLimits(0, 100, 1)
@@ -478,7 +566,7 @@ class ZenModeSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Focused file mode")
 			.setDesc(
-				"Only show the active file in Zen mode, hide all other panes"
+				"Only show the active file in Zen mode, hide all other panes."
 			)
 			.addToggle((toggle) =>
 				toggle
