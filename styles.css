@@ -121,18 +121,25 @@ body:not(.is-mobile) .zenmode-button-auto-hide {
 }
 
 /* Reveal button on hover - works when hovering anywhere in the expanded area */
-body:not(.is-mobile) .zenmode-button-auto-hide:hover {
-	opacity: 1 !important;
+/* Use specific selector to override fade-out state when hovering */
+body:not(.is-mobile) .zenmode-button-auto-hide:hover,
+body:not(.is-mobile) .zenmode-button-auto-hide.zenmode-button-fade-out:hover {
+	opacity: 1;
 }
 
 /* Ensure button inside is also visible when container is hovered */
-body:not(.is-mobile) .zenmode-button-auto-hide:hover button {
-	opacity: 1 !important;
+body:not(.is-mobile) .zenmode-button-auto-hide:hover button,
+body:not(.is-mobile)
+	.zenmode-button-auto-hide.zenmode-button-fade-out:hover
+	button {
+	opacity: 1;
 }
 
 /* Initial highlight animation when entering Zen mode with auto-hide enabled */
-.zenmode-button-initial-highlight {
-	opacity: 1 !important;
+/* Use higher specificity to override auto-hide base state */
+body:not(.is-mobile)
+	.zenmode-button-auto-hide.zenmode-button-initial-highlight {
+	opacity: 1;
 }
 
 .zenmode-button-initial-highlight button {
@@ -141,12 +148,15 @@ body:not(.is-mobile) .zenmode-button-auto-hide:hover button {
 
 @keyframes zenmode-button-highlight {
 	0% {
-		box-shadow: 0 2px 8px var(--background-modifier-border);
+		/* Start with a slightly brighter shadow for a subtle pulse effect */
+		box-shadow: 0 2px 12px var(--background-modifier-border);
 	}
 	50% {
+		/* Maintain the standard shadow for the first half of the animation */
 		box-shadow: 0 2px 8px var(--background-modifier-border);
 	}
 	100% {
+		/* Fade out completely */
 		box-shadow: none;
 	}
 }
@@ -159,8 +169,12 @@ body:not(.is-mobile) .zenmode-button-auto-hide:hover button {
 }
 
 /* Fade out after initial highlight */
-.zenmode-button-fade-out {
-	opacity: 0 !important;
+/* Use higher specificity to override auto-hide and initial-highlight states */
+body:not(.is-mobile) .zenmode-button-auto-hide.zenmode-button-fade-out {
+	opacity: 0;
 	transition: opacity 0.5s ease-in-out;
-	box-shadow: none !important;
+}
+
+body:not(.is-mobile) .zenmode-button-auto-hide.zenmode-button-fade-out button {
+	box-shadow: none;
 }
