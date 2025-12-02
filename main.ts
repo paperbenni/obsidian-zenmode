@@ -63,7 +63,10 @@ export default class ZenMode extends Plugin {
 
 					// Don't exit compact mode with escape in an excalidraw textboxes as they use the escape hotkey to leave out of itself.
 					// The resulting behaviour is very confusing. (Textbox is still focus but the zenmode disables)
-					if (target.className.contains("excalidraw") && target instanceof HTMLTextAreaElement) {
+					if (
+						target instanceof HTMLTextAreaElement &&
+						target.classList.contains("excalidraw")
+					) {
 						return;
 					}
 				}
