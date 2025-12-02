@@ -60,6 +60,12 @@ export default class ZenMode extends Plugin {
 							return;
 						}
 					}
+
+					// Don't exit compact mode with escape in an excalidraw textboxes as they use the escape hotkey to leave out of itself.
+					// The resulting behaviour is very confusing. (Textbox is still focus but the zenmode disables)
+					if (target.className.contains("excalidraw") && target instanceof HTMLTextAreaElement) {
+						return;
+					}
 				}
 				// Only exit if no modal is open (to avoid interfering with Obsidian modals)
 				const activeModal = document.querySelector(".modal");
