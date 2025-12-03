@@ -65,7 +65,8 @@ export default class ZenMode extends Plugin {
 					// The resulting behaviour is very confusing. (Textbox is still focus but the zenmode disables)
 					if (
 						target instanceof HTMLTextAreaElement &&
-						target.classList.contains("excalidraw")
+						target.className &&
+						target.className.includes("excalidraw")
 					) {
 						return;
 					}
