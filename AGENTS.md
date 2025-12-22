@@ -25,7 +25,7 @@ The plugin provides a "zen mode" that hides all UI elements except the current t
 - **Project Type**: Plugin
 - **Status**: Production (version 1.5.2)
 - **Min App Version**: 1.8.7
-- **Architecture**: Simple structure - all code in `main.ts` (no `src/` directory originally, but `src/utils/` added for compatibility utility)
+- **Architecture**: Organized structure - main code in `src/main.ts` with `src/utils/` for compatibility utility
 - **Key Features**:
     - Zen mode toggle (command, ribbon icon, ESC key support)
     - Sidebar management (collapses/restores on toggle)
@@ -46,7 +46,7 @@ The plugin provides a "zen mode" that hides all UI elements except the current t
 
 ### Project-Specific Conventions
 
-- **Code Organization**: Single file structure (`main.ts`) - simple and straightforward
+- **Code Organization**: Organized structure (`src/main.ts`) - main plugin code in src directory
 - **Settings**: All settings in one interface `ZenModeSettings` with default values
 - **CSS**: Uses class toggles (`zenmode-active`) and data attributes (`data-zen-hide-inline-title`, `data-zen-focused-file`) for zen mode state
 - **Button Management**: Complex visibility logic with mobile/desktop differences, including auto-hide with hover reveal on desktop
@@ -64,11 +64,11 @@ None currently. This project follows the general `.agents` guidance.
 
 ### Key Files and Their Purposes
 
-- `main.ts` - Main plugin code, settings interface (`ZenModeSettings`), default settings, and settings tab (`ZenModeSettingTab`) - all in one file
+- `src/main.ts` - Main plugin code, settings interface (`ZenModeSettings`), default settings, and settings tab (`ZenModeSettingTab`) - all in one file
 - `styles.css` - Zen mode styling (needs refactoring per TODO)
 - `manifest.json` - Plugin metadata (minAppVersion: 1.8.7, version: 1.5.2)
 - `src/utils/settings-compat.ts` - Settings compatibility utility for SettingGroup (provides backward compatibility with Obsidian < 1.11.0)
-- `esbuild.config.mjs` - Build configuration (supports both `src/main.ts` and `main.ts` entry points)
+- `esbuild.config.mjs` - Build configuration (uses `src/main.ts` as entry point, with fallback support for root `main.ts`)
 - `eslint.config.mjs` - ESLint 9 flat config configuration
 - `package.json` - Project dependencies and scripts
 

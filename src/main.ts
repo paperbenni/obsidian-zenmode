@@ -1,5 +1,5 @@
 import { App, ButtonComponent, Plugin, PluginSettingTab } from "obsidian";
-import { createSettingsGroup } from "./src/utils/settings-compat";
+import { createSettingsGroup } from "./utils/settings-compat";
 
 /**
  * Helper function to set CSS properties on an element.
