@@ -102,9 +102,6 @@ function generateEslintConfig(customRules = {}) {
 		.map(([key, value]) => {
 			if (typeof value === "string") {
 				return `      "${key}": "${value}"`;
-			} else if (Array.isArray(value)) {
-				const valueStr = JSON.stringify(value);
-				return `      "${key}": ${valueStr}`;
 			} else {
 				const valueStr = JSON.stringify(value);
 				return `      "${key}": ${valueStr}`;

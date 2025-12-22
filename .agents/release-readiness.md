@@ -12,8 +12,8 @@ This document provides a comprehensive checklist to verify your plugin is ready 
 
 ## Quick Reference
 
-- **Developer Policies**: https://docs.obsidian.md/Developer+policies
-- **Plugin Guidelines**: https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines
+- **Developer Policies**: [https://docs.obsidian.md/Developer+policies](https://docs.obsidian.md/Developer+policies)
+- **Plugin Guidelines**: [https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines)
 - **Release Process**: See [versioning-releases.md](versioning-releases.md)
 
 ## Automated Checks (AI Can Verify)

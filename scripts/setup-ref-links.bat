@@ -171,26 +171,44 @@ REM Create symlinks for each core project
 echo Creating symlink: obsidian-api
 if exist ".ref\obsidian-api" rmdir ".ref\obsidian-api"
 mklink /J ".ref\obsidian-api" "%CENTRAL_REF%\obsidian-api"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for obsidian-api
+)
 
 echo Creating symlink: obsidian-sample-plugin
 if exist ".ref\obsidian-sample-plugin" rmdir ".ref\obsidian-sample-plugin"
 mklink /J ".ref\obsidian-sample-plugin" "%CENTRAL_REF%\obsidian-sample-plugin"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for obsidian-sample-plugin
+)
 
 echo Creating symlink: obsidian-developer-docs
 if exist ".ref\obsidian-developer-docs" rmdir ".ref\obsidian-developer-docs"
 mklink /J ".ref\obsidian-developer-docs" "%CENTRAL_REF%\obsidian-developer-docs"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for obsidian-developer-docs
+)
 
 echo Creating symlink: obsidian-plugin-docs
 if exist ".ref\obsidian-plugin-docs" rmdir ".ref\obsidian-plugin-docs"
 mklink /J ".ref\obsidian-plugin-docs" "%CENTRAL_REF%\obsidian-plugin-docs"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for obsidian-plugin-docs
+)
 
 echo Creating symlink: obsidian-sample-theme
 if exist ".ref\obsidian-sample-theme" rmdir ".ref\obsidian-sample-theme"
 mklink /J ".ref\obsidian-sample-theme" "%CENTRAL_REF%\obsidian-sample-theme"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for obsidian-sample-theme
+)
 
 echo Creating symlink: eslint-plugin
 if exist ".ref\eslint-plugin" rmdir ".ref\eslint-plugin"
 mklink /J ".ref\eslint-plugin" "%CENTRAL_REF%\eslint-plugin"
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to create junction for eslint-plugin
+)
 
 echo.
 echo Setup complete!

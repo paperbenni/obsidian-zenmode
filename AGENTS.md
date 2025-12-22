@@ -25,7 +25,7 @@ The plugin provides a "zen mode" that hides all UI elements except the current t
 - **Project Type**: Plugin
 - **Status**: Production (version 1.5.2)
 - **Min App Version**: 1.8.7
-- **Architecture**: Organized structure - main code in `src/main.ts` with `src/utils/` for compatibility utility
+- **Architecture**: Organized structure - main code in `src/main.ts`, settings in `src/settings.ts`, settings tab in `src/settings-tab.ts`, and utilities in `src/utils/`
 - **Key Features**:
     - Zen mode toggle (command, ribbon icon, ESC key support)
     - Sidebar management (collapses/restores on toggle)

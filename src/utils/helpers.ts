@@ -7,7 +7,7 @@ export function setCssProps(
 	props: Record<string, string>
 ): void {
 	Object.entries(props).forEach(([key, value]) => {
-		const cssKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+		const cssKey = key.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 		element.style.setProperty(cssKey, value);
 	});
 }

@@ -2,13 +2,26 @@ import { App, PluginSettingTab } from "obsidian";
 import { createSettingsGroup } from "./utils/settings-compat";
 import type ZenMode from "./main";
 
+/**
+ * Settings tab for the Zen Mode plugin.
+ * Provides UI for configuring all plugin settings.
+ */
 export class ZenModeSettingTab extends PluginSettingTab {
 	plugin: ZenMode;
+	/**
+	 * Creates a new settings tab instance.
+	 * @param app - The Obsidian app instance
+	 * @param plugin - The Zen Mode plugin instance
+	 */
 	constructor(app: App, plugin: ZenMode) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
 
+	/**
+	 * Displays the settings tab UI.
+	 * Creates all setting controls and registers change handlers.
+	 */
 	display(): void {
 		const { containerEl } = this;
 

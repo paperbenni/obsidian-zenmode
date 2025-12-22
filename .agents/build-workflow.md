@@ -12,7 +12,7 @@ After making any changes to plugin code:
 
 1. **Run the build** (assume npm is already installed):
 
-    ```powershell
+    ```shell
     npm run build    # Production build (outputs to main.js in root)
     npm run dev      # Development build with watch mode (outputs to main.js in root)
     ```

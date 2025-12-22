@@ -3,6 +3,14 @@ import { DEFAULT_SETTINGS, type ZenModeSettings } from "./settings";
 import { ZenModeSettingTab } from "./settings-tab";
 import { setCssProps } from "./utils/helpers";
 
+/**
+ * Zen Mode plugin for Obsidian.
+ * Hides most UI elements to enable focused content consumption and presentations.
+ * Provides a "zen mode" that hides all UI elements except the current text file or document,
+ * leaving only a single button to restore all UI. On desktop, it also collapses and restores
+ * sidebars when toggled, allowing quick switching from an editing-friendly experience to
+ * a viewing-friendly experience.
+ */
 export default class ZenMode extends Plugin {
 	settings!: ZenModeSettings;
 	hasButton: boolean = false;
@@ -13,6 +21,10 @@ export default class ZenMode extends Plugin {
 	private _hasShownInitialHighlight: boolean = false;
 	private _highlightTimeouts: number[] = [];
 
+	/**
+	 * Called when the plugin is loaded.
+	 * Initializes settings, registers commands, ribbon icon, and event handlers.
+	 */
 	async onload() {
 		// load settings
 		await this.loadSettings();
@@ -83,6 +95,10 @@ export default class ZenMode extends Plugin {
 		this.refresh();
 	}
 
+	/**
+	 * Called when the plugin is unloaded.
+	 * Cleans up event listeners, timeouts, and removes the exit button.
+	 */
 	onunload() {
 		// Clear any pending animation timeouts
 		this._highlightTimeouts.forEach((id) => clearTimeout(id));
@@ -98,17 +114,26 @@ export default class ZenMode extends Plugin {
 		}
 	}
 
+	/**
+	 * Loads settings from disk, merging with default settings.
+	 */
 	async loadSettings() {
 		const loadedData =
 			(await this.loadData()) as Partial<ZenModeSettings> | null;
 		this.settings = { ...DEFAULT_SETTINGS, ...loadedData };
 	}
 
+	/**
+	 * Saves current settings to disk.
+	 */
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
 
-	// refresh function for when we change settings
+	/**
+	 * Refreshes the plugin state after settings changes.
+	 * Updates styles, sidebar visibility, button visibility, and focused file mode.
+	 */
 	refresh = () => {
 		// re-load the style
 		this.updateStyle();
@@ -117,6 +142,11 @@ export default class ZenMode extends Plugin {
 		this.updateFocusedFileMode();
 	};
 
+	/**
+	 * Manages sidebar visibility based on zen mode state.
+	 * When entering zen mode, saves current sidebar state and collapses sidebars.
+	 * When exiting zen mode, restores sidebars to their previous state.
+	 */
 	setSidebarVisibility() {
 		//collapse sidebars if zen mode is active
 		const app = this.app;
@@ -150,7 +180,10 @@ export default class ZenMode extends Plugin {
 		}
 	}
 
-	// update the styles (at the start, or as the result of a settings change)
+	/**
+	 * Updates CSS classes and data attributes based on current zen mode settings.
+	 * Applies zen mode styling, padding, and feature flags to the document body.
+	 */
 	updateStyle = () => {
 		document.body.classList.toggle("zenmode-active", this.settings.zenMode);
 
@@ -191,6 +224,10 @@ export default class ZenMode extends Plugin {
 		}
 	};
 
+	/**
+	 * Creates the zen mode exit button and registers event listeners for positioning.
+	 * The button allows users to exit zen mode and adjusts position for mobile navigation bars.
+	 */
 	createButton() {
 		this.buttonContainer = document.createElement("div");
 		this.buttonContainer.classList.add("zenmode-button");
@@ -223,6 +260,11 @@ export default class ZenMode extends Plugin {
 		}
 	}
 
+	/**
+	 * Adjusts the exit button position on mobile devices to account for navigation bars.
+	 * Calculates safe bottom offset using visual viewport API to handle Android navigation bars
+	 * that may not be detected by CSS safe-area-inset.
+	 */
 	adjustButtonPosition() {
 		if (
 			!this.buttonContainer ||
@@ -250,6 +292,10 @@ export default class ZenMode extends Plugin {
 		setCssProps(this.buttonContainer, { bottom: `${calculatedOffset}px` });
 	}
 
+	/**
+	 * Controls the visibility of the zen mode exit button based on settings.
+	 * Handles button creation, auto-hide behavior on desktop, and initial highlight animation.
+	 */
 	setButtonVisibility() {
 		const isMobile = document.body.classList.contains("is-mobile");
 		const shouldShow =
@@ -321,7 +367,11 @@ export default class ZenMode extends Plugin {
 		}
 	}
 
-	// Update focused file mode visibility
+	/**
+	 * Updates focused file mode visibility.
+	 * When enabled, hides all workspace tab containers except the one containing the active leaf,
+	 * showing only the currently focused file. When disabled, restores all tab containers.
+	 */
 	updateFocusedFileMode() {
 		if (!this.settings.zenMode || !this.settings.focusedFileMode) {
 			// Restore all tab containers when focused file mode is off
@@ -377,6 +427,11 @@ export default class ZenMode extends Plugin {
 		});
 	}
 
+	/**
+	 * Toggles zen mode on or off.
+	 * Handles fullscreen entry/exit if enabled, updates settings, and refreshes the UI.
+	 * Includes guard against concurrent invocations to prevent race conditions.
+	 */
 	async toggleZenMode() {
 		// Guard against concurrent invocations
 		if (this._isTogglingZen) {

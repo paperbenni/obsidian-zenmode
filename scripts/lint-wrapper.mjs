@@ -16,6 +16,11 @@ const eslint = spawn("npx", ["eslint", ".", ...args], {
 	shell: true,
 });
 
+eslint.on("error", (err) => {
+	console.error(`\nFailed to run ESLint: ${err.message}\n`);
+	process.exit(1);
+});
+
 eslint.on("close", (code) => {
 	if (code === 0) {
 		const message = hasFix
