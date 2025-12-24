@@ -265,6 +265,14 @@ For each file that needs updating:
 
 3. **Update the sync status**:
 
+    **Easy way** (recommended): Use the helper script:
+
+    ```bash
+    node scripts/update-sync-status.mjs "Description of what was synced"
+    ```
+
+    **Manual way**: Edit `.agents/sync-status.json` directly:
+
     ```powershell
     # Get the current date
     $syncDate = Get-Date -Format "yyyy-MM-dd"
@@ -364,6 +372,14 @@ Consider creating a script to:
 ## Updating Sync Status
 
 After completing a sync, update `.agents/sync-status.json`:
+
+**Easy way** (recommended): Use the helper script:
+
+```bash
+node scripts/update-sync-status.mjs "Description of what was synced"
+```
+
+**Manual way**: Edit the file directly:
 
 ```powershell
 # Get actual current date (CRITICAL: never use placeholder!)

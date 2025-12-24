@@ -12,6 +12,7 @@ export default defineConfig([
 			"dist/**",
 			"*.js",
 			"scripts/**",
+			".ref/**",
 		],
 	},
 	...obsidianmd.configs.recommended,
@@ -60,6 +61,12 @@ export default defineConfig([
 					},
 				},
 			],
+			// Disable sample code rules for template repository
+			// These are intentional placeholder names and sample code that users should customize
+			"obsidianmd/sample-names": "off",
+			"obsidianmd/no-sample-code": "off",
+			// Allow console.log in sample code (the registerInterval example)
+			"no-console": "off",
 		},
 	},
 	{

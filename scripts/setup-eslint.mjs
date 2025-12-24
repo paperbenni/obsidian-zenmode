@@ -7,7 +7,7 @@
  * - Updates package.json with ESLint 9 devDependencies and scripts
  * - Ensures TypeScript version is >=4.8.4 (required for ESLint compatibility)
  * - Generates eslint.config.mjs (flat config) configuration file
- * - Generates .npmrc configuration file
+ * - Generates .pnpmrc configuration file (if needed)
  * - Copies lint-wrapper.mjs for helpful linting success messages
  *
  * Usage: node scripts/setup-eslint.mjs
@@ -54,8 +54,10 @@ import process from 'process';
 const args = process.argv.slice(2);
 const hasFix = args.includes('--fix');
 
-// Run ESLint
-const eslint = spawn('npx', ['eslint', '.', ...args], {
+// Run ESLint with --max-warnings 0 to fail on warnings too
+// This ensures we only show success when there are truly no issues
+const eslintArgs = ['eslint', '.', '--max-warnings', '0', ...args];
+const eslint = spawn('npx', eslintArgs, {
 	stdio: 'inherit',
 	shell: true
 });
@@ -117,7 +119,7 @@ import globals from "globals";
 
 export default defineConfig([
   {
-    ignores: ["main.js", "node_modules/**", "dist/**", "*.js", "scripts/**"]
+    ignores: ["main.js", "node_modules/**", "dist/**", "*.js", "scripts/**", ".ref/**"]
   },
   ...obsidianmd.configs.recommended,
   {
@@ -170,7 +172,9 @@ ${rulesString}
 `;
 }
 
-const NPMRC_CONTENT = "legacy-peer-deps=true\n";
+// Note: pnpm handles peer dependencies differently than npm
+// The legacy-peer-deps flag is npm-specific and not needed for pnpm
+const PNPMRC_CONTENT = "# pnpm configuration\n";
 
 function parseVersion(versionString) {
 	// Remove ^, ~, >=, etc. and extract major.minor.patch
@@ -407,7 +411,7 @@ ${indent}const entryPoint = hasSrcMain ? "src/main.ts" : "main.ts";
 					content.includes("import { builtinModules } from 'module'")
 				) {
 					content = content.replace(
-						/import\s+{\s*builtinModules\s*}\s+from\s+['']module['']/,
+						/import\s+{\s*builtinModules\s*}\s+from\s+['"]module['"]/,
 						"import { builtinModules } from 'module';\nimport { existsSync } from 'fs';"
 					);
 				} else {
@@ -669,7 +673,7 @@ ${indent}const entryPoint = hasSrcMain ? "src/main.ts" : "main.ts";
 			if (watchModeMatch) {
 				const beforeWatch = content.substring(0, watchModeMatch.index);
 				const afterWatch = content.substring(watchModeMatch.index);
-				const buildModeCheck = `\n// Check if this is a one-time build or watch mode\n// Check for "build" or "production" argument - supports both patterns\nconst args = process.argv.slice(2);\nconst isOneTimeBuild = args.includes("build") || args.includes("production");\n\nif (isOneTimeBuild) {\n\t// Production build: build once and exit\n\tawait context.rebuild();\n\tconsole.log("\\n✓ Build complete!");\n\tconsole.log("📦 Release files:");\n\tconsole.log("   - main.js");\n\tif (existsSync("manifest.json")) {\n\t\tconsole.log("   - manifest.json");\n\t}\n\tif (existsSync("styles.css")) {\n\t\tconsole.log("   - styles.css");\n\t}\n\tconsole.log("\\n💡 Upload these files to GitHub releases\\n");\n\tawait context.dispose();\n\tprocess.exit(0);\n} else {\n\t// Development mode: watch for changes\n\tconsole.log("\\n✓ Development build running in watch mode");\n\tconsole.log("📝 Building to main.js in root");\n\tconsole.log("💡 For production builds, run: npm run build\\n");\n\t`;
+				const buildModeCheck = `\n// Check if this is a one-time build or watch mode\n// Check for "build" or "production" argument - supports both patterns\nconst args = process.argv.slice(2);\nconst isOneTimeBuild = args.includes("build") || args.includes("production");\n\nif (isOneTimeBuild) {\n\t// Production build: build once and exit\n\tawait context.rebuild();\n\tconsole.log("\\n✓ Build complete!");\n\tconsole.log("📦 Release files:");\n\tconsole.log("   - main.js");\n\tif (existsSync("manifest.json")) {\n\t\tconsole.log("   - manifest.json");\n\t}\n\tif (existsSync("styles.css")) {\n\t\tconsole.log("   - styles.css");\n\t}\n\tconsole.log("\\n💡 Upload these files to GitHub releases\\n");\n\tawait context.dispose();\n\tprocess.exit(0);\n} else {\n\t// Development mode: watch for changes\n\tconsole.log("\\n✓ Development build running in watch mode");\n\tconsole.log("📝 Building to main.js in root");\n\tconsole.log("💡 For production builds, run: pnpm build\\n");\n\t`;
 				content = beforeWatch + buildModeCheck + afterWatch;
 				updated = true;
 				console.log(
@@ -714,7 +718,8 @@ function setupESLint() {
 	const esbuildConfigPath = join(projectRoot, "esbuild.config.mjs");
 	const eslintrcPath = join(projectRoot, ".eslintrc");
 	const eslintrcJsonPath = join(projectRoot, ".eslintrc.json");
-	const npmrcPath = join(projectRoot, ".npmrc");
+	// Note: pnpm doesn't need .npmrc with legacy-peer-deps
+	// pnpm handles peer dependencies more strictly by default
 
 	try {
 		// Read package.json
@@ -895,20 +900,10 @@ function setupESLint() {
 			}
 		}
 
-		// Generate .npmrc file
+		// Note: pnpm doesn't require .npmrc with legacy-peer-deps
+		// pnpm handles peer dependencies more strictly by default, which is better
+		// If users need pnpm-specific config, they can create .pnpmrc manually
 		let npmrcUpdated = false;
-		if (!existsSync(npmrcPath)) {
-			writeFileSync(npmrcPath, NPMRC_CONTENT, "utf8");
-			console.log("✓ Created .npmrc configuration file");
-			npmrcUpdated = true;
-		} else {
-			const existingContent = readFileSync(npmrcPath, "utf8");
-			if (existingContent !== NPMRC_CONTENT) {
-				writeFileSync(npmrcPath, NPMRC_CONTENT, "utf8");
-				console.log("✓ Updated .npmrc configuration file");
-				npmrcUpdated = true;
-			}
-		}
 
 		if (updated) {
 			// Write back to package.json with proper formatting
@@ -932,11 +927,11 @@ function setupESLint() {
 				);
 			}
 			console.log("\nNext steps:");
-			console.log("  1. Run: npm install");
-			console.log("  2. Run: npm run lint");
+			console.log("  1. Run: pnpm install");
+			console.log("  2. Run: pnpm lint");
 		} else {
 			console.log("✓ Everything is already set up correctly!");
-			console.log("  Run: npm run lint");
+			console.log("  Run: pnpm lint");
 		}
 	} catch (error) {
 		if (error.code === "ENOENT") {

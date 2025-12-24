@@ -23,7 +23,7 @@ These checks can be performed automatically by reading files and scanning code:
 ### File Requirements
 
 - [ ] **`main.js`** exists (compiled output)
-    - Check `main.js` in root (created by `npm run build` or `npm run dev`)
+    - Check `main.js` in root (created by `pnpm build` or `pnpm dev`)
     - **Note**: All builds output to `main.js` in the root directory
 - [ ] **`manifest.json`** exists in project root with valid JSON structure
 - [ ] **`styles.css`** exists (if plugin uses custom styles) - optional but should be included if present
