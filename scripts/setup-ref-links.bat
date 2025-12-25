@@ -13,6 +13,16 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Verify Node.js version is v16 or higher
+for /f "tokens=1" %%i in ('node --version') do set NODE_VERSION=%%i
+set NODE_VERSION=%NODE_VERSION:v=%
+for /f "tokens=1 delims=." %%a in ("%NODE_VERSION%") do set NODE_MAJOR=%%a
+if %NODE_MAJOR% lss 16 (
+    echo ERROR: Node.js v16+ is required (found v%NODE_VERSION%)
+    echo Please upgrade Node.js from https://nodejs.org/
+    exit /b 1
+)
+
 echo Setting up symlinks to core Obsidian projects...
 
 REM Central .ref location (one level up from project)
