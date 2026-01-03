@@ -10,3 +10,5 @@ Update frequency: Check Obsidian community discussions for updates
 - Avoid long-running tasks during `onload`; use lazy initialization.
 - Batch disk access and avoid excessive vault scans.
 - Debounce/throttle expensive operations in response to file system events.
+
+

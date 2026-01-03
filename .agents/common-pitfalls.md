@@ -13,7 +13,6 @@ This document covers common mistakes and gotchas when developing Obsidian plugin
 **Problem**: Forgetting to await `loadData()` or `saveData()` causes settings not to persist.
 
 **Wrong**:
-
 ```ts
 onload() {
   this.settings = Object.assign({}, DEFAULT_SETTINGS, this.loadData()); // Missing await!
@@ -21,7 +20,6 @@ onload() {
 ```
 
 **Correct**:
-
 ```ts
 async onload() {
   await this.loadSettings(); // Properly awaited
@@ -33,12 +31,31 @@ async loadSettings() {
 ```
 
 **Also**: Always await `saveData()`:
-
 ```ts
 async saveSettings() {
   await this.saveData(this.settings); // Don't forget await!
 }
 ```
+
+## GitHub Release Tag Format
+
+**Problem**: Using "v" prefix in GitHub release tags (e.g., "v0.1.0") instead of the version number without prefix (e.g., "0.1.0"). The tag must match `manifest.json`'s `version` field exactly.
+
+**Wrong**:
+- Tag: `v0.1.0`
+- Release name: `v0.1.0`
+- Manifest version: `0.1.0` (mismatch!)
+
+**Correct**:
+- Tag: `0.1.0` (matches manifest.json version exactly)
+- Release name: `0.1.0` (or any descriptive name, but tag must be version number)
+- Manifest version: `0.1.0` (matches tag exactly)
+
+**Why it matters**: The Obsidian community plugin system expects the GitHub release tag to exactly match the version in `manifest.json`. Using a "v" prefix breaks this matching and can cause issues with plugin updates and version detection.
+
+**Rule**: GitHub release tags must be the version number WITHOUT the "v" prefix. The tag must match `manifest.json`'s `version` field exactly.
+
+**See also**: [versioning-releases.md](versioning-releases.md), [release-readiness.md](release-readiness.md)
 
 ## Settings Object.assign Gotcha
 
@@ -47,14 +64,13 @@ async saveSettings() {
 **Problem**: `Object.assign()` performs a shallow copy. Nested properties share references, causing changes to affect all copies.
 
 **Wrong** (with nested properties):
-
 ```ts
 interface MySettings {
-	nested: { value: string };
+  nested: { value: string };
 }
 
 const DEFAULT_SETTINGS: MySettings = {
-	nested: { value: "default" },
+  nested: { value: "default" }
 };
 
 // This creates a shallow copy - nested properties share references!
@@ -62,12 +78,11 @@ this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 ```
 
 **Correct**: Use deep copy for nested properties:
-
 ```ts
 this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 // Deep copy nested properties:
 if (!this.settings.nested) {
-	this.settings.nested = { ...DEFAULT_SETTINGS.nested };
+  this.settings.nested = { ...DEFAULT_SETTINGS.nested };
 }
 ```
 
@@ -78,7 +93,6 @@ Or use a deep merge utility for complex nested structures.
 **Problem**: Not using `registerEvent()`, `registerDomEvent()`, or `registerInterval()` causes memory leaks when the plugin unloads.
 
 **Wrong**:
-
 ```ts
 onload() {
   this.app.workspace.on("file-open", this.handleFileOpen); // Not registered!
@@ -88,7 +102,6 @@ onload() {
 ```
 
 **Correct**:
-
 ```ts
 onload() {
   this.registerEvent(this.app.workspace.on("file-open", this.handleFileOpen));
@@ -106,13 +119,17 @@ All registered events/intervals are automatically cleaned up when the plugin unl
 **Solution**: Call `display()` after updating settings that affect the UI:
 
 ```ts
-new Setting(containerEl).setName("Toggle setting").addToggle((toggle) =>
-	toggle.setValue(this.plugin.settings.enabled).onChange(async (value) => {
-		this.plugin.settings.enabled = value;
-		await this.plugin.saveSettings();
-		this.display(); // Re-render settings tab
-	})
-);
+new Setting(containerEl)
+  .setName("Toggle setting")
+  .addToggle((toggle) =>
+    toggle
+      .setValue(this.plugin.settings.enabled)
+      .onChange(async (value) => {
+        this.plugin.settings.enabled = value;
+        await this.plugin.saveSettings();
+        this.display(); // Re-render settings tab
+      })
+  );
 ```
 
 ## Settings Tab Scroll Jump
@@ -124,39 +141,42 @@ new Setting(containerEl).setName("Toggle setting").addToggle((toggle) =>
 **Solution**: Preserve scroll position when re-rendering:
 
 ```ts
-new Setting(containerEl).setName("Toggle setting").addToggle((toggle) =>
-	toggle.setValue(this.plugin.settings.enabled).onChange(async (value) => {
-		this.plugin.settings.enabled = value;
-		await this.plugin.saveSettings();
-
-		// Save scroll position before re-rendering
-		const scrollContainer =
-			containerEl.closest(".vertical-tab-content") ||
-			containerEl.closest(".settings-content") ||
-			containerEl.parentElement;
-		const scrollTop = scrollContainer?.scrollTop || 0;
-
-		this.display(); // Re-render settings tab
-
-		// Restore scroll position after rendering
-		requestAnimationFrame(() => {
-			if (scrollContainer) {
-				scrollContainer.scrollTop = scrollTop;
-			}
-		});
-	})
-);
+new Setting(containerEl)
+  .setName("Toggle setting")
+  .addToggle((toggle) =>
+    toggle
+      .setValue(this.plugin.settings.enabled)
+      .onChange(async (value) => {
+        this.plugin.settings.enabled = value;
+        await this.plugin.saveSettings();
+        
+        // Save scroll position before re-rendering
+        const scrollContainer = containerEl.closest('.vertical-tab-content') || 
+                                containerEl.closest('.settings-content') || 
+                                containerEl.parentElement;
+        const scrollTop = scrollContainer?.scrollTop || 0;
+        
+        this.display(); // Re-render settings tab
+        
+        // Restore scroll position after rendering
+        requestAnimationFrame(() => {
+          if (scrollContainer) {
+            scrollContainer.scrollTop = scrollTop;
+          }
+        });
+      })
+  );
 ```
 
 **Alternative approach**: Instead of calling `this.display()`, conditionally show/hide specific settings elements without rebuilding the entire tab. This avoids scroll issues but requires more code to manage visibility:
 
 ```ts
 // Show/hide settings without re-rendering entire tab
-const conditionalSetting = containerEl.querySelector(".conditional-setting");
+const conditionalSetting = containerEl.querySelector('.conditional-setting');
 if (conditionalSetting) {
-	// Use CSS classes or setCssProps instead of direct style manipulation
-	conditionalSetting.toggleClass("hidden", !this.plugin.settings.enabled);
-	// Or: setCssProps(conditionalSetting, { display: this.plugin.settings.enabled ? 'block' : 'none' });
+  // Use CSS classes or setCssProps instead of direct style manipulation
+  conditionalSetting.toggleClass('hidden', !this.plugin.settings.enabled);
+  // Or: setCssProps(conditionalSetting, { display: this.plugin.settings.enabled ? 'block' : 'none' });
 }
 ```
 
@@ -167,7 +187,6 @@ if (conditionalSetting) {
 **Problem**: Storing references to views causes issues because Obsidian may call the view factory function multiple times.
 
 **Wrong**:
-
 ```ts
 let myView: MyView; // Don't store view references!
 
@@ -199,21 +218,19 @@ leaves.forEach((leaf) => {
 
 **Problem**: Using desktop-only APIs without setting `isDesktopOnly: true` in `manifest.json`.
 
-**Solution**:
-
+**Solution**: 
 - Check if an API is desktop-only in `.ref/obsidian-api/obsidian.d.ts`
 - Set `isDesktopOnly: true` in `manifest.json` if using Node.js/Electron APIs
 - Or use feature detection and provide mobile alternatives
 
 **Example**: Status bar items don't work on mobile. Check before using:
-
 ```ts
 // Status bar is desktop-only
 if (this.app.isMobile) {
-	// Use alternative UI for mobile
+  // Use alternative UI for mobile
 } else {
-	const statusBarItemEl = this.addStatusBarItem();
-	statusBarItemEl.setText("Status");
+  const statusBarItemEl = this.addStatusBarItem();
+  statusBarItemEl.setText("Status");
 }
 ```
 
@@ -222,7 +239,6 @@ if (this.app.isMobile) {
 **Problem**: Common type errors when using strict TypeScript.
 
 **Common issues**:
-
 - `Object.assign()` may not satisfy strict null checks - use proper typing
 - Event handlers may have `undefined` types - add null checks
 - Settings may be `undefined` on first load - provide defaults
@@ -248,39 +264,34 @@ async loadSettings() {
 **Avoid `any` type**: Prefer proper types, `unknown`, or type assertions:
 
 **Wrong**:
-
 ```ts
-function processData(data: any) {
-	// Avoid any!
-	return data.value;
+function processData(data: any) { // Avoid any!
+  return data.value;
 }
 ```
 
 **Correct** - Use proper types:
-
 ```ts
 interface Data {
-	value: string;
+  value: string;
 }
 
 function processData(data: Data) {
-	return data.value;
+  return data.value;
 }
 ```
 
 **Correct** - Use `unknown` when type is truly unknown:
-
 ```ts
 function processData(data: unknown) {
-	if (typeof data === "object" && data !== null && "value" in data) {
-		return (data as { value: string }).value;
-	}
-	throw new Error("Invalid data");
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return (data as { value: string }).value;
+  }
+  throw new Error('Invalid data');
 }
 ```
 
 **Correct** - Use type assertions when you know the type:
-
 ```ts
 const result = someApiCall() as MyType;
 ```
@@ -308,7 +319,6 @@ async onunload() {
 **Problem**: Having `main.ts` in both the project root AND `src/` directory, which causes build confusion and errors.
 
 **Acceptable** (simple plugins):
-
 ```
 project-root/
   main.ts           # ✅ OK for very simple plugins (like sample plugin template)
@@ -316,7 +326,6 @@ project-root/
 ```
 
 **Also Acceptable** (recommended for most plugins):
-
 ```
 project-root/
   src/
@@ -326,7 +335,6 @@ project-root/
 ```
 
 **Wrong** (duplicate - causes build errors):
-
 ```
 project-root/
   main.ts           # ❌ Don't have it in both places
@@ -335,14 +343,12 @@ project-root/
 ```
 
 **Why this matters**:
-
 - Having `main.ts` in both locations causes ambiguity - build tools don't know which one to use
 - This leads to build errors, confusion about which file is being compiled
 - The compiled `main.js` always outputs to `main.js` in the root directory
 - You should have only ONE source `main.ts`
 
-**Solution**:
-
+**Solution**: 
 - For simple plugins: Keep `main.ts` in root (like the sample plugin template)
 - For plugins with multiple files: Move `main.ts` to `src/` and organize all source files there
 - **Never have `main.ts` in both locations** - choose one location and stick with it
@@ -353,13 +359,11 @@ project-root/
 **Problem**: Settings appear to save but don't persist after restart.
 
 **Common causes**:
-
 1. Not awaiting `saveData()`
 2. Settings object structure changed (old data doesn't match new interface)
 3. Settings file is corrupted or locked
 
-**Solution**:
-
+**Solution**: 
 - Always await `saveData()`
 - Use migration logic if settings structure changes
 - Handle errors when loading settings:
@@ -389,7 +393,6 @@ async loadSettings() {
 **Why it happens**: AI agents often place disable comments several lines above the error, or add blank lines between the comment and the error line. ESLint requires the disable comment to be **directly on the line immediately before** the error line with **no blank lines or other code** in between.
 
 **Wrong** (common AI agent mistakes):
-
 ```ts
 // ❌ Wrong - Comment too far above error
 // eslint-disable-next-line obsidianmd/ui/sentence-case
@@ -406,7 +409,6 @@ async loadSettings() {
 ```
 
 **Correct**:
-
 ```ts
 // ✅ Correct - Comment directly before error line (no blank lines!)
 // False positive: Already in sentence case
@@ -425,27 +427,25 @@ async loadSettings() {
 **Problem**: Setting styles via `element.style.*` with static literals prevents proper theming and maintainability.
 
 **Wrong**:
-
 ```ts
-element.style.display = "block";
-element.style.opacity = "0.5";
-element.style.marginTop = "10px";
-element.style.setProperty("color", "red");
-element.setAttribute("style", "color: red;");
+element.style.display = 'block';
+element.style.opacity = '0.5';
+element.style.marginTop = '10px';
+element.style.setProperty('color', 'red');
+element.setAttribute('style', 'color: red;');
 ```
 
 **Correct**: Use CSS classes or `setCssProps()`:
-
 ```ts
 // Option 1: CSS classes (preferred)
-element.addClass("my-custom-class");
+element.addClass('my-custom-class');
 
 // Option 2: setCssProps for dynamic styles
-import { setCssProps } from "obsidian";
+import { setCssProps } from 'obsidian';
 setCssProps(element, {
-	display: "block",
-	opacity: "0.5",
-	marginTop: "10px",
+  display: 'block',
+  opacity: '0.5',
+  marginTop: '10px'
 });
 ```
 
@@ -458,18 +458,18 @@ setCssProps(element, {
 **Problem**: Creating HTML heading elements directly in settings tabs instead of using the Settings API.
 
 **Wrong**:
-
 ```ts
-containerEl.createEl("h2", { text: "My Settings" });
-containerEl.createEl("h3", { text: "General" });
+containerEl.createEl('h2', { text: 'My Settings' });
+containerEl.createEl('h3', { text: 'General' });
 ```
 
 **Correct**: Use `Setting.setHeading()`:
-
 ```ts
-new Setting(containerEl).setHeading("My Settings");
+new Setting(containerEl)
+  .setHeading('My Settings');
 
-new Setting(containerEl).setHeading("General");
+new Setting(containerEl)
+  .setHeading('General');
 ```
 
 **ESLint rule**: `settings-tab/no-manual-html-headings` (from `eslint-plugin-obsidianmd`)
@@ -479,14 +479,12 @@ new Setting(containerEl).setHeading("General");
 **Problem**: UI text should use sentence case for consistency with Obsidian's design system. See [ux-copy.md](ux-copy.md) for complete UX guidelines.
 
 **Wrong**:
-
 ```ts
 .setName("Enable Feature")
 .setDesc("This Feature Does Something")
 ```
 
 **Correct**: Use sentence case:
-
 ```ts
 .setName("Enable feature")
 .setDesc("This feature does something")
@@ -499,13 +497,11 @@ new Setting(containerEl).setHeading("General");
 **Problem**: `Vault.delete()` doesn't respect user's file deletion preferences (trash vs. permanent delete).
 
 **Wrong**:
-
 ```ts
 await this.app.vault.delete(file);
 ```
 
 **Correct**: Use `FileManager.trashFile()`:
-
 ```ts
 await this.app.fileManager.trashFile(file);
 ```
@@ -519,28 +515,26 @@ await this.app.fileManager.trashFile(file);
 **When This Applies**: This only affects plugins using `SettingGroup` (API 1.11.0+) or the `createSettingsGroup()` compatibility utility. If you use `new Setting(containerEl)` directly (the most common pattern), you don't have this issue.
 
 **Wrong**:
-
 ```typescript
-group.addSetting((setting) =>
-	setting.setName("Feature").addToggle((toggle) => {
-		toggle.onChange(async (value) => {
-			await this.plugin.saveData(this.plugin.settings);
-		});
-	})
+group.addSetting(setting =>
+  setting.setName("Feature").addToggle(toggle => {
+    toggle.onChange(async (value) => {
+      await this.plugin.saveData(this.plugin.settings);
+    });
+  })
 );
 ```
 
 **Why It Fails**: The expression body returns the result of the chain (a `Setting` object), but `addSetting` expects a callback that returns `void`. The type signature is `addSetting(cb: (setting: Setting) => void)`, so expression body syntax violates this contract.
 
 **Correct**:
-
 ```typescript
-group.addSetting((setting) => {
-	setting.setName("Feature").addToggle((toggle) => {
-		toggle.onChange(async (value) => {
-			await this.plugin.saveData(this.plugin.settings);
-		});
-	});
+group.addSetting(setting => {
+  setting.setName("Feature").addToggle(toggle => {
+    toggle.onChange(async (value) => {
+      await this.plugin.saveData(this.plugin.settings);
+    });
+  });
 });
 ```
 
@@ -555,19 +549,17 @@ group.addSetting((setting) => {
 **Problem**: Disabling `@typescript-eslint/no-explicit-any` defeats TypeScript's type safety.
 
 **Wrong**:
-
 ```ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function process(data: any) {}
+function process(data: any) { }
 ```
 
 **Correct**: Use proper types or `unknown`:
-
 ```ts
 function process(data: unknown) {
-	if (typeof data === "object" && data !== null) {
-		// Type guard and process
-	}
+  if (typeof data === 'object' && data !== null) {
+    // Type guard and process
+  }
 }
 ```
 
@@ -576,7 +568,6 @@ function process(data: unknown) {
 **Problem**: Marking functions as `async` but never using `await` is unnecessary and can cause confusion.
 
 **Wrong**:
-
 ```ts
 async handleClick() {
   this.doSomething(); // No await needed
@@ -584,7 +575,6 @@ async handleClick() {
 ```
 
 **Correct**: Remove `async` if not needed, or use `await`:
-
 ```ts
 handleClick() {
   this.doSomething();
@@ -601,13 +591,11 @@ async handleClick() {
 **Problem**: Using `await` on values that aren't Promises is unnecessary and can cause confusion.
 
 **Wrong**:
-
 ```ts
 const value = await this.getSetting(); // getSetting() returns string, not Promise
 ```
 
 **Correct**: Only await Promises:
-
 ```ts
 const value = this.getSetting(); // No await needed
 ```
@@ -617,13 +605,11 @@ const value = this.getSetting(); // No await needed
 **Problem**: Using `console.log()` in production code. Only `console.warn()`, `console.error()`, and `console.debug()` are allowed.
 
 **Wrong**:
-
 ```ts
 console.log("Debug info");
 ```
 
 **Correct**: Use appropriate console method:
-
 ```ts
 console.debug("Debug info"); // For development debugging
 console.warn("Warning message");
@@ -637,13 +623,11 @@ console.error("Error message");
 **Example**: `activeLeaf` is deprecated. Use `getActiveViewOfType()` or `getLeaf()` instead.
 
 **Wrong**:
-
 ```ts
 const leaf = this.app.workspace.activeLeaf;
 ```
 
 **Correct**:
-
 ```ts
 const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 // Or for navigation:
@@ -657,18 +641,16 @@ const leaf = this.app.workspace.getLeaf();
 **Problem**: Stringifying objects directly results in `[object Object]` instead of useful output.
 
 **Wrong**:
-
 ```ts
-const tags = { tag1: "value1", tag2: "value2" };
+const tags = { tag1: 'value1', tag2: 'value2' };
 console.log(`Tags: ${tags}`); // Outputs: "Tags: [object Object]"
 ```
 
 **Correct**: Use `JSON.stringify()` or access specific properties:
-
 ```ts
 console.log(`Tags: ${JSON.stringify(tags)}`);
 // Or:
-console.log(`Tags: ${Object.keys(tags).join(", ")}`);
+console.log(`Tags: ${Object.keys(tags).join(', ')}`);
 ```
 
 ### Unnecessary Type Assertions
@@ -676,14 +658,12 @@ console.log(`Tags: ${Object.keys(tags).join(", ")}`);
 **Problem**: Type assertions that don't change the type are unnecessary and should be removed.
 
 **Wrong**:
-
 ```ts
 const value: string = "test";
 const result = value as string; // Unnecessary - value is already string
 ```
 
 **Correct**: Remove unnecessary assertions:
-
 ```ts
 const value: string = "test";
 const result = value; // No assertion needed
@@ -694,13 +674,11 @@ const result = value; // No assertion needed
 **Problem**: Rejecting Promises with non-Error values makes error handling difficult.
 
 **Wrong**:
-
 ```ts
 Promise.reject("Something went wrong");
 ```
 
 **Correct**: Always reject with Error objects:
-
 ```ts
 Promise.reject(new Error("Something went wrong"));
 ```
@@ -710,15 +688,13 @@ Promise.reject(new Error("Something went wrong"));
 **Problem**: CommonJS `require()` style imports are not allowed in modern TypeScript/ES modules.
 
 **Wrong**:
-
 ```ts
-const fs = require("fs");
+const fs = require('fs');
 ```
 
 **Correct**: Use ES module imports:
-
 ```ts
-import * as fs from "fs";
+import * as fs from 'fs';
 ```
 
 ### Using hasOwnProperty Directly
@@ -726,20 +702,15 @@ import * as fs from "fs";
 **Problem**: Accessing `hasOwnProperty` directly from objects can fail if the object has a null prototype.
 
 **Wrong**:
-
 ```ts
-if (obj.hasOwnProperty("key")) {
-}
+if (obj.hasOwnProperty('key')) { }
 ```
 
 **Correct**: Use `Object.prototype.hasOwnProperty.call()` or `Object.hasOwn()`:
-
 ```ts
-if (Object.prototype.hasOwnProperty.call(obj, "key")) {
-}
+if (Object.prototype.hasOwnProperty.call(obj, 'key')) { }
 // Or (modern):
-if (Object.hasOwn(obj, "key")) {
-}
+if (Object.hasOwn(obj, 'key')) { }
 ```
 
 ### Type Casting to TFile or TFolder
@@ -747,19 +718,17 @@ if (Object.hasOwn(obj, "key")) {
 **Problem**: Type casting to `TFile` or `TFolder` is unsafe and can cause runtime errors.
 
 **Wrong**:
-
 ```ts
 const file = abstractFile as TFile;
 file.basename; // May fail if abstractFile is actually a TFolder
 ```
 
 **Correct**: Use `instanceof` checks to safely narrow the type:
-
 ```ts
 if (abstractFile instanceof TFile) {
-	abstractFile.basename; // Safe - TypeScript knows it's a TFile
+  abstractFile.basename; // Safe - TypeScript knows it's a TFile
 } else if (abstractFile instanceof TFolder) {
-	// Handle folder case
+  // Handle folder case
 }
 ```
 
@@ -770,19 +739,15 @@ if (abstractFile instanceof TFile) {
 **Problem**: Iterating through all files to find one by path is inefficient and slow.
 
 **Wrong**:
-
 ```ts
-const file = this.app.vault
-	.getFiles()
-	.find((f) => f.path === "path/to/file.md");
+const file = this.app.vault.getFiles().find(f => f.path === 'path/to/file.md');
 ```
 
 **Correct**: Use `getAbstractFileByPath()` for direct lookup:
-
 ```ts
-const file = this.app.vault.getAbstractFileByPath("path/to/file.md");
+const file = this.app.vault.getAbstractFileByPath('path/to/file.md');
 if (file instanceof TFile) {
-	// Use file
+  // Use file
 }
 ```
 
@@ -793,17 +758,14 @@ if (file instanceof TFile) {
 **Problem**: Using `navigator` API for OS detection is unreliable and not recommended.
 
 **Wrong**:
-
 ```ts
-const isMac = navigator.platform.includes("Mac");
+const isMac = navigator.platform.includes('Mac');
 ```
 
 **Correct**: Use Obsidian's built-in platform detection:
-
 ```ts
 // Check if mobile
-if (this.app.isMobile) {
-}
+if (this.app.isMobile) { }
 
 // Check platform via app (if available in API)
 // Or use feature detection instead of OS detection
@@ -818,21 +780,20 @@ if (this.app.isMobile) {
 **Wrong**: Copying a custom `TextInputSuggest` implementation.
 
 **Correct**: Use Obsidian's built-in `AbstractInputSuggest`:
-
 ```ts
-import { AbstractInputSuggest } from "obsidian";
+import { AbstractInputSuggest } from 'obsidian';
 
 class MySuggest extends AbstractInputSuggest<string> {
-	// Implement required methods
-	getSuggestions(inputStr: string): string[] {
-		// Return suggestions
-	}
-	renderSuggestion(item: string, el: HTMLElement): void {
-		// Render suggestion
-	}
-	selectSuggestion(item: string): void {
-		// Handle selection
-	}
+  // Implement required methods
+  getSuggestions(inputStr: string): string[] {
+    // Return suggestions
+  }
+  renderSuggestion(item: string, el: HTMLElement): void {
+    // Render suggestion
+  }
+  selectSuggestion(item: string): void {
+    // Handle selection
+  }
 }
 ```
 
@@ -843,19 +804,18 @@ class MySuggest extends AbstractInputSuggest<string> {
 **Problem**: Regex lookbehinds are not supported in some iOS versions, causing plugins to fail on mobile.
 
 **Wrong**:
-
 ```ts
 const regex = /(?<=prefix)match/; // Lookbehind not supported on iOS
 ```
 
 **Correct**: Rewrite regex without lookbehinds:
-
 ```ts
 const regex = /prefix(match)/; // Use capturing group instead
 const match = text.match(regex);
 if (match) {
-	const result = match[1]; // Get captured group
+  const result = match[1]; // Get captured group
 }
 ```
 
 **ESLint rule**: `regex-lookbehind` (from `eslint-plugin-obsidianmd`)
+

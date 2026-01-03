@@ -58,3 +58,5 @@ When reviewing or creating a `manifest.json` file, ensure:
 - [ ] JSON syntax is valid (proper quotes, commas, brackets)
 - [ ] All string values are properly quoted
 - [ ] Boolean values are `true` or `false` (not strings)
+
+

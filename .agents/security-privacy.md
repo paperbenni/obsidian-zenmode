@@ -59,3 +59,5 @@ Register and clean up all DOM, app, and interval listeners using the provided `r
 - [manifest.md](manifest.md) - Manifest requirements (includes security-related fields)
 - [Developer Policies](https://docs.obsidian.md/Developer+policies) - Official Obsidian Developer Policies
 - [Plugin Guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines) - Official Plugin Guidelines
+
+

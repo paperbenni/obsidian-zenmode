@@ -10,3 +10,5 @@ Update frequency: Check Obsidian Sample Plugin repo for updates
 - Entry point: `main.ts` (in root for simple plugins, or `src/main.ts` for organized plugins) compiled to `main.js` and loaded by Obsidian.
 - **Important**: `main.ts` can be in root for simple plugins, or in `src/` for better organization. Never have it in both locations. See [file-conventions.md](file-conventions.md) for structure.
 - Required release artifacts: `main.js` (compiled from `main.ts`), `manifest.json`, and optional `styles.css`.
+
+

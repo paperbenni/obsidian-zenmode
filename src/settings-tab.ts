@@ -28,7 +28,11 @@ export class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		// Create settings group (no heading - all settings are general)
-		const generalGroup = createSettingsGroup(containerEl);
+		const generalGroup = createSettingsGroup(
+			containerEl,
+			undefined,
+			"zenmode"
+		);
 
 		generalGroup.addSetting((setting) => {
 			setting
