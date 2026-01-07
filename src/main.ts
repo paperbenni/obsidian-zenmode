@@ -1,4 +1,4 @@
-import { ButtonComponent, Plugin } from "obsidian";
+import { ButtonComponent, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, type ZenModeSettings } from "./settings";
 import { ZenModeSettingTab } from "./settings-tab";
 import { setCssProps } from "./utils/helpers";
@@ -41,14 +41,14 @@ export default class ZenMode extends Plugin {
 			},
 		});
 
-		this.addRibbonIcon("expand", "Toggle zen mode", async () => {
+		this.addRibbonIcon("expand", "Toggle zen mode", () => {
 			void this.toggleZenMode();
 		});
 
 		// Register event listener for active leaf changes (for focused file mode)
 		this.registerEvent(
 			this.app.workspace.on("active-leaf-change", () => {
-				this.updateFocusedFileMode();
+				void this.updateFocusedFileMode();
 			})
 		);
 
@@ -139,7 +139,7 @@ export default class ZenMode extends Plugin {
 		this.updateStyle();
 		this.setSidebarVisibility();
 		this.setButtonVisibility();
-		this.updateFocusedFileMode();
+		void this.updateFocusedFileMode();
 	};
 
 	/**
@@ -368,11 +368,141 @@ export default class ZenMode extends Plugin {
 	}
 
 	/**
+	 * Helper function to get the tab container from a workspace leaf.
+	 * Returns null if the leaf doesn't have a valid container or tab container.
+	 */
+	private getTabContainerFromLeaf(
+		leaf: WorkspaceLeaf | null
+	): HTMLElement | null {
+		if (!leaf) return null;
+
+		// Find the workspace-tabs container that holds the leaf
+		// Note: containerEl is an internal Obsidian API property, not exposed in public types
+		interface WorkspaceLeafWithContainer {
+			containerEl?: HTMLElement;
+		}
+		const leafWithContainer = leaf as WorkspaceLeafWithContainer;
+		const leafContainer = leafWithContainer.containerEl ?? null;
+		if (!leafContainer) return null;
+
+		const tabContainer = leafContainer.closest(".workspace-tabs");
+		if (!tabContainer || !(tabContainer instanceof HTMLElement))
+			return null;
+
+		return tabContainer;
+	}
+
+	/**
+	 * Finds and reveals a pinned tab if one exists.
+	 * This should be called BEFORE entering zen mode to prevent new tabs from being created.
+	 */
+	private async revealPinnedTabIfExists(): Promise<void> {
+		try {
+			// Use Obsidian API to find pinned leaves
+			// Check all markdown leaves and see if any are pinned
+			const markdownLeaves =
+				this.app.workspace.getLeavesOfType("markdown");
+
+			// Check each leaf to see if it's pinned
+			// Pinned state might be in the view state or leaf properties
+			for (const leaf of markdownLeaves) {
+				interface WorkspaceLeafWithPinned {
+					pinned?: boolean;
+					view?: {
+						getState?: () => { pinned?: boolean };
+					};
+				}
+				const leafWithPinned = leaf as WorkspaceLeafWithPinned;
+
+				// Try multiple ways to check if leaf is pinned
+				let isPinned = false;
+				if (leafWithPinned.pinned === true) {
+					isPinned = true;
+				} else if (leafWithPinned.view?.getState) {
+					const state = leafWithPinned.view.getState();
+					if ((state as { pinned?: boolean }).pinned === true) {
+						isPinned = true;
+					}
+				}
+
+				// Also check the DOM for pinned indicator on this leaf's container
+				interface WorkspaceLeafWithContainer {
+					containerEl?: HTMLElement;
+				}
+				const leafWithContainer = leaf as WorkspaceLeafWithContainer;
+				if (leafWithContainer.containerEl) {
+					const tabHeader =
+						leafWithContainer.containerEl.querySelector(
+							".workspace-tab-header"
+						);
+					if (tabHeader && tabHeader instanceof HTMLElement) {
+						// Check if tab has pinned class or attribute
+						if (
+							tabHeader.classList.contains("is-pinned") ||
+							tabHeader.hasAttribute("data-pinned")
+						) {
+							isPinned = true;
+						}
+					}
+				}
+
+				if (isPinned) {
+					// Explicitly reveal this leaf to make it active
+					void this.app.workspace.revealLeaf(leaf);
+					// Wait for the reveal to take effect
+					await new Promise<void>((resolve) => {
+						setTimeout(() => resolve(), 200);
+					});
+					return;
+				}
+			}
+		} catch {
+			// Silently handle errors
+		}
+	}
+
+	/**
+	 * Helper function to find the active tab container by checking the DOM.
+	 * Looks for tabs with the 'is-active' class or visible active tab headers.
+	 */
+	private findActiveTabContainerFromDOM(): HTMLElement | null {
+		// Try to find an active tab header
+		const activeTabHeader = document.querySelector(
+			".workspace-tab-header.is-active"
+		);
+		if (activeTabHeader) {
+			const tabContainer = activeTabHeader.closest(".workspace-tabs");
+			if (tabContainer && tabContainer instanceof HTMLElement) {
+				return tabContainer;
+			}
+		}
+
+		// Fallback: find any visible tab container (prefer the first one)
+		// This handles edge cases where no tab is marked as active
+		const allTabContainers = Array.from(
+			document.querySelectorAll(".workspace-tabs")
+		);
+		for (const container of allTabContainers) {
+			const el = container as HTMLElement;
+			// Check if the container is visible (not already hidden)
+			if (
+				el.offsetParent !== null &&
+				!el.classList.contains("zenmode-tab-hidden")
+			) {
+				return el;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Updates focused file mode visibility.
 	 * When enabled, hides all workspace tab containers except the one containing the active leaf,
 	 * showing only the currently focused file. When disabled, restores all tab containers.
+	 * Uses multiple fallback methods to handle pinned tabs and edge cases.
 	 */
-	updateFocusedFileMode() {
+	async updateFocusedFileMode() {
 		if (!this.settings.zenMode || !this.settings.focusedFileMode) {
 			// Restore all tab containers when focused file mode is off
 			const allTabContainers =
@@ -387,28 +517,59 @@ export default class ZenMode extends Plugin {
 			return;
 		}
 
-		// Get the active leaf using recommended API
-		// Use getLeaf(false) to get the active leaf without creating a new one
-		const activeLeaf = this.app.workspace.getLeaf(false);
-		if (!activeLeaf) return;
+		// CRITICAL: Before calling getLeaf(false), check for pinned tabs and reveal them
+		// This prevents getLeaf(false) from creating a new tab
+		await this.revealPinnedTabIfExists();
 
-		// Find the workspace-tabs container that holds the active leaf
-		// Note: containerEl is an internal Obsidian API property, not exposed in public types
-		interface WorkspaceLeafWithContainer {
-			containerEl?: HTMLElement;
+		const allTabContainers = Array.from(
+			document.querySelectorAll(".workspace-tabs")
+		);
+
+		// Try multiple methods to find the active tab container
+		let activeTabContainer: HTMLElement | null = null;
+
+		// Method 0: PRIORITY - Check ALL containers for pinned tabs FIRST
+		// If a pinned tab exists, we MUST use its container, not the "active" one
+		for (const container of allTabContainers) {
+			const el = container as HTMLElement;
+			// Check all tab headers in this container for pinned state
+			// Use STRICT checks only - class "is-pinned" or data-pinned="true" attribute
+			const pinnedTabs = Array.from(
+				el.querySelectorAll(
+					".workspace-tab-header.is-pinned, .workspace-tab-header[data-pinned='true']"
+				)
+			);
+
+			if (pinnedTabs.length > 0) {
+				activeTabContainer = el;
+				break;
+			}
 		}
-		const activeLeafWithContainer =
-			activeLeaf as WorkspaceLeafWithContainer;
-		const activeLeafContainer = activeLeafWithContainer.containerEl ?? null;
-		if (!activeLeafContainer) return;
 
-		const activeTabContainer =
-			activeLeafContainer.closest(".workspace-tabs");
-		if (!activeTabContainer || !(activeTabContainer instanceof HTMLElement))
+		// Method 1: Use getMostRecentLeaf() for non-pinned tabs (safer than getLeaf(false))
+		// This avoids creating new tabs while still finding the active tab
+		if (!activeTabContainer) {
+			const mostRecentLeaf = this.app.workspace.getMostRecentLeaf();
+			if (mostRecentLeaf) {
+				activeTabContainer =
+					this.getTabContainerFromLeaf(mostRecentLeaf);
+			}
+		}
+
+		// Method 1b: Fallback to DOM-based detection if getMostRecentLeaf() failed
+		if (!activeTabContainer) {
+			const activeTabFromDOM = this.findActiveTabContainerFromDOM();
+			if (activeTabFromDOM) {
+				activeTabContainer = activeTabFromDOM;
+			}
+		}
+
+		// If we still can't find a valid tab container, give up
+		if (!activeTabContainer) {
 			return;
+		}
 
 		// Hide all workspace-tabs containers except the one containing the active leaf
-		const allTabContainers = document.querySelectorAll(".workspace-tabs");
 		allTabContainers.forEach((tabContainer) => {
 			const el = tabContainer as HTMLElement;
 			if (tabContainer === activeTabContainer) {
@@ -449,6 +610,12 @@ export default class ZenMode extends Plugin {
 			}
 
 			if (enteringZenMode) {
+				// CRITICAL: If focused file mode is enabled, find and reveal pinned tab BEFORE anything else
+				// This prevents Obsidian from creating a new tab when getLeaf(false) is called
+				if (this.settings.focusedFileMode) {
+					await this.revealPinnedTabIfExists();
+				}
+
 				// Enter fullscreen first if setting is enabled
 				if (
 					this.settings.fullscreen &&
@@ -460,9 +627,8 @@ export default class ZenMode extends Plugin {
 						await new Promise((resolve) =>
 							requestAnimationFrame(resolve)
 						);
-					} catch (e) {
+					} catch {
 						// Fullscreen might fail (e.g., user cancelled), continue anyway
-						console.warn("Failed to enter fullscreen:", e);
 					}
 				}
 
@@ -479,9 +645,8 @@ export default class ZenMode extends Plugin {
 						await new Promise((resolve) =>
 							requestAnimationFrame(resolve)
 						);
-					} catch (e) {
+					} catch {
 						// Fullscreen exit might fail, continue anyway
-						console.warn("Failed to exit fullscreen:", e);
 					}
 				}
 

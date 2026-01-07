@@ -9,6 +9,7 @@ Update frequency: Check reference repos for new patterns
 Comprehensive code patterns for common Obsidian plugin development tasks. **Always verify API details in `.ref/obsidian-api/obsidian.d.ts`** - it's the authoritative source and may have features not yet documented in plugin docs.
 
 **When to use this vs [common-tasks.md](common-tasks.md)**:
+
 - **code-patterns.md**: Complete, production-ready examples with full context, error handling, and best practices
 - **common-tasks.md**: Quick snippets and basic patterns for simple operations
 
@@ -22,108 +23,107 @@ Comprehensive code patterns for common Obsidian plugin development tasks. **Alwa
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 interface MyPluginSettings {
-  textSetting: string;
-  toggleSetting: boolean;
-  dropdownSetting: string;
-  sliderValue: number;
+	textSetting: string;
+	toggleSetting: boolean;
+	dropdownSetting: string;
+	sliderValue: number;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  textSetting: "default",
-  toggleSetting: true,
-  dropdownSetting: "option1",
-  sliderValue: 50,
+	textSetting: "default",
+	toggleSetting: true,
+	dropdownSetting: "option1",
+	sliderValue: 50,
 };
 
 class MySettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+	plugin: MyPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+	constructor(app: App, plugin: MyPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
 
-    // Text input
-    new Setting(containerEl)
-      .setName("Text setting")
-      .setDesc("Description of text setting")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter text")
-          .setValue(this.plugin.settings.textSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.textSetting = value;
-            await this.plugin.saveSettings();
-          })
-      );
+		// Text input
+		new Setting(containerEl)
+			.setName("Text setting")
+			.setDesc("Description of text setting")
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter text")
+					.setValue(this.plugin.settings.textSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.textSetting = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
-    // Toggle
-    new Setting(containerEl)
-      .setName("Toggle setting")
-      .setDesc("Enable or disable feature")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.toggleSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.toggleSetting = value;
-            await this.plugin.saveSettings();
-            this.display(); // Re-render if toggle affects other settings
-          })
-      );
+		// Toggle
+		new Setting(containerEl)
+			.setName("Toggle setting")
+			.setDesc("Enable or disable feature")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.toggleSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.toggleSetting = value;
+						await this.plugin.saveSettings();
+						this.display(); // Re-render if toggle affects other settings
+					})
+			);
 
-    // Dropdown
-    new Setting(containerEl)
-      .setName("Dropdown setting")
-      .setDesc("Select an option")
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOption("option1", "Option 1")
-          .addOption("option2", "Option 2")
-          .addOption("option3", "Option 3")
-          .setValue(this.plugin.settings.dropdownSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.dropdownSetting = value;
-            await this.plugin.saveSettings();
-          })
-      );
+		// Dropdown
+		new Setting(containerEl)
+			.setName("Dropdown setting")
+			.setDesc("Select an option")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("option1", "Option 1")
+					.addOption("option2", "Option 2")
+					.addOption("option3", "Option 3")
+					.setValue(this.plugin.settings.dropdownSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.dropdownSetting = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
-    // Slider
-    new Setting(containerEl)
-      .setName("Slider setting")
-      .setDesc(`Value: ${this.plugin.settings.sliderValue}`)
-      .addSlider((slider) =>
-        slider
-          .setLimits(0, 100, 1)
-          .setValue(this.plugin.settings.sliderValue)
-          .setDynamicTooltip()
-          .onChange(async (value) => {
-            this.plugin.settings.sliderValue = value;
-            await this.plugin.saveSettings();
-            this.display(); // Update description
-          })
-      );
+		// Slider
+		new Setting(containerEl)
+			.setName("Slider setting")
+			.setDesc(`Value: ${this.plugin.settings.sliderValue}`)
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.sliderValue)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.sliderValue = value;
+						await this.plugin.saveSettings();
+						this.display(); // Update description
+					})
+			);
 
-    // Setting with extra button
-    new Setting(containerEl)
-      .setName("Setting with reset")
-      .addText((text) =>
-        text.setValue(this.plugin.settings.textSetting)
-      )
-      .addExtraButton((btn) =>
-        btn
-          .setIcon("reset")
-          .setTooltip("Reset to default")
-          .onClick(async () => {
-            this.plugin.settings.textSetting = DEFAULT_SETTINGS.textSetting;
-            await this.plugin.saveSettings();
-            this.display();
-          })
-      );
-  }
+		// Setting with extra button
+		new Setting(containerEl)
+			.setName("Setting with reset")
+			.addText((text) => text.setValue(this.plugin.settings.textSetting))
+			.addExtraButton((btn) =>
+				btn
+					.setIcon("reset")
+					.setTooltip("Reset to default")
+					.onClick(async () => {
+						this.plugin.settings.textSetting =
+							DEFAULT_SETTINGS.textSetting;
+						await this.plugin.saveSettings();
+						this.display();
+					})
+			);
+	}
 }
 
 // In main plugin class:
@@ -137,6 +137,7 @@ this.addSettingTab(new MySettingTab(this.app, this));
 **Use this when**: You want to use `SettingGroup` for users on Obsidian 1.11.0+ while still supporting older versions. This provides conditional settings groups that automatically use the modern API when available, with a fallback for older versions.
 
 **Note**: Use the backward compatibility approach below to support both users on Obsidian 1.11.0+ and users on older versions. Alternatively, you can choose to:
+
 - Continue using the compatibility utility (supports all versions)
 - Force `minAppVersion: "1.11.0"` in `manifest.json` and use `SettingGroup` directly (simpler, but excludes older versions)
 
@@ -149,88 +150,88 @@ Create `src/utils/settings-compat.ts` (or wherever you keep utilities):
  * Compatibility utilities for settings
  * Provides backward compatibility for SettingGroup (requires API 1.11.0+)
  */
-import { Setting, requireApiVersion } from 'obsidian';
+import { Setting, requireApiVersion } from "obsidian";
 
 /**
  * Type definition for SettingGroup constructor
  * Note: SettingGroup may exist at runtime in 1.11.0+ but may not be in TypeScript definitions
- * 
+ *
  * IMPORTANT: This type signature is inferred from usage patterns. When .ref/obsidian-api/obsidian.d.ts
  * is available, verify the actual signature there. The signature shown here matches the expected
  * behavior based on Obsidian's API design patterns.
  */
 type SettingGroupConstructor = new (containerEl: HTMLElement) => {
-  setHeading(heading: string): {
-    addSetting(cb: (setting: Setting) => void): void;
-  };
+	setHeading(heading: string): {
+		addSetting(cb: (setting: Setting) => void): void;
+	};
 };
 
 /**
  * Interface that works with both SettingGroup and fallback container
  */
 export interface SettingsContainer {
-  addSetting(cb: (setting: Setting) => void): void;
+	addSetting(cb: (setting: Setting) => void): void;
 }
 
 /**
  * Creates a settings container that uses SettingGroup if available (API 1.11.0+),
  * otherwise falls back to creating a heading and using the container directly.
- * 
+ *
  * Uses requireApiVersion('1.11.0') to check if SettingGroup is available.
  * This is the official Obsidian API method for version checking.
- * 
+ *
  * IMPORTANT: We use dynamic require() instead of direct import because SettingGroup
  * may not be in TypeScript type definitions even if it exists at runtime in 1.11.0+.
  * This avoids compile-time TypeScript errors while still working at runtime.
- * 
+ *
  * @param containerEl - The container element for settings
  * @param heading - The heading text for the settings group (optional)
  * @param manifestId - The plugin's manifest ID for CSS scoping (required for fallback mode)
  * @returns A container that can be used to add settings
  */
 export function createSettingsGroup(
-  containerEl: HTMLElement,
-  heading?: string,
-  manifestId?: string
+	containerEl: HTMLElement,
+	heading?: string,
+	manifestId?: string
 ): SettingsContainer {
-  // Check if SettingGroup is available (API 1.11.0+)
-  // requireApiVersion is the official Obsidian API method for version checking
-  if (requireApiVersion('1.11.0')) {
-    // Use dynamic require() to access SettingGroup at runtime
-    // This avoids TypeScript errors when SettingGroup isn't in type definitions
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const obsidian = require('obsidian');
-    const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
-    
-    // Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
-    const group = heading 
-      ? new SettingGroup(containerEl).setHeading(heading)
-      : new SettingGroup(containerEl);
-    return {
-      addSetting(cb: (setting: Setting) => void) {
-        group.addSetting(cb);
-      }
-    };
-  } else {
-    // Fallback path (either API < 1.11.0 or SettingGroup not found)
-    // Add scoping class to containerEl to scope CSS to only this plugin's settings
-    if (manifestId) {
-      containerEl.addClass(`${manifestId}-settings-compat`);
-    }
-    
-    // Fallback: Create a heading manually and use container directly
-    if (heading) {
-      const headingEl = containerEl.createDiv('setting-group-heading');
-      headingEl.createEl('h3', { text: heading });
-    }
-        
-    return {
-      addSetting(cb: (setting: Setting) => void) {
-        const setting = new Setting(containerEl);
-        cb(setting);
-      }
-    };
-  }
+	// Check if SettingGroup is available (API 1.11.0+)
+	// requireApiVersion is the official Obsidian API method for version checking
+	if (requireApiVersion("1.11.0")) {
+		// Use dynamic require() to access SettingGroup at runtime
+		// This avoids TypeScript errors when SettingGroup isn't in type definitions
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const obsidian = require("obsidian");
+		const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
+
+		// Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
+		const group = heading
+			? new SettingGroup(containerEl).setHeading(heading)
+			: new SettingGroup(containerEl);
+		return {
+			addSetting(cb: (setting: Setting) => void) {
+				group.addSetting(cb);
+			},
+		};
+	} else {
+		// Fallback path (either API < 1.11.0 or SettingGroup not found)
+		// Add scoping class to containerEl to scope CSS to only this plugin's settings
+		if (manifestId) {
+			containerEl.addClass(`${manifestId}-settings-compat`);
+		}
+
+		// Fallback: Create a heading manually and use container directly
+		if (heading) {
+			const headingEl = containerEl.createDiv("setting-group-heading");
+			headingEl.createEl("h3", { text: heading });
+		}
+
+		return {
+			addSetting(cb: (setting: Setting) => void) {
+				const setting = new Setting(containerEl);
+				cb(setting);
+			},
+		};
+	}
 }
 ```
 
@@ -245,98 +246,106 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import { createSettingsGroup } from "./utils/settings-compat";
 
 interface MyPluginSettings {
-  generalEnabled: boolean;
-  generalTimeout: number;
-  advancedDebug: boolean;
-  advancedLogLevel: string;
+	generalEnabled: boolean;
+	generalTimeout: number;
+	advancedDebug: boolean;
+	advancedLogLevel: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  generalEnabled: true,
-  generalTimeout: 5000,
-  advancedDebug: false,
-  advancedLogLevel: "info",
+	generalEnabled: true,
+	generalTimeout: 5000,
+	advancedDebug: false,
+	advancedLogLevel: "info",
 };
 
 class MySettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+	plugin: MyPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+	constructor(app: App, plugin: MyPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
 
-    // General Settings Group
-    const generalGroup = createSettingsGroup(containerEl, "General Settings", "my-plugin");
-    
-    generalGroup.addSetting((setting) => {
-      setting
-        .setName("Enable feature")
-        .setDesc("Enable or disable the main feature")
-        .addToggle((toggle) => {
-          toggle
-            .setValue(this.plugin.settings.generalEnabled)
-            .onChange(async (value) => {
-              this.plugin.settings.generalEnabled = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		// General Settings Group
+		const generalGroup = createSettingsGroup(
+			containerEl,
+			"General Settings",
+			"my-plugin"
+		);
 
-    generalGroup.addSetting((setting) => {
-      setting
-        .setName("Timeout")
-        .setDesc("Timeout in milliseconds")
-        .addSlider((slider) => {
-          slider
-            .setLimits(1000, 10000, 500)
-            .setValue(this.plugin.settings.generalTimeout)
-            .setDynamicTooltip()
-            .onChange(async (value) => {
-              this.plugin.settings.generalTimeout = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Enable feature")
+				.setDesc("Enable or disable the main feature")
+				.addToggle((toggle) => {
+					toggle
+						.setValue(this.plugin.settings.generalEnabled)
+						.onChange(async (value) => {
+							this.plugin.settings.generalEnabled = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
 
-    // Advanced Settings Group
-    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings", "my-plugin");
-    
-    advancedGroup.addSetting((setting) => {
-      setting
-        .setName("Debug mode")
-        .setDesc("Enable debug logging")
-        .addToggle((toggle) => {
-          toggle
-            .setValue(this.plugin.settings.advancedDebug)
-            .onChange(async (value) => {
-              this.plugin.settings.advancedDebug = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Timeout")
+				.setDesc("Timeout in milliseconds")
+				.addSlider((slider) => {
+					slider
+						.setLimits(1000, 10000, 500)
+						.setValue(this.plugin.settings.generalTimeout)
+						.setDynamicTooltip()
+						.onChange(async (value) => {
+							this.plugin.settings.generalTimeout = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
 
-    advancedGroup.addSetting((setting) => {
-      setting
-        .setName("Log level")
-        .setDesc("Set the logging level")
-        .addDropdown((dropdown) => {
-          dropdown
-            .addOption("info", "Info")
-            .addOption("warn", "Warning")
-            .addOption("error", "Error")
-            .setValue(this.plugin.settings.advancedLogLevel)
-            .onChange(async (value) => {
-              this.plugin.settings.advancedLogLevel = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
-  }
+		// Advanced Settings Group
+		const advancedGroup = createSettingsGroup(
+			containerEl,
+			"Advanced Settings",
+			"my-plugin"
+		);
+
+		advancedGroup.addSetting((setting) => {
+			setting
+				.setName("Debug mode")
+				.setDesc("Enable debug logging")
+				.addToggle((toggle) => {
+					toggle
+						.setValue(this.plugin.settings.advancedDebug)
+						.onChange(async (value) => {
+							this.plugin.settings.advancedDebug = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
+
+		advancedGroup.addSetting((setting) => {
+			setting
+				.setName("Log level")
+				.setDesc("Set the logging level")
+				.addDropdown((dropdown) => {
+					dropdown
+						.addOption("info", "Info")
+						.addOption("warn", "Warning")
+						.addOption("error", "Error")
+						.setValue(this.plugin.settings.advancedLogLevel)
+						.onChange(async (value) => {
+							this.plugin.settings.advancedLogLevel = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
+	}
 }
 
 // In main plugin class:
@@ -354,6 +363,7 @@ Update frequency: Check reference repos for new patterns
 Comprehensive code patterns for common Obsidian plugin development tasks. **Always verify API details in `.ref/obsidian-api/obsidian.d.ts`** - it's the authoritative source and may have features not yet documented in plugin docs.
 
 **When to use this vs [common-tasks.md](common-tasks.md)**:
+
 - **code-patterns.md**: Complete, production-ready examples with full context, error handling, and best practices
 - **common-tasks.md**: Quick snippets and basic patterns for simple operations
 
@@ -367,108 +377,107 @@ Comprehensive code patterns for common Obsidian plugin development tasks. **Alwa
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 interface MyPluginSettings {
-  textSetting: string;
-  toggleSetting: boolean;
-  dropdownSetting: string;
-  sliderValue: number;
+	textSetting: string;
+	toggleSetting: boolean;
+	dropdownSetting: string;
+	sliderValue: number;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  textSetting: "default",
-  toggleSetting: true,
-  dropdownSetting: "option1",
-  sliderValue: 50,
+	textSetting: "default",
+	toggleSetting: true,
+	dropdownSetting: "option1",
+	sliderValue: 50,
 };
 
 class MySettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+	plugin: MyPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+	constructor(app: App, plugin: MyPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
 
-    // Text input
-    new Setting(containerEl)
-      .setName("Text setting")
-      .setDesc("Description of text setting")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter text")
-          .setValue(this.plugin.settings.textSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.textSetting = value;
-            await this.plugin.saveSettings();
-          })
-      );
+		// Text input
+		new Setting(containerEl)
+			.setName("Text setting")
+			.setDesc("Description of text setting")
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter text")
+					.setValue(this.plugin.settings.textSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.textSetting = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
-    // Toggle
-    new Setting(containerEl)
-      .setName("Toggle setting")
-      .setDesc("Enable or disable feature")
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.toggleSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.toggleSetting = value;
-            await this.plugin.saveSettings();
-            this.display(); // Re-render if toggle affects other settings
-          })
-      );
+		// Toggle
+		new Setting(containerEl)
+			.setName("Toggle setting")
+			.setDesc("Enable or disable feature")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.toggleSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.toggleSetting = value;
+						await this.plugin.saveSettings();
+						this.display(); // Re-render if toggle affects other settings
+					})
+			);
 
-    // Dropdown
-    new Setting(containerEl)
-      .setName("Dropdown setting")
-      .setDesc("Select an option")
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOption("option1", "Option 1")
-          .addOption("option2", "Option 2")
-          .addOption("option3", "Option 3")
-          .setValue(this.plugin.settings.dropdownSetting)
-          .onChange(async (value) => {
-            this.plugin.settings.dropdownSetting = value;
-            await this.plugin.saveSettings();
-          })
-      );
+		// Dropdown
+		new Setting(containerEl)
+			.setName("Dropdown setting")
+			.setDesc("Select an option")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption("option1", "Option 1")
+					.addOption("option2", "Option 2")
+					.addOption("option3", "Option 3")
+					.setValue(this.plugin.settings.dropdownSetting)
+					.onChange(async (value) => {
+						this.plugin.settings.dropdownSetting = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
-    // Slider
-    new Setting(containerEl)
-      .setName("Slider setting")
-      .setDesc(`Value: ${this.plugin.settings.sliderValue}`)
-      .addSlider((slider) =>
-        slider
-          .setLimits(0, 100, 1)
-          .setValue(this.plugin.settings.sliderValue)
-          .setDynamicTooltip()
-          .onChange(async (value) => {
-            this.plugin.settings.sliderValue = value;
-            await this.plugin.saveSettings();
-            this.display(); // Update description
-          })
-      );
+		// Slider
+		new Setting(containerEl)
+			.setName("Slider setting")
+			.setDesc(`Value: ${this.plugin.settings.sliderValue}`)
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 100, 1)
+					.setValue(this.plugin.settings.sliderValue)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.sliderValue = value;
+						await this.plugin.saveSettings();
+						this.display(); // Update description
+					})
+			);
 
-    // Setting with extra button
-    new Setting(containerEl)
-      .setName("Setting with reset")
-      .addText((text) =>
-        text.setValue(this.plugin.settings.textSetting)
-      )
-      .addExtraButton((btn) =>
-        btn
-          .setIcon("reset")
-          .setTooltip("Reset to default")
-          .onClick(async () => {
-            this.plugin.settings.textSetting = DEFAULT_SETTINGS.textSetting;
-            await this.plugin.saveSettings();
-            this.display();
-          })
-      );
-  }
+		// Setting with extra button
+		new Setting(containerEl)
+			.setName("Setting with reset")
+			.addText((text) => text.setValue(this.plugin.settings.textSetting))
+			.addExtraButton((btn) =>
+				btn
+					.setIcon("reset")
+					.setTooltip("Reset to default")
+					.onClick(async () => {
+						this.plugin.settings.textSetting =
+							DEFAULT_SETTINGS.textSetting;
+						await this.plugin.saveSettings();
+						this.display();
+					})
+			);
+	}
 }
 
 // In main plugin class:
@@ -482,6 +491,7 @@ this.addSettingTab(new MySettingTab(this.app, this));
 **Use this when**: You want to use `SettingGroup` for users on Obsidian 1.11.0+ while still supporting older versions. This provides conditional settings groups that automatically use the modern API when available, with a fallback for older versions.
 
 **Note**: Use the backward compatibility approach below to support both users on Obsidian 1.11.0+ and users on older versions. Alternatively, you can choose to:
+
 - Continue using the compatibility utility (supports all versions)
 - Force `minAppVersion: "1.11.0"` in `manifest.json` and use `SettingGroup` directly (simpler, but excludes older versions)
 
@@ -494,88 +504,88 @@ Create `src/utils/settings-compat.ts` (or wherever you keep utilities):
  * Compatibility utilities for settings
  * Provides backward compatibility for SettingGroup (requires API 1.11.0+)
  */
-import { Setting, requireApiVersion } from 'obsidian';
+import { Setting, requireApiVersion } from "obsidian";
 
 /**
  * Type definition for SettingGroup constructor
  * Note: SettingGroup may exist at runtime in 1.11.0+ but may not be in TypeScript definitions
- * 
+ *
  * IMPORTANT: This type signature is inferred from usage patterns. When .ref/obsidian-api/obsidian.d.ts
  * is available, verify the actual signature there. The signature shown here matches the expected
  * behavior based on Obsidian's API design patterns.
  */
 type SettingGroupConstructor = new (containerEl: HTMLElement) => {
-  setHeading(heading: string): {
-    addSetting(cb: (setting: Setting) => void): void;
-  };
+	setHeading(heading: string): {
+		addSetting(cb: (setting: Setting) => void): void;
+	};
 };
 
 /**
  * Interface that works with both SettingGroup and fallback container
  */
 export interface SettingsContainer {
-  addSetting(cb: (setting: Setting) => void): void;
+	addSetting(cb: (setting: Setting) => void): void;
 }
 
 /**
  * Creates a settings container that uses SettingGroup if available (API 1.11.0+),
  * otherwise falls back to creating a heading and using the container directly.
- * 
+ *
  * Uses requireApiVersion('1.11.0') to check if SettingGroup is available.
  * This is the official Obsidian API method for version checking.
- * 
+ *
  * IMPORTANT: We use dynamic require() instead of direct import because SettingGroup
  * may not be in TypeScript type definitions even if it exists at runtime in 1.11.0+.
  * This avoids compile-time TypeScript errors while still working at runtime.
- * 
+ *
  * @param containerEl - The container element for settings
  * @param heading - The heading text for the settings group (optional)
  * @param manifestId - The plugin's manifest ID for CSS scoping (required for fallback mode)
  * @returns A container that can be used to add settings
  */
 export function createSettingsGroup(
-  containerEl: HTMLElement,
-  heading?: string,
-  manifestId?: string
+	containerEl: HTMLElement,
+	heading?: string,
+	manifestId?: string
 ): SettingsContainer {
-  // Check if SettingGroup is available (API 1.11.0+)
-  // requireApiVersion is the official Obsidian API method for version checking
-  if (requireApiVersion('1.11.0')) {
-    // Use dynamic require() to access SettingGroup at runtime
-    // This avoids TypeScript errors when SettingGroup isn't in type definitions
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const obsidian = require('obsidian');
-    const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
-    
-    // Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
-    const group = heading 
-      ? new SettingGroup(containerEl).setHeading(heading)
-      : new SettingGroup(containerEl);
-    return {
-      addSetting(cb: (setting: Setting) => void) {
-        group.addSetting(cb);
-      }
-    };
-  } else {
-    // Fallback path (either API < 1.11.0 or SettingGroup not found)
-    // Add scoping class to containerEl to scope CSS to only this plugin's settings
-    if (manifestId) {
-      containerEl.addClass(`${manifestId}-settings-compat`);
-    }
-    
-    // Fallback: Create a heading manually and use container directly
-    if (heading) {
-      const headingEl = containerEl.createDiv('setting-group-heading');
-      headingEl.createEl('h3', { text: heading });
-    }
-        
-    return {
-      addSetting(cb: (setting: Setting) => void) {
-        const setting = new Setting(containerEl);
-        cb(setting);
-      }
-    };
-  }
+	// Check if SettingGroup is available (API 1.11.0+)
+	// requireApiVersion is the official Obsidian API method for version checking
+	if (requireApiVersion("1.11.0")) {
+		// Use dynamic require() to access SettingGroup at runtime
+		// This avoids TypeScript errors when SettingGroup isn't in type definitions
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		const obsidian = require("obsidian");
+		const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
+
+		// Use SettingGroup - it's guaranteed to exist if requireApiVersion returns true
+		const group = heading
+			? new SettingGroup(containerEl).setHeading(heading)
+			: new SettingGroup(containerEl);
+		return {
+			addSetting(cb: (setting: Setting) => void) {
+				group.addSetting(cb);
+			},
+		};
+	} else {
+		// Fallback path (either API < 1.11.0 or SettingGroup not found)
+		// Add scoping class to containerEl to scope CSS to only this plugin's settings
+		if (manifestId) {
+			containerEl.addClass(`${manifestId}-settings-compat`);
+		}
+
+		// Fallback: Create a heading manually and use container directly
+		if (heading) {
+			const headingEl = containerEl.createDiv("setting-group-heading");
+			headingEl.createEl("h3", { text: heading });
+		}
+
+		return {
+			addSetting(cb: (setting: Setting) => void) {
+				const setting = new Setting(containerEl);
+				cb(setting);
+			},
+		};
+	}
 }
 ```
 
@@ -590,98 +600,106 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import { createSettingsGroup } from "./utils/settings-compat";
 
 interface MyPluginSettings {
-  generalEnabled: boolean;
-  generalTimeout: number;
-  advancedDebug: boolean;
-  advancedLogLevel: string;
+	generalEnabled: boolean;
+	generalTimeout: number;
+	advancedDebug: boolean;
+	advancedLogLevel: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  generalEnabled: true,
-  generalTimeout: 5000,
-  advancedDebug: false,
-  advancedLogLevel: "info",
+	generalEnabled: true,
+	generalTimeout: 5000,
+	advancedDebug: false,
+	advancedLogLevel: "info",
 };
 
 class MySettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+	plugin: MyPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+	constructor(app: App, plugin: MyPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
 
-    // General Settings Group
-    const generalGroup = createSettingsGroup(containerEl, "General Settings", "my-plugin");
-    
-    generalGroup.addSetting((setting) => {
-      setting
-        .setName("Enable feature")
-        .setDesc("Enable or disable the main feature")
-        .addToggle((toggle) => {
-          toggle
-            .setValue(this.plugin.settings.generalEnabled)
-            .onChange(async (value) => {
-              this.plugin.settings.generalEnabled = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		// General Settings Group
+		const generalGroup = createSettingsGroup(
+			containerEl,
+			"General Settings",
+			"my-plugin"
+		);
 
-    generalGroup.addSetting((setting) => {
-      setting
-        .setName("Timeout")
-        .setDesc("Timeout in milliseconds")
-        .addSlider((slider) => {
-          slider
-            .setLimits(1000, 10000, 500)
-            .setValue(this.plugin.settings.generalTimeout)
-            .setDynamicTooltip()
-            .onChange(async (value) => {
-              this.plugin.settings.generalTimeout = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Enable feature")
+				.setDesc("Enable or disable the main feature")
+				.addToggle((toggle) => {
+					toggle
+						.setValue(this.plugin.settings.generalEnabled)
+						.onChange(async (value) => {
+							this.plugin.settings.generalEnabled = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
 
-    // Advanced Settings Group
-    const advancedGroup = createSettingsGroup(containerEl, "Advanced Settings", "my-plugin");
-    
-    advancedGroup.addSetting((setting) => {
-      setting
-        .setName("Debug mode")
-        .setDesc("Enable debug logging")
-        .addToggle((toggle) => {
-          toggle
-            .setValue(this.plugin.settings.advancedDebug)
-            .onChange(async (value) => {
-              this.plugin.settings.advancedDebug = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Timeout")
+				.setDesc("Timeout in milliseconds")
+				.addSlider((slider) => {
+					slider
+						.setLimits(1000, 10000, 500)
+						.setValue(this.plugin.settings.generalTimeout)
+						.setDynamicTooltip()
+						.onChange(async (value) => {
+							this.plugin.settings.generalTimeout = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
 
-    advancedGroup.addSetting((setting) => {
-      setting
-        .setName("Log level")
-        .setDesc("Set the logging level")
-        .addDropdown((dropdown) => {
-          dropdown
-            .addOption("info", "Info")
-            .addOption("warn", "Warning")
-            .addOption("error", "Error")
-            .setValue(this.plugin.settings.advancedLogLevel)
-            .onChange(async (value) => {
-              this.plugin.settings.advancedLogLevel = value;
-              await this.plugin.saveSettings();
-            });
-        });
-    });
-  }
+		// Advanced Settings Group
+		const advancedGroup = createSettingsGroup(
+			containerEl,
+			"Advanced Settings",
+			"my-plugin"
+		);
+
+		advancedGroup.addSetting((setting) => {
+			setting
+				.setName("Debug mode")
+				.setDesc("Enable debug logging")
+				.addToggle((toggle) => {
+					toggle
+						.setValue(this.plugin.settings.advancedDebug)
+						.onChange(async (value) => {
+							this.plugin.settings.advancedDebug = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
+
+		advancedGroup.addSetting((setting) => {
+			setting
+				.setName("Log level")
+				.setDesc("Set the logging level")
+				.addDropdown((dropdown) => {
+					dropdown
+						.addOption("info", "Info")
+						.addOption("warn", "Warning")
+						.addOption("error", "Error")
+						.setValue(this.plugin.settings.advancedLogLevel)
+						.onChange(async (value) => {
+							this.plugin.settings.advancedLogLevel = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		});
+	}
 }
 
 // In main plugin class:
@@ -712,6 +730,7 @@ Add this CSS to your `styles.css` file, replacing `{manifest-id}` with your plug
 **Example**: If your manifest ID is `sample-plugin`, use `.sample-plugin-settings-compat` as the scoping class.
 
 **How it works**:
+
 - The CSS uses the `:has()` selector to detect if a `.setting-item` immediately follows the heading
 - If settings exist below the heading, no border-bottom is applied (avoiding double divider)
 - If no settings follow, border-bottom is applied for visual separation
@@ -732,6 +751,7 @@ Add this CSS to your `styles.css` file, replacing `{manifest-id}` with your plug
 #### Pitfall 1: TypeScript Errors with SettingGroup Import
 
 **Problem**: You may see this TypeScript error:
+
 ```
 Module '"obsidian"' has no exported member 'SettingGroup'
 ```
@@ -742,11 +762,11 @@ Module '"obsidian"' has no exported member 'SettingGroup'
 
 ```ts
 // ❌ WRONG - Causes TypeScript errors
-import { SettingGroup } from 'obsidian';
+import { SettingGroup } from "obsidian";
 
 // ✅ CORRECT - Use dynamic require()
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const obsidian = require('obsidian');
+const obsidian = require("obsidian");
 const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
 ```
 
@@ -785,20 +805,18 @@ generalGroup.addSetting((setting) =>
 ```ts
 // ❌ WRONG - Can't store reference with expression syntax
 let mySetting: Setting;
-generalGroup.addSetting((setting) =>
-  setting.setName("My Setting")
-  // Can't assign: mySetting = setting; (syntax error)
+generalGroup.addSetting(
+	(setting) => setting.setName("My Setting")
+	// Can't assign: mySetting = setting; (syntax error)
 );
 
 // ✅ CORRECT - Use block syntax to store reference
 let mySetting: Setting;
 generalGroup.addSetting((setting) => {
-  mySetting = setting; // Now we can store the reference
-  setting
-    .setName("My Setting")
-    .addToggle((toggle) =>
-      toggle.setValue(this.plugin.settings.enabled)
-    );
+	mySetting = setting; // Now we can store the reference
+	setting
+		.setName("My Setting")
+		.addToggle((toggle) => toggle.setValue(this.plugin.settings.enabled));
 });
 
 // Later, you can use mySetting to toggle visibility:
@@ -818,7 +836,7 @@ import { Setting, SettingGroup } from "obsidian";
 // In settings tab:
 const group = new SettingGroup(containerEl).setHeading("My Settings");
 group.addSetting((setting) => {
-  // ... configure setting
+	// ... configure setting
 });
 ```
 
@@ -834,67 +852,60 @@ This approach is simpler but excludes users on older Obsidian versions. The comp
 import { App, Modal, Notice, Setting } from "obsidian";
 
 interface FormData {
-  name: string;
-  email: string;
+	name: string;
+	email: string;
 }
 
 class FormModal extends Modal {
-  result: FormData;
-  onSubmit: (result: FormData) => void;
+	result: FormData;
+	onSubmit: (result: FormData) => void;
 
-  constructor(app: App, onSubmit: (result: FormData) => void) {
-    super(app);
-    this.onSubmit = onSubmit;
-    this.result = { name: "", email: "" };
-  }
+	constructor(app: App, onSubmit: (result: FormData) => void) {
+		super(app);
+		this.onSubmit = onSubmit;
+		this.result = { name: "", email: "" };
+	}
 
-  onOpen() {
-    const { contentEl } = this;
-    contentEl.createEl("h2", { text: "Enter Information" });
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.createEl("h2", { text: "Enter Information" });
 
-    new Setting(contentEl)
-      .setName("Name")
-      .addText((text) =>
-        text.onChange((value) => {
-          this.result.name = value;
-        })
-      );
+		new Setting(contentEl).setName("Name").addText((text) =>
+			text.onChange((value) => {
+				this.result.name = value;
+			})
+		);
 
-    new Setting(contentEl)
-      .setName("Email")
-      .addText((text) =>
-        text
-          .setPlaceholder("email@example.com")
-          .onChange((value) => {
-            this.result.email = value;
-          })
-      );
+		new Setting(contentEl).setName("Email").addText((text) =>
+			text.setPlaceholder("email@example.com").onChange((value) => {
+				this.result.email = value;
+			})
+		);
 
-    new Setting(contentEl)
-      .addButton((btn) =>
-        btn
-          .setButtonText("Submit")
-          .setCta()
-          .onClick(() => {
-            if (!this.result.name || !this.result.email) {
-              new Notice("Please fill in all fields");
-              return;
-            }
-            this.close();
-            this.onSubmit(this.result);
-          })
-      );
-  }
+		new Setting(contentEl).addButton((btn) =>
+			btn
+				.setButtonText("Submit")
+				.setCta()
+				.onClick(() => {
+					if (!this.result.name || !this.result.email) {
+						new Notice("Please fill in all fields");
+						return;
+					}
+					this.close();
+					this.onSubmit(this.result);
+				})
+		);
+	}
 
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
-  }
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
 }
 
 // Usage:
 new FormModal(this.app, (result) => {
-  new Notice(`Submitted: ${result.name} (${result.email})`);
+	new Notice(`Submitted: ${result.name} (${result.email})`);
 }).open();
 ```
 
@@ -906,42 +917,42 @@ new FormModal(this.app, (result) => {
 import { App, Notice, SuggestModal } from "obsidian";
 
 interface Item {
-  title: string;
-  description: string;
+	title: string;
+	description: string;
 }
 
 const ALL_ITEMS: Item[] = [
-  { title: "Item 1", description: "Description 1" },
-  { title: "Item 2", description: "Description 2" },
+	{ title: "Item 1", description: "Description 1" },
+	{ title: "Item 2", description: "Description 2" },
 ];
 
 class ItemSuggestModal extends SuggestModal<Item> {
-  onChoose: (item: Item) => void;
+	onChoose: (item: Item) => void;
 
-  constructor(app: App, onChoose: (item: Item) => void) {
-    super(app);
-    this.onChoose = onChoose;
-  }
+	constructor(app: App, onChoose: (item: Item) => void) {
+		super(app);
+		this.onChoose = onChoose;
+	}
 
-  getSuggestions(query: string): Item[] {
-    return ALL_ITEMS.filter((item) =>
-      item.title.toLowerCase().includes(query.toLowerCase())
-    );
-  }
+	getSuggestions(query: string): Item[] {
+		return ALL_ITEMS.filter((item) =>
+			item.title.toLowerCase().includes(query.toLowerCase())
+		);
+	}
 
-  renderSuggestion(item: Item, el: HTMLElement) {
-    el.createEl("div", { text: item.title });
-    el.createEl("small", { text: item.description });
-  }
+	renderSuggestion(item: Item, el: HTMLElement) {
+		el.createEl("div", { text: item.title });
+		el.createEl("small", { text: item.description });
+	}
 
-  onChooseSuggestion(item: Item, evt: MouseEvent | KeyboardEvent) {
-    this.onChoose(item);
-  }
+	onChooseSuggestion(item: Item, evt: MouseEvent | KeyboardEvent) {
+		this.onChoose(item);
+	}
 }
 
 // Usage:
 new ItemSuggestModal(this.app, (item) => {
-  new Notice(`Selected: ${item.title}`);
+	new Notice(`Selected: ${item.title}`);
 }).open();
 ```
 
@@ -955,87 +966,87 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 export const VIEW_TYPE_MY_VIEW = "my-view";
 
 export class MyView extends ItemView {
-  private content: string;
+	private content: string;
 
-  constructor(leaf: WorkspaceLeaf) {
-    super(leaf);
-    this.content = "Initial content";
-  }
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+		this.content = "Initial content";
+	}
 
-  getViewType(): string {
-    return VIEW_TYPE_MY_VIEW;
-  }
+	getViewType(): string {
+		return VIEW_TYPE_MY_VIEW;
+	}
 
-  getDisplayText(): string {
-    return "My Custom View";
-  }
+	getDisplayText(): string {
+		return "My Custom View";
+	}
 
-  getIcon(): string {
-    return "document"; // Icon name
-  }
+	getIcon(): string {
+		return "document"; // Icon name
+	}
 
-  async onOpen() {
-    const container = this.containerEl.children[1];
-    container.empty();
-    
-    container.createEl("h2", { text: "My View" });
-    
-    const contentEl = container.createEl("div", { cls: "my-view-content" });
-    contentEl.setText(this.content);
-    
-    // Add interactive elements
-    const button = container.createEl("button", { text: "Update" });
-    button.addEventListener("click", () => {
-      this.updateContent();
-    });
-  }
+	async onOpen() {
+		const container = this.containerEl.children[1];
+		container.empty();
 
-  async onClose() {
-    // Clean up resources
-  }
+		container.createEl("h2", { text: "My View" });
 
-  private updateContent() {
-    const container = this.containerEl.children[1];
-    const contentEl = container.querySelector(".my-view-content");
-    if (contentEl) {
-      this.content = "Updated content";
-      contentEl.setText(this.content);
-    }
-  }
+		const contentEl = container.createEl("div", { cls: "my-view-content" });
+		contentEl.setText(this.content);
+
+		// Add interactive elements
+		const button = container.createEl("button", { text: "Update" });
+		button.addEventListener("click", () => {
+			this.updateContent();
+		});
+	}
+
+	async onClose() {
+		// Clean up resources
+	}
+
+	private updateContent() {
+		const container = this.containerEl.children[1];
+		const contentEl = container.querySelector(".my-view-content");
+		if (contentEl) {
+			this.content = "Updated content";
+			contentEl.setText(this.content);
+		}
+	}
 }
 
 // In main plugin class:
 export default class MyPlugin extends Plugin {
-  async onload() {
-    // Register view
-    this.registerView(VIEW_TYPE_MY_VIEW, (leaf) => new MyView(leaf));
+	async onload() {
+		// Register view
+		this.registerView(VIEW_TYPE_MY_VIEW, (leaf) => new MyView(leaf));
 
-    // Add command to open view
-    this.addCommand({
-      id: "open-my-view",
-      name: "Open My View",
-      callback: () => {
-        this.activateView();
-      },
-    });
-  }
+		// Add command to open view
+		this.addCommand({
+			id: "open-my-view",
+			name: "Open My View",
+			callback: () => {
+				this.activateView();
+			},
+		});
+	}
 
-  async activateView() {
-    const { workspace } = this.app;
+	async activateView() {
+		const { workspace } = this.app;
 
-    let leaf = workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW)[0];
+		let leaf = workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW)[0];
 
-    if (!leaf) {
-      leaf = workspace.getRightLeaf(false);
-      await leaf.setViewState({ type: VIEW_TYPE_MY_VIEW, active: true });
-    }
+		if (!leaf) {
+			leaf = workspace.getRightLeaf(false);
+			await leaf.setViewState({ type: VIEW_TYPE_MY_VIEW, active: true });
+		}
 
-    workspace.revealLeaf(leaf);
-  }
+		workspace.revealLeaf(leaf);
+	}
 
-  async onunload() {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_MY_VIEW);
-  }
+	async onunload() {
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_MY_VIEW);
+	}
 }
 ```
 
@@ -1082,34 +1093,34 @@ getAllMarkdownFiles(): TFile[] {
 ```ts
 // File opened event
 this.registerEvent(
-  this.app.workspace.on("file-open", (file) => {
-    if (file) {
-      console.log("File opened:", file.path);
-    }
-  })
+	this.app.workspace.on("file-open", (file) => {
+		if (file) {
+			console.log("File opened:", file.path);
+		}
+	})
 );
 
 // Active leaf changed
 this.registerEvent(
-  this.app.workspace.on("active-leaf-change", (leaf) => {
-    if (leaf?.view instanceof MarkdownView) {
-      console.log("Active markdown view:", leaf.view.file?.path);
-    }
-  })
+	this.app.workspace.on("active-leaf-change", (leaf) => {
+		if (leaf?.view instanceof MarkdownView) {
+			console.log("Active markdown view:", leaf.view.file?.path);
+		}
+	})
 );
 
 // Layout changed
 this.registerEvent(
-  this.app.workspace.on("layout-change", () => {
-    console.log("Workspace layout changed");
-  })
+	this.app.workspace.on("layout-change", () => {
+		console.log("Workspace layout changed");
+	})
 );
 
 // Editor change (in markdown view)
 this.registerEvent(
-  this.app.workspace.on("editor-change", (editor, info) => {
-    console.log("Editor changed:", info);
-  })
+	this.app.workspace.on("editor-change", (editor, info) => {
+		console.log("Editor changed:", info);
+	})
 );
 ```
 
@@ -1119,34 +1130,36 @@ this.registerEvent(
 
 ```ts
 export default class MyPlugin extends Plugin {
-  private statusBarItem: HTMLElement;
+	private statusBarItem: HTMLElement;
 
-  async onload() {
-    // Create status bar item
-    this.statusBarItem = this.addStatusBarItem();
-    this.updateStatusBar("Ready");
+	async onload() {
+		// Create status bar item
+		this.statusBarItem = this.addStatusBarItem();
+		this.updateStatusBar("Ready");
 
-    // Update status bar periodically
-    this.registerInterval(
-      window.setInterval(() => {
-        this.updateStatusBar(`Time: ${new Date().toLocaleTimeString()}`);
-      }, 1000)
-    );
+		// Update status bar periodically
+		this.registerInterval(
+			window.setInterval(() => {
+				this.updateStatusBar(
+					`Time: ${new Date().toLocaleTimeString()}`
+				);
+			}, 1000)
+		);
 
-    // Update on file open
-    this.registerEvent(
-      this.app.workspace.on("file-open", (file) => {
-        if (file) {
-          this.updateStatusBar(`Open: ${file.name}`);
-        }
-      })
-    );
-  }
+		// Update on file open
+		this.registerEvent(
+			this.app.workspace.on("file-open", (file) => {
+				if (file) {
+					this.updateStatusBar(`Open: ${file.name}`);
+				}
+			})
+		);
+	}
 
-  private updateStatusBar(text: string) {
-    this.statusBarItem.empty();
-    this.statusBarItem.createEl("span", { text });
-  }
+	private updateStatusBar(text: string) {
+		this.statusBarItem.empty();
+		this.statusBarItem.createEl("span", { text });
+	}
 }
 ```
 
@@ -1206,6 +1219,7 @@ getCurrentLine(): string {
 #### Pitfall 1: TypeScript Errors with SettingGroup Import
 
 **Problem**: You may see this TypeScript error:
+
 ```
 Module '"obsidian"' has no exported member 'SettingGroup'
 ```
@@ -1216,11 +1230,11 @@ Module '"obsidian"' has no exported member 'SettingGroup'
 
 ```ts
 // ❌ WRONG - Causes TypeScript errors
-import { SettingGroup } from 'obsidian';
+import { SettingGroup } from "obsidian";
 
 // ✅ CORRECT - Use dynamic require()
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const obsidian = require('obsidian');
+const obsidian = require("obsidian");
 const SettingGroup = obsidian.SettingGroup as SettingGroupConstructor;
 ```
 
@@ -1259,20 +1273,18 @@ generalGroup.addSetting((setting) =>
 ```ts
 // ❌ WRONG - Can't store reference with expression syntax
 let mySetting: Setting;
-generalGroup.addSetting((setting) =>
-  setting.setName("My Setting")
-  // Can't assign: mySetting = setting; (syntax error)
+generalGroup.addSetting(
+	(setting) => setting.setName("My Setting")
+	// Can't assign: mySetting = setting; (syntax error)
 );
 
 // ✅ CORRECT - Use block syntax to store reference
 let mySetting: Setting;
 generalGroup.addSetting((setting) => {
-  mySetting = setting; // Now we can store the reference
-  setting
-    .setName("My Setting")
-    .addToggle((toggle) =>
-      toggle.setValue(this.plugin.settings.enabled)
-    );
+	mySetting = setting; // Now we can store the reference
+	setting
+		.setName("My Setting")
+		.addToggle((toggle) => toggle.setValue(this.plugin.settings.enabled));
 });
 
 // Later, you can use mySetting to toggle visibility:
@@ -1292,7 +1304,7 @@ import { Setting, SettingGroup } from "obsidian";
 // In settings tab:
 const group = new SettingGroup(containerEl).setHeading("My Settings");
 group.addSetting((setting) => {
-  // ... configure setting
+	// ... configure setting
 });
 ```
 
@@ -1308,67 +1320,60 @@ This approach is simpler but excludes users on older Obsidian versions. The comp
 import { App, Modal, Notice, Setting } from "obsidian";
 
 interface FormData {
-  name: string;
-  email: string;
+	name: string;
+	email: string;
 }
 
 class FormModal extends Modal {
-  result: FormData;
-  onSubmit: (result: FormData) => void;
+	result: FormData;
+	onSubmit: (result: FormData) => void;
 
-  constructor(app: App, onSubmit: (result: FormData) => void) {
-    super(app);
-    this.onSubmit = onSubmit;
-    this.result = { name: "", email: "" };
-  }
+	constructor(app: App, onSubmit: (result: FormData) => void) {
+		super(app);
+		this.onSubmit = onSubmit;
+		this.result = { name: "", email: "" };
+	}
 
-  onOpen() {
-    const { contentEl } = this;
-    contentEl.createEl("h2", { text: "Enter Information" });
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.createEl("h2", { text: "Enter Information" });
 
-    new Setting(contentEl)
-      .setName("Name")
-      .addText((text) =>
-        text.onChange((value) => {
-          this.result.name = value;
-        })
-      );
+		new Setting(contentEl).setName("Name").addText((text) =>
+			text.onChange((value) => {
+				this.result.name = value;
+			})
+		);
 
-    new Setting(contentEl)
-      .setName("Email")
-      .addText((text) =>
-        text
-          .setPlaceholder("email@example.com")
-          .onChange((value) => {
-            this.result.email = value;
-          })
-      );
+		new Setting(contentEl).setName("Email").addText((text) =>
+			text.setPlaceholder("email@example.com").onChange((value) => {
+				this.result.email = value;
+			})
+		);
 
-    new Setting(contentEl)
-      .addButton((btn) =>
-        btn
-          .setButtonText("Submit")
-          .setCta()
-          .onClick(() => {
-            if (!this.result.name || !this.result.email) {
-              new Notice("Please fill in all fields");
-              return;
-            }
-            this.close();
-            this.onSubmit(this.result);
-          })
-      );
-  }
+		new Setting(contentEl).addButton((btn) =>
+			btn
+				.setButtonText("Submit")
+				.setCta()
+				.onClick(() => {
+					if (!this.result.name || !this.result.email) {
+						new Notice("Please fill in all fields");
+						return;
+					}
+					this.close();
+					this.onSubmit(this.result);
+				})
+		);
+	}
 
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
-  }
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
 }
 
 // Usage:
 new FormModal(this.app, (result) => {
-  new Notice(`Submitted: ${result.name} (${result.email})`);
+	new Notice(`Submitted: ${result.name} (${result.email})`);
 }).open();
 ```
 
@@ -1380,42 +1385,42 @@ new FormModal(this.app, (result) => {
 import { App, Notice, SuggestModal } from "obsidian";
 
 interface Item {
-  title: string;
-  description: string;
+	title: string;
+	description: string;
 }
 
 const ALL_ITEMS: Item[] = [
-  { title: "Item 1", description: "Description 1" },
-  { title: "Item 2", description: "Description 2" },
+	{ title: "Item 1", description: "Description 1" },
+	{ title: "Item 2", description: "Description 2" },
 ];
 
 class ItemSuggestModal extends SuggestModal<Item> {
-  onChoose: (item: Item) => void;
+	onChoose: (item: Item) => void;
 
-  constructor(app: App, onChoose: (item: Item) => void) {
-    super(app);
-    this.onChoose = onChoose;
-  }
+	constructor(app: App, onChoose: (item: Item) => void) {
+		super(app);
+		this.onChoose = onChoose;
+	}
 
-  getSuggestions(query: string): Item[] {
-    return ALL_ITEMS.filter((item) =>
-      item.title.toLowerCase().includes(query.toLowerCase())
-    );
-  }
+	getSuggestions(query: string): Item[] {
+		return ALL_ITEMS.filter((item) =>
+			item.title.toLowerCase().includes(query.toLowerCase())
+		);
+	}
 
-  renderSuggestion(item: Item, el: HTMLElement) {
-    el.createEl("div", { text: item.title });
-    el.createEl("small", { text: item.description });
-  }
+	renderSuggestion(item: Item, el: HTMLElement) {
+		el.createEl("div", { text: item.title });
+		el.createEl("small", { text: item.description });
+	}
 
-  onChooseSuggestion(item: Item, evt: MouseEvent | KeyboardEvent) {
-    this.onChoose(item);
-  }
+	onChooseSuggestion(item: Item, evt: MouseEvent | KeyboardEvent) {
+		this.onChoose(item);
+	}
 }
 
 // Usage:
 new ItemSuggestModal(this.app, (item) => {
-  new Notice(`Selected: ${item.title}`);
+	new Notice(`Selected: ${item.title}`);
 }).open();
 ```
 
@@ -1429,87 +1434,87 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 export const VIEW_TYPE_MY_VIEW = "my-view";
 
 export class MyView extends ItemView {
-  private content: string;
+	private content: string;
 
-  constructor(leaf: WorkspaceLeaf) {
-    super(leaf);
-    this.content = "Initial content";
-  }
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+		this.content = "Initial content";
+	}
 
-  getViewType(): string {
-    return VIEW_TYPE_MY_VIEW;
-  }
+	getViewType(): string {
+		return VIEW_TYPE_MY_VIEW;
+	}
 
-  getDisplayText(): string {
-    return "My Custom View";
-  }
+	getDisplayText(): string {
+		return "My Custom View";
+	}
 
-  getIcon(): string {
-    return "document"; // Icon name
-  }
+	getIcon(): string {
+		return "document"; // Icon name
+	}
 
-  async onOpen() {
-    const container = this.containerEl.children[1];
-    container.empty();
-    
-    container.createEl("h2", { text: "My View" });
-    
-    const contentEl = container.createEl("div", { cls: "my-view-content" });
-    contentEl.setText(this.content);
-    
-    // Add interactive elements
-    const button = container.createEl("button", { text: "Update" });
-    button.addEventListener("click", () => {
-      this.updateContent();
-    });
-  }
+	async onOpen() {
+		const container = this.containerEl.children[1];
+		container.empty();
 
-  async onClose() {
-    // Clean up resources
-  }
+		container.createEl("h2", { text: "My View" });
 
-  private updateContent() {
-    const container = this.containerEl.children[1];
-    const contentEl = container.querySelector(".my-view-content");
-    if (contentEl) {
-      this.content = "Updated content";
-      contentEl.setText(this.content);
-    }
-  }
+		const contentEl = container.createEl("div", { cls: "my-view-content" });
+		contentEl.setText(this.content);
+
+		// Add interactive elements
+		const button = container.createEl("button", { text: "Update" });
+		button.addEventListener("click", () => {
+			this.updateContent();
+		});
+	}
+
+	async onClose() {
+		// Clean up resources
+	}
+
+	private updateContent() {
+		const container = this.containerEl.children[1];
+		const contentEl = container.querySelector(".my-view-content");
+		if (contentEl) {
+			this.content = "Updated content";
+			contentEl.setText(this.content);
+		}
+	}
 }
 
 // In main plugin class:
 export default class MyPlugin extends Plugin {
-  async onload() {
-    // Register view
-    this.registerView(VIEW_TYPE_MY_VIEW, (leaf) => new MyView(leaf));
+	async onload() {
+		// Register view
+		this.registerView(VIEW_TYPE_MY_VIEW, (leaf) => new MyView(leaf));
 
-    // Add command to open view
-    this.addCommand({
-      id: "open-my-view",
-      name: "Open My View",
-      callback: () => {
-        this.activateView();
-      },
-    });
-  }
+		// Add command to open view
+		this.addCommand({
+			id: "open-my-view",
+			name: "Open My View",
+			callback: () => {
+				this.activateView();
+			},
+		});
+	}
 
-  async activateView() {
-    const { workspace } = this.app;
+	async activateView() {
+		const { workspace } = this.app;
 
-    let leaf = workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW)[0];
+		let leaf = workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW)[0];
 
-    if (!leaf) {
-      leaf = workspace.getRightLeaf(false);
-      await leaf.setViewState({ type: VIEW_TYPE_MY_VIEW, active: true });
-    }
+		if (!leaf) {
+			leaf = workspace.getRightLeaf(false);
+			await leaf.setViewState({ type: VIEW_TYPE_MY_VIEW, active: true });
+		}
 
-    workspace.revealLeaf(leaf);
-  }
+		workspace.revealLeaf(leaf);
+	}
 
-  async onunload() {
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_MY_VIEW);
-  }
+	async onunload() {
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_MY_VIEW);
+	}
 }
 ```
 
@@ -1556,34 +1561,34 @@ getAllMarkdownFiles(): TFile[] {
 ```ts
 // File opened event
 this.registerEvent(
-  this.app.workspace.on("file-open", (file) => {
-    if (file) {
-      console.log("File opened:", file.path);
-    }
-  })
+	this.app.workspace.on("file-open", (file) => {
+		if (file) {
+			console.log("File opened:", file.path);
+		}
+	})
 );
 
 // Active leaf changed
 this.registerEvent(
-  this.app.workspace.on("active-leaf-change", (leaf) => {
-    if (leaf?.view instanceof MarkdownView) {
-      console.log("Active markdown view:", leaf.view.file?.path);
-    }
-  })
+	this.app.workspace.on("active-leaf-change", (leaf) => {
+		if (leaf?.view instanceof MarkdownView) {
+			console.log("Active markdown view:", leaf.view.file?.path);
+		}
+	})
 );
 
 // Layout changed
 this.registerEvent(
-  this.app.workspace.on("layout-change", () => {
-    console.log("Workspace layout changed");
-  })
+	this.app.workspace.on("layout-change", () => {
+		console.log("Workspace layout changed");
+	})
 );
 
 // Editor change (in markdown view)
 this.registerEvent(
-  this.app.workspace.on("editor-change", (editor, info) => {
-    console.log("Editor changed:", info);
-  })
+	this.app.workspace.on("editor-change", (editor, info) => {
+		console.log("Editor changed:", info);
+	})
 );
 ```
 
@@ -1593,34 +1598,36 @@ this.registerEvent(
 
 ```ts
 export default class MyPlugin extends Plugin {
-  private statusBarItem: HTMLElement;
+	private statusBarItem: HTMLElement;
 
-  async onload() {
-    // Create status bar item
-    this.statusBarItem = this.addStatusBarItem();
-    this.updateStatusBar("Ready");
+	async onload() {
+		// Create status bar item
+		this.statusBarItem = this.addStatusBarItem();
+		this.updateStatusBar("Ready");
 
-    // Update status bar periodically
-    this.registerInterval(
-      window.setInterval(() => {
-        this.updateStatusBar(`Time: ${new Date().toLocaleTimeString()}`);
-      }, 1000)
-    );
+		// Update status bar periodically
+		this.registerInterval(
+			window.setInterval(() => {
+				this.updateStatusBar(
+					`Time: ${new Date().toLocaleTimeString()}`
+				);
+			}, 1000)
+		);
 
-    // Update on file open
-    this.registerEvent(
-      this.app.workspace.on("file-open", (file) => {
-        if (file) {
-          this.updateStatusBar(`Open: ${file.name}`);
-        }
-      })
-    );
-  }
+		// Update on file open
+		this.registerEvent(
+			this.app.workspace.on("file-open", (file) => {
+				if (file) {
+					this.updateStatusBar(`Open: ${file.name}`);
+				}
+			})
+		);
+	}
 
-  private updateStatusBar(text: string) {
-    this.statusBarItem.empty();
-    this.statusBarItem.createEl("span", { text });
-  }
+	private updateStatusBar(text: string) {
+		this.statusBarItem.empty();
+		this.statusBarItem.createEl("span", { text });
+	}
 }
 ```
 
@@ -1668,4 +1675,3 @@ getCurrentLine(): string {
   return "";
 }
 ```
-

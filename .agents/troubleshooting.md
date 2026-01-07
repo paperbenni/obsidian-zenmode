@@ -46,6 +46,7 @@ Update frequency: Update as common issues are identified
 **Problem**: AI agent can't find `.ref` folder when searching.
 
 **Solution**:
+
 - The `.ref` folder is gitignored and may be hidden
 - Use `list_dir` with the project root to see hidden directories
 - Use `glob_file_search` with pattern `.ref/**` to search recursively
@@ -84,21 +85,23 @@ console.log("Settings:", this.settings);
 
 // Log in event handlers
 this.app.workspace.on("file-open", (file) => {
-  console.log("File opened:", file.path);
+	console.log("File opened:", file.path);
 });
 ```
 
 ### Inspect Plugin State
 
 Open browser console (Help → Toggle Developer Tools) and inspect:
+
 ```javascript
 // Access your plugin instance
-app.plugins.plugins['your-plugin-id']
+app.plugins.plugins["your-plugin-id"];
 ```
 
 ### Check Settings File
 
 Settings are stored at:
+
 ```
 <Vault>/.obsidian/plugins/<plugin-id>/data.json
 ```
@@ -108,6 +111,7 @@ You can manually inspect this file (backup first!) to see what's saved.
 ### Verify API Usage
 
 Always check `.ref/obsidian-api/obsidian.d.ts` for:
+
 - Correct method signatures
 - Available properties
 - New features (e.g., `SettingGroup` since 1.11.0)
@@ -122,11 +126,13 @@ Plugin docs may not reflect the latest API changes.
 **Symptoms**: Changes don't persist after restart.
 
 **Causes**:
+
 1. Not awaiting `saveData()`
 2. Settings object structure changed
 3. File permissions issue
 
 **Solution**:
+
 ```ts
 async saveSettings() {
   await this.saveData(this.settings); // Must await!
@@ -138,11 +144,13 @@ async saveSettings() {
 **Symptoms**: Settings always use defaults.
 
 **Causes**:
+
 1. `loadSettings()` not called or not awaited
 2. Settings file doesn't exist (first run)
 3. Settings file corrupted
 
 **Solution**:
+
 ```ts
 async onload() {
   await this.loadSettings(); // Must be called and awaited
@@ -163,6 +171,7 @@ async loadSettings() {
 **Symptoms**: Settings tab doesn't reflect changes.
 
 **Solution**: Call `display()` after changing settings:
+
 ```ts
 .onChange(async (value) => {
   this.plugin.settings.value = value;
@@ -176,6 +185,7 @@ async loadSettings() {
 ### Views Not Appearing
 
 **Checklist**:
+
 1. `registerView()` called in `onload()`?
 2. View type constant matches?
 3. `activateView()` method called?
@@ -184,6 +194,7 @@ async loadSettings() {
 ### Views Not Cleaning Up
 
 **Solution**: Always detach in `onunload()`:
+
 ```ts
 async onunload() {
   this.app.workspace.detachLeavesOfType(VIEW_TYPE_MY_VIEW);
@@ -195,6 +206,7 @@ async onunload() {
 **Problem**: Storing view references causes issues.
 
 **Solution**: Always use `getLeavesOfType()`:
+
 ```ts
 // Don't store: let myView: MyView;
 // Instead:
@@ -207,7 +219,8 @@ const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW);
 
 **Cause**: Build didn't run or failed.
 
-**Solution**: 
+**Solution**:
+
 1. Run `pnpm build`
 2. Check for TypeScript errors
 3. Verify `esbuild.config.mjs` or build config is correct
@@ -215,14 +228,14 @@ const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_MY_VIEW);
 ### TypeScript Compilation Errors
 
 **Common causes**:
+
 - Missing type definitions
 - Incorrect import paths
 - Strict mode type errors
 
-**Solution**: 
+**Solution**:
+
 1. Check `tsconfig.json` settings
 2. Verify all imports are correct
 3. Add proper type annotations
 4. Check `.ref/obsidian-api/obsidian.d.ts` for correct types
-
-
