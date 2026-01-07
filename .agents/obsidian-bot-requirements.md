@@ -184,14 +184,15 @@ async handleClick() {
 
 The `obsidianmd/ui/sentence-case` rule cannot be disabled in code, but the Obsidian bot allows `/skip` in review comments for legitimate false positives.
 
-**When to use `/skip`**:
+### When to use `/skip`
 
 - Text is already correct but bot flags it
 - Text contains proper nouns (framework names, product names) that must be capitalized
 - Text contains technical notation (date format codes, file paths) that cannot be changed
 - Rephrasing would make the text less clear or accurate
 
-**How to use `/skip`**:
+### How to use `/skip`
+
 In the bot review comment, use: `/skip False positive: [explanation]`
 
 **Example**:

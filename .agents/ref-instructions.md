@@ -182,7 +182,7 @@ ln -s ../.ref/obsidian-dev/eslint-plugin .ref/eslint-plugin
 
 **Easiest method**: Use the setup scripts in the `scripts/` folder:
 
-- **Windows**: `scripts\setup-ref-links.bat` or `.\scripts\setup-ref-links.ps1`
+- **Windows**: `scripts\setup-ref-links.bat`
 - **macOS/Linux**: `./scripts/setup-ref-links.sh`
 
 These scripts will automatically:
@@ -200,7 +200,7 @@ You can run the setup script anytime to keep your reference repos up to date.
 
 **Easiest way to update**: Simply re-run the setup script from any project:
 
-- **Windows**: `scripts\setup-ref-links.bat` or `.\scripts\setup-ref-links.ps1`
+- **Windows**: `scripts\setup-ref-links.bat`
 - **macOS/Linux**: `./scripts/setup-ref-links.sh`
 
 The setup script will automatically pull the latest changes for all 6 core repos if they already exist.

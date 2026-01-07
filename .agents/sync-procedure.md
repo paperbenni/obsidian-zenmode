@@ -335,7 +335,7 @@ git fetch
 git log HEAD..origin/main --oneline  # Shows what's new
 ```
 
-### Not sure if you're using symlinks or local clones
+### Verify Your Setup (Symlinks vs. Local Clones)
 
 **Windows**:
 

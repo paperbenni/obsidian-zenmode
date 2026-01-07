@@ -12,10 +12,10 @@ import { setCssProps } from "./utils/helpers";
  * a viewing-friendly experience.
  */
 export default class ZenMode extends Plugin {
-	settings!: ZenModeSettings;
+	settings!: ZenModeSettings; // Safe: always initialized in onload
 	hasButton: boolean = false;
-	private button!: ButtonComponent;
-	private buttonContainer!: HTMLDivElement;
+	private button?: ButtonComponent;
+	private buttonContainer?: HTMLDivElement;
 	private _isTogglingZen: boolean = false;
 	private visualViewportResizeHandler: (() => void) | null = null;
 	private _hasShownInitialHighlight: boolean = false;
@@ -309,7 +309,7 @@ export default class ZenMode extends Plugin {
 				this.createButton();
 				this.hasButton = true;
 			}
-			this.buttonContainer.classList.add("zenmode-button-visible");
+			this.buttonContainer!.classList.add("zenmode-button-visible");
 
 			// Apply auto-hide class for desktop hover behavior
 			// Only applies when exitButtonVisibility is "always" and on desktop
@@ -318,11 +318,11 @@ export default class ZenMode extends Plugin {
 				!isMobile &&
 				this.settings.exitButtonVisibility === "always"
 			) {
-				this.buttonContainer.classList.add("zenmode-button-auto-hide");
+				this.buttonContainer!.classList.add("zenmode-button-auto-hide");
 
 				// Show initial highlight animation on first entry to Zen mode
 				if (!this._hasShownInitialHighlight) {
-					this.buttonContainer.classList.add(
+					this.buttonContainer!.classList.add(
 						"zenmode-button-initial-highlight"
 					);
 					this._hasShownInitialHighlight = true;
@@ -347,13 +347,13 @@ export default class ZenMode extends Plugin {
 					this._highlightTimeouts.push(timeout1);
 				}
 			} else {
-				this.buttonContainer.classList.remove(
+				this.buttonContainer!.classList.remove(
 					"zenmode-button-auto-hide"
 				);
-				this.buttonContainer.classList.remove(
+				this.buttonContainer!.classList.remove(
 					"zenmode-button-initial-highlight"
 				);
-				this.buttonContainer.classList.remove(
+				this.buttonContainer!.classList.remove(
 					"zenmode-button-fade-out"
 				);
 			}
@@ -362,7 +362,9 @@ export default class ZenMode extends Plugin {
 			this.adjustButtonPosition();
 		} else {
 			if (this.hasButton) {
-				this.buttonContainer.classList.remove("zenmode-button-visible");
+				this.buttonContainer!.classList.remove(
+					"zenmode-button-visible"
+				);
 			}
 		}
 	}
@@ -449,9 +451,11 @@ export default class ZenMode extends Plugin {
 				if (isPinned) {
 					// Explicitly reveal this leaf to make it active
 					void this.app.workspace.revealLeaf(leaf);
-					// Wait for the reveal to take effect
+					// Wait for the reveal to take effect using requestAnimationFrame for better timing
 					await new Promise<void>((resolve) => {
-						setTimeout(() => resolve(), 200);
+						requestAnimationFrame(() => {
+							requestAnimationFrame(() => resolve());
+						});
 					});
 					return;
 				}

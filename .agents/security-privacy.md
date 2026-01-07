@@ -6,7 +6,7 @@ Update frequency: Check Obsidian Developer Policies for updates
 
 # Security, privacy, and compliance
 
-Follow Obsidian's **Developer Policies** (https://docs.obsidian.md/Developer+policies) and **Plugin Guidelines** (https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines). See [release-readiness.md](release-readiness.md) for a comprehensive release checklist.
+Follow Obsidian's [**Developer Policies**](https://docs.obsidian.md/Developer+policies) and [**Plugin Guidelines**](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines). See [release-readiness.md](release-readiness.md) for a comprehensive release checklist.
 
 ## Developer Policies Requirements
 

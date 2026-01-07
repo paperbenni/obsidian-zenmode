@@ -6,7 +6,7 @@ Update frequency: Check Obsidian releases repo for validation requirements
 
 # Manifest rules (`manifest.json`)
 
-### Required Fields
+## Required Fields
 
 All plugins must include these fields in `manifest.json`:
 
@@ -17,13 +17,13 @@ All plugins must include these fields in `manifest.json`:
 - **`description`** (string, required) - Brief description of what the plugin does
 - **`isDesktopOnly`** (boolean, required) - Set to `false` if the plugin works on mobile, `true` if desktop-only
 
-### Optional Fields
+## Optional Fields
 
 - **`author`** (string, optional) - Author name
 - **`authorUrl`** (string, optional) - URL to author's website or profile
 - **`fundingUrl`** (string, optional) - URL for funding/support (e.g., Patreon, Ko-fi, GitHub Sponsors)
 
-### Example Structure
+## Example Structure
 
 ```json
 {
@@ -39,12 +39,12 @@ All plugins must include these fields in `manifest.json`:
 }
 ```
 
-### Important Notes
+## Important Notes
 
 - Never change `id` after release. Treat it as stable API.
 - Keep `minAppVersion` accurate when using newer APIs.
 - Use semantic versioning for `version` field.
-- Canonical requirements: https://github.com/obsidianmd/obsidian-releases/blob/master/.github/workflows/validate-plugin-entry.yml
+- Canonical requirements: [Obsidian Plugin Validation Workflow](https://github.com/obsidianmd/obsidian-releases/blob/master/.github/workflows/validate-plugin-entry.yml)
 
 ## Validation Checklist
 
