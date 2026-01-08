@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 Source: Based on Obsidian community guidelines
 Last synced: See sync-status.json for authoritative sync dates
 Update frequency: Check Obsidian releases repo for validation requirements
@@ -27,15 +27,15 @@ All plugins must include these fields in `manifest.json`:
 
 ```json
 {
-	"id": "your-plugin-id",
-	"name": "Your Plugin Name",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "A brief description of what your plugin does.",
-	"author": "Your Name",
-	"authorUrl": "https://yourwebsite.com",
-	"fundingUrl": "https://your-funding-url.com",
-	"isDesktopOnly": false
+  "id": "your-plugin-id",
+  "name": "Your Plugin Name",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "A brief description of what your plugin does.",
+  "author": "Your Name",
+  "authorUrl": "https://yourwebsite.com",
+  "fundingUrl": "https://your-funding-url.com",
+  "isDesktopOnly": false
 }
 ```
 
