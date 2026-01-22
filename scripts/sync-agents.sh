@@ -40,7 +40,6 @@ echo ""
 
 success_count=0
 skip_count=0
-error_count=0
 
 for plugin in "${plugins[@]}"; do
     plugin_path="$DEV_ROOT/$plugin"
@@ -85,10 +84,5 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "Sync Complete!"
 echo "  ✓ Success: $success_count"
 echo "  ⚠️  Skipped: $skip_count"
-echo "  ❌ Errors: $error_count"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-if [ $error_count -gt 0 ]; then
-    exit 1
-fi
 
