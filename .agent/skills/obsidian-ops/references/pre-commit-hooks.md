@@ -18,11 +18,13 @@ Pre-commit hooks are Git hooks that run before a commit is finalized. If the hoo
 ## Should You Use Them?
 
 **Pros**:
+
 - ✅ Catches linting errors before commit
 - ✅ Prevents committing broken code
 - ✅ Enforces code quality standards
 
 **Cons**:
+
 - ❌ Adds a step to the commit process (can slow down quick commits)
 - ❌ Requires setup in each repository
 - ❌ Can be bypassed with `git commit --no-verify` (defeats the purpose)
@@ -32,6 +34,7 @@ Pre-commit hooks are Git hooks that run before a commit is finalized. If the hoo
 **Optional, not required**: Pre-commit hooks are a nice-to-have, but not essential. The current workflow (running `pnpm lint` manually before pushing) works well.
 
 **If you want to add them**:
+
 1. Install Husky: `pnpm add -D husky`
 2. Initialize: `pnpm exec husky init`
 3. Add pre-commit hook: Create `.husky/pre-commit` with `pnpm lint`
@@ -41,9 +44,9 @@ Pre-commit hooks are Git hooks that run before a commit is finalized. If the hoo
 ## Alternative: CI/CD Checks
 
 Instead of pre-commit hooks, you can rely on:
+
 - Running `pnpm lint` manually before pushing
 - GitHub Actions or other CI/CD to run linting on pull requests
 - The Obsidian bot review (final check before approval)
 
 These approaches are less intrusive and work well for most workflows.
-

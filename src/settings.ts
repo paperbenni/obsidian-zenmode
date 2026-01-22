@@ -24,6 +24,8 @@ export interface ZenModeSettings {
 	bottomPadding: number;
 	/** Whether to show only the active file, hiding all other panes. */
 	focusedFileMode: boolean;
+	/** Whether to hide the status bar when zen mode is active. */
+	hideStatusBar: boolean;
 }
 
 /**
@@ -41,4 +43,5 @@ export const DEFAULT_SETTINGS: ZenModeSettings = {
 	topPadding: 0,
 	bottomPadding: 0,
 	focusedFileMode: false,
+	hideStatusBar: false,
 };

@@ -3,18 +3,18 @@
 /**
  * Check for eslint-disable comments without descriptions
  * This mimics the Obsidian bot's check for undescribed directives
- * 
+ *
  * All eslint-disable comments must include descriptions using -- syntax:
  * // eslint-disable-next-line rule-name -- reason for disabling
  */
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join, sep } from 'path';
+import { readFileSync, readdirSync, statSync, existsSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join, sep } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const projectRoot = join(__dirname, '..');
+const projectRoot = join(__dirname, "..");
 
 // Pattern to check if a disable comment has a description
 // Matches: -- followed by any text
@@ -35,9 +35,14 @@ function findTsFiles(dir, fileList = []) {
 			const filePath = join(dir, file);
 			try {
 				const stat = statSync(filePath);
-				if (stat.isDirectory() && file !== 'node_modules' && file !== '.ref' && !file.startsWith('.')) {
+				if (
+					stat.isDirectory() &&
+					file !== "node_modules" &&
+					file !== ".ref" &&
+					!file.startsWith(".")
+				) {
 					findTsFiles(filePath, fileList);
-				} else if (file.endsWith('.ts')) {
+				} else if (file.endsWith(".ts")) {
 					fileList.push(filePath);
 				}
 			} catch (err) {
@@ -53,7 +58,7 @@ function findTsFiles(dir, fileList = []) {
 }
 
 // Find src directory (standard location)
-const srcDir = join(projectRoot, 'src');
+const srcDir = join(projectRoot, "src");
 const files = existsSync(srcDir) ? findTsFiles(srcDir) : [];
 
 if (files.length === 0) {
@@ -63,32 +68,33 @@ if (files.length === 0) {
 
 for (const filePath of files) {
 	try {
-		const content = readFileSync(filePath, 'utf-8');
-		const lines = content.split('\n');
-		
+		const content = readFileSync(filePath, "utf-8");
+		const lines = content.split("\n");
+
 		// Normalize path for display (handle both Windows and Unix paths)
 		const relativePath = filePath
-			.replace(projectRoot + sep, '')
-			.replace(projectRoot + '/', '')
-			.replace(/\\/g, '/'); // Normalize to forward slashes for display
+			.replace(projectRoot + sep, "")
+			.replace(projectRoot + "/", "")
+			.replace(/\\/g, "/"); // Normalize to forward slashes for display
 
 		// Check each line for eslint-disable comments
 		lines.forEach((line, index) => {
-			if (line.includes('eslint-disable')) {
+			if (line.includes("eslint-disable")) {
 				// Check if it has a description (-- followed by text)
 				if (!hasDescriptionPattern.test(line)) {
 					// Check if description is on previous line
-					const prevLine = index > 0 ? lines[index - 1] : '';
-					const hasDescriptionOnPrevLine = prevLine.trim().startsWith('//') && 
-						(hasDescriptionPattern.test(prevLine) || 
-						 prevLine.includes('reason:') || 
-						 prevLine.toLowerCase().includes('reason'));
+					const prevLine = index > 0 ? lines[index - 1] : "";
+					const hasDescriptionOnPrevLine =
+						prevLine.trim().startsWith("//") &&
+						(hasDescriptionPattern.test(prevLine) ||
+							prevLine.includes("reason:") ||
+							prevLine.toLowerCase().includes("reason"));
 
 					if (!hasDescriptionOnPrevLine) {
 						errors.push({
 							file: relativePath,
 							line: index + 1,
-							content: line.trim()
+							content: line.trim(),
 						});
 						hasErrors = true;
 					}
@@ -102,15 +108,19 @@ for (const filePath of files) {
 }
 
 if (hasErrors) {
-	console.error('\n❌ Found eslint-disable comments without descriptions:\n');
+	console.error("\n❌ Found eslint-disable comments without descriptions:\n");
 	errors.forEach(({ file, line, content }) => {
 		console.error(`  ${file}:${line}`);
 		console.error(`    ${content}\n`);
 	});
-	console.error('All eslint-disable comments must include descriptions using -- syntax');
-	console.error('Example: // eslint-disable-next-line rule-name -- reason for disabling\n');
+	console.error(
+		"All eslint-disable comments must include descriptions using -- syntax"
+	);
+	console.error(
+		"Example: // eslint-disable-next-line rule-name -- reason for disabling\n"
+	);
 	process.exit(1);
 } else {
-	console.log('✓ All eslint-disable comments have descriptions');
+	console.log("✓ All eslint-disable comments have descriptions");
 	process.exit(0);
 }

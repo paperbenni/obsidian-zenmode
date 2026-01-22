@@ -123,6 +123,21 @@ export class ZenModeSettingTab extends PluginSettingTab {
 
 		generalGroup.addSetting((setting) => {
 			setting
+				.setName("Hide status bar in zen mode")
+				.setDesc("Hide the status bar when zen mode is active.")
+				.addToggle((toggle) =>
+					toggle
+						.setValue(this.plugin.settings.hideStatusBar)
+						.onChange((value) => {
+							this.plugin.settings.hideStatusBar = value;
+							void this.plugin.saveSettings();
+							this.plugin.refresh();
+						})
+				);
+		});
+
+		generalGroup.addSetting((setting) => {
+			setting
 				.setName("Top padding")
 				.setDesc("Top padding in pixels (0-100).")
 				.addSlider((slider) =>

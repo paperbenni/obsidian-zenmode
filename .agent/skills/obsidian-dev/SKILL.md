@@ -14,6 +14,7 @@ To ensure consistent implementation of plugin features, proper resource manageme
 ## When to Use
 
 Load this skill when:
+
 - Implementing or modifying the `main.ts` entry point.
 - Creating new plugin features or logic patterns.
 - Managing the plugin lifecycle (`onload`, `onunload`).

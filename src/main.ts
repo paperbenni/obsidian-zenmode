@@ -204,8 +204,13 @@ export default class ZenMode extends Plugin {
 				"zenmode-hide-properties",
 				this.settings.hideProperties
 			);
+			document.body.classList.toggle(
+				"zenmode-hide-status-bar",
+				this.settings.hideStatusBar
+			);
 		} else {
 			document.body.classList.remove("zenmode-hide-properties");
+			document.body.classList.remove("zenmode-hide-status-bar");
 		}
 
 		if (this.settings.zenMode) {

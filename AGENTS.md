@@ -11,16 +11,18 @@ This project uses the OpenSkills system for AI agent guidance.
 When users ask you to perform tasks, check if any of the available skills below can help complete the task more effectively. Skills provide specialized capabilities and domain knowledge.
 
 How to use skills:
+
 - Read skill: `cat ./.agent/skills/<skill-name>/SKILL.md`
-  - For multiple: `cat ./.agent/skills/skill-one/SKILL.md ./.agent/skills/skill-two/SKILL.md`
+    - For multiple: `cat ./.agent/skills/skill-one/SKILL.md ./.agent/skills/skill-two/SKILL.md`
 - The skill content will load with detailed instructions on how to complete the task
 - Skills are stored locally in ./.agent/skills/ directory
 
 Usage notes:
+
 - Only use skills listed in <available_skills> below
 - Do not invoke a skill that is already loaded in your context
 - Each skill invocation is stateless
-</usage>
+  </usage>
 
 <available_skills>
 
@@ -49,18 +51,22 @@ Usage notes:
 </skill>
 
 </available_skills>
+
 <!-- SKILLS_TABLE_END -->
 
 </skills_system>
 
 ## Project Metadata
+
 - **Project**: Obsidian Plugin
 - **Package Manager**: pnpm
 - **Primary Commands**: `pnpm build`, `pnpm lint`, `pnpm dev`, `pnpm lint:fix`, `pnpm upgrade`
 
 ## Core Policies
+
 - **CRITICAL**: Never perform automatic git operations. AI agents must not execute `git commit`, `git push`, or any command that automatically stages or commits changes without explicit user approval for each step.
 
 ## Terminology
+
 - Use **"properties"** (never "frontmatter" or "front-matter") when referring to YAML metadata at the top of Markdown files.
 - **"Markdown"** is a proper noun and must always be capitalized.

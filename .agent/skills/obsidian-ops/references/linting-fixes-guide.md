@@ -10,6 +10,7 @@ Applicability: Plugin
 **Purpose**: This guide provides **step-by-step fix procedures** for common linting issues detected by `eslint-plugin-obsidianmd`. Use this when you need to fix specific linting errors in your plugin code.
 
 **Related documentation**:
+
 - [obsidian-bot-requirements.md](obsidian-bot-requirements.md) - Bot requirements (authoritative source)
 - [common-pitfalls.md](common-pitfalls.md) - General development pitfalls
 - [release-readiness.md](release-readiness.md) - Pre-submission checklist
@@ -37,6 +38,7 @@ Applicability: Plugin
 ### Fix Options
 
 #### Option 1: Await the Promise (Recommended)
+
 ```typescript
 // ❌ Wrong
 this.loadData();
@@ -48,17 +50,19 @@ await this.saveSettings();
 ```
 
 #### Option 2: Add Error Handling with .catch()
+
 ```typescript
 // ❌ Wrong
 this.loadData();
 
 // ✅ Correct
 this.loadData().catch((error) => {
-  console.error("Failed to load data:", error);
+	console.error("Failed to load data:", error);
 });
 ```
 
 #### Option 3: Mark as Intentionally Ignored with void
+
 ```typescript
 // ❌ Wrong
 this.loadData();
@@ -70,6 +74,7 @@ void this.loadData();
 ### Common Patterns
 
 **Settings Loading:**
+
 ```typescript
 // ❌ Wrong
 async onload() {
@@ -83,21 +88,23 @@ async onload() {
 ```
 
 **Settings Saving:**
+
 ```typescript
 // ❌ Wrong
 onChange(async (value) => {
-  this.plugin.settings.enabled = value;
-  this.plugin.saveData(this.plugin.settings);
+	this.plugin.settings.enabled = value;
+	this.plugin.saveData(this.plugin.settings);
 });
 
 // ✅ Correct
 onChange(async (value) => {
-  this.plugin.settings.enabled = value;
-  await this.plugin.saveData(this.plugin.settings);
+	this.plugin.settings.enabled = value;
+	await this.plugin.saveData(this.plugin.settings);
 });
 ```
 
 **File Operations:**
+
 ```typescript
 // ❌ Wrong
 this.app.vault.create("path/to/file.md", "content");
@@ -113,6 +120,7 @@ await this.app.vault.create("path/to/file.md", "content");
 **Issue**: Command ID should not include plugin ID, command name should not include plugin name, and UI text should use sentence case.
 
 **Error Messages**:
+
 - "The command ID should not include the plugin ID. Obsidian will make sure that there are no conflicts with other plugins."
 - "The command name should not include the plugin name, the plugin name is already shown next to the command name in the UI."
 - "Use sentence case for UI text."
@@ -122,16 +130,20 @@ await this.app.vault.create("path/to/file.md", "content");
 ```typescript
 // ❌ Wrong
 this.addCommand({
-  id: "obsidian-ui-tweaker-toggle-sidebar",
-  name: "Obsidian UI Tweaker: Toggle Sidebar",
-  callback: () => { /* ... */ }
+	id: "obsidian-ui-tweaker-toggle-sidebar",
+	name: "Obsidian UI Tweaker: Toggle Sidebar",
+	callback: () => {
+		/* ... */
+	},
 });
 
 // ✅ Correct
 this.addCommand({
-  id: "toggle-sidebar",
-  name: "Toggle sidebar",
-  callback: () => { /* ... */ }
+	id: "toggle-sidebar",
+	name: "Toggle sidebar",
+	callback: () => {
+		/* ... */
+	},
 });
 ```
 
@@ -151,18 +163,19 @@ this.addCommand({
 **When to fix text vs. use `/skip`**:
 
 1. **Fix the text** if:
-   - The text is actually not in proper sentence case
-   - You can rephrase to avoid the false positive
-   - The issue is a simple capitalization error
+    - The text is actually not in proper sentence case
+    - You can rephrase to avoid the false positive
+    - The issue is a simple capitalization error
 
 2. **Use `/skip` in bot review** if:
-   - The text is already correct but the bot flags it as incorrect
-   - The text contains proper nouns (framework names, product names) that must be capitalized
-   - The text contains technical notation (date format codes, file paths) that cannot be changed
-   - Rephrasing would make the text less clear or accurate
-   - The bot is incorrectly interpreting context
+    - The text is already correct but the bot flags it as incorrect
+    - The text contains proper nouns (framework names, product names) that must be capitalized
+    - The text contains technical notation (date format codes, file paths) that cannot be changed
+    - Rephrasing would make the text less clear or accurate
+    - The bot is incorrectly interpreting context
 
 **If the linter flags text that appears to be correct**, you have two options:
+
 1. Try to rephrase the text to avoid the false positive (preferred)
 2. Use `/skip` in the bot review comment with an explanation (acceptable for legitimate false positives)
 
@@ -234,31 +247,35 @@ Dropdown option labels that include proper nouns:
 **The Obsidian bot will reject any attempt to disable `obsidianmd/ui/sentence-case` with eslint-disable comments**. However, you can use `/skip` in bot review comments for legitimate false positives.
 
 **Step 1: Verify the text is correct**
+
 - First word capitalized
 - Rest lowercase except proper nouns
 - Proper nouns (framework names, product names) should be capitalized
 - Technical notation (date codes, file paths) may need special handling
 
 **Step 2: Try to fix the text** (preferred):
+
 - Rephrase to avoid the false positive
 - Use code formatting for technical notation
 - Restructure sentences if needed
 
 **Step 3: If text is already correct but bot flags it** (legitimate false positive):
+
 - You cannot disable the rule in code
 - Use `/skip` in the bot review comment with an explanation
 - Example: `/skip False positive: "Astro" is a proper noun (framework name) and must be capitalized`
 
 3. **Common scenarios**:
-   - Proper nouns (framework names, product names, company names) - Keep capitalized
-   - Technical notation (date format codes, file paths, code examples) - May need rephrasing or code formatting
-   - Placeholders that are format strings - Consider using code formatting or rephrasing
+    - Proper nouns (framework names, product names, company names) - Keep capitalized
+    - Technical notation (date format codes, file paths, code examples) - May need rephrasing or code formatting
+    - Placeholders that are format strings - Consider using code formatting or rephrasing
 
 #### Fixing Sentence Case Issues
 
 **Remember: You cannot disable this rule. You must fix the text.**
 
 **Example: Fixing text to proper sentence case**
+
 ```typescript
 // ❌ Wrong - Cannot disable, must fix text
 // eslint-disable-next-line obsidianmd/ui/sentence-case  // ❌ Bot will reject!
@@ -269,6 +286,7 @@ Dropdown option labels that include proper nouns:
 ```
 
 **Example: Handling proper nouns**
+
 ```typescript
 // ❌ Wrong - Cannot disable
 // eslint-disable-next-line obsidianmd/ui/sentence-case  // ❌ Bot will reject!
@@ -279,6 +297,7 @@ Dropdown option labels that include proper nouns:
 ```
 
 **Example: Handling technical notation**
+
 ```typescript
 // ❌ Wrong - Cannot disable
 // eslint-disable-next-line obsidianmd/ui/sentence-case  // ❌ Bot will reject!
@@ -293,12 +312,14 @@ Dropdown option labels that include proper nouns:
 #### When NOT to Use Disable Comments
 
 **Do NOT use disable comments to:**
+
 - Skip fixing legitimate errors
 - Avoid refactoring problematic code
 - Work around type safety issues
 - Suppress warnings you don't understand
 
 **Only use disable comments when:**
+
 - The text is already correct and the linter is wrong
 - You've verified the text follows all formatting rules
 - You can clearly explain why it's a false positive
@@ -351,7 +372,7 @@ onload() {
 // In TypeScript:
 import { setCssProps } from "obsidian";
 setCssProps(element, {
-  "--dynamic-color": "red"
+	"--dynamic-color": "red",
 });
 ```
 
@@ -362,12 +383,14 @@ setCssProps(element, {
 **Issue**: Avoid setting styles directly via `element.style.*`. Use CSS classes or `setCssProps()`.
 
 **Error Messages**:
+
 - "Avoid setting styles directly via `element.style.display`. Use CSS classes for better theming and maintainability. Use the `setCssProps` function to change CSS properties."
 - "Avoid setting styles directly via `element.style.setProperty`. Use CSS classes for better theming and maintainability. Use the `setCssProps` function to change CSS properties."
 
 ### Fix Options
 
 #### Option 1: Use CSS Classes (Recommended)
+
 ```typescript
 // ❌ Wrong
 element.style.display = "block";
@@ -386,6 +409,7 @@ element.removeClass("hidden");
 ```
 
 #### Option 2: Use setCssProps() for Dynamic Styles
+
 ```typescript
 // ❌ Wrong
 element.style.display = "block";
@@ -394,14 +418,15 @@ element.style.setProperty("margin-top", "10px");
 // ✅ Correct
 import { setCssProps } from "obsidian";
 setCssProps(element, {
-  display: "block",
-  marginTop: "10px"
+	display: "block",
+	marginTop: "10px",
 });
 ```
 
 ### Common Patterns
 
 **Show/Hide Elements:**
+
 ```typescript
 // ❌ Wrong
 element.style.display = "none";
@@ -418,6 +443,7 @@ element.removeClass("hidden");
 ```
 
 **Dynamic Values:**
+
 ```typescript
 // ❌ Wrong
 element.style.setProperty("--custom-property", value);
@@ -425,7 +451,7 @@ element.style.setProperty("--custom-property", value);
 // ✅ Correct
 import { setCssProps } from "obsidian";
 setCssProps(element, {
-  "--custom-property": value
+	"--custom-property": value,
 });
 ```
 
@@ -473,62 +499,60 @@ const element = document.createElement("div") as HTMLElement;
 ### Fix Options
 
 #### Option 1: Add void Operator
+
 ```typescript
 // ❌ Wrong
-new Setting(containerEl)
-  .addToggle((toggle) =>
-    toggle.onChange(async (value) => {
-      await this.plugin.saveData(this.plugin.settings);
-    })
-  );
+new Setting(containerEl).addToggle((toggle) =>
+	toggle.onChange(async (value) => {
+		await this.plugin.saveData(this.plugin.settings);
+	})
+);
 
 // ✅ Correct
-new Setting(containerEl)
-  .addToggle((toggle) =>
-    toggle.onChange(async (value) => {
-      void this.plugin.saveData(this.plugin.settings);
-    })
-  );
+new Setting(containerEl).addToggle((toggle) =>
+	toggle.onChange(async (value) => {
+		void this.plugin.saveData(this.plugin.settings);
+	})
+);
 ```
 
 #### Option 2: Make Callback Async and Await
+
 ```typescript
 // ❌ Wrong
-new Setting(containerEl)
-  .addToggle((toggle) =>
-    toggle.onChange((value) => {
-      this.plugin.saveData(this.plugin.settings);
-    })
-  );
+new Setting(containerEl).addToggle((toggle) =>
+	toggle.onChange((value) => {
+		this.plugin.saveData(this.plugin.settings);
+	})
+);
 
 // ✅ Correct - Works with direct Setting usage
-new Setting(containerEl)
-  .addToggle((toggle) =>
-    toggle.onChange(async (value) => {
-      await this.plugin.saveData(this.plugin.settings);
-    })
-  );
+new Setting(containerEl).addToggle((toggle) =>
+	toggle.onChange(async (value) => {
+		await this.plugin.saveData(this.plugin.settings);
+	})
+);
 ```
 
 **Important**: Option 2 works with direct `Setting` usage, but **does NOT work** with `addSetting` from `createSettingsGroup()`:
 
 ```typescript
 // ❌ FAILS with addSetting from createSettingsGroup
-group.addSetting(setting =>
-  setting.addToggle(toggle =>
-    toggle.onChange(async (value) => {
-      await this.plugin.saveData(this.plugin.settings);
-    })
-  )
+group.addSetting((setting) =>
+	setting.addToggle((toggle) =>
+		toggle.onChange(async (value) => {
+			await this.plugin.saveData(this.plugin.settings);
+		})
+	)
 );
 
 // ✅ CORRECT - Use block body for addSetting
-group.addSetting(setting => {
-  setting.addToggle(toggle => {
-    toggle.onChange(async (value) => {
-      await this.plugin.saveData(this.plugin.settings);
-    });
-  });
+group.addSetting((setting) => {
+	setting.addToggle((toggle) => {
+		toggle.onChange(async (value) => {
+			await this.plugin.saveData(this.plugin.settings);
+		});
+	});
 });
 ```
 
@@ -537,30 +561,23 @@ group.addSetting(setting => {
 ### Common Patterns
 
 **Settings Tab Callbacks:**
+
 ```typescript
 // ❌ Wrong
-new Setting(containerEl)
-  .setName("Enable feature")
-  .addToggle((toggle) =>
-    toggle
-      .setValue(this.plugin.settings.enabled)
-      .onChange((value) => {
-        this.plugin.settings.enabled = value;
-        this.plugin.saveData(this.plugin.settings);
-      })
-  );
+new Setting(containerEl).setName("Enable feature").addToggle((toggle) =>
+	toggle.setValue(this.plugin.settings.enabled).onChange((value) => {
+		this.plugin.settings.enabled = value;
+		this.plugin.saveData(this.plugin.settings);
+	})
+);
 
 // ✅ Correct
-new Setting(containerEl)
-  .setName("Enable feature")
-  .addToggle((toggle) =>
-    toggle
-      .setValue(this.plugin.settings.enabled)
-      .onChange(async (value) => {
-        this.plugin.settings.enabled = value;
-        await this.plugin.saveData(this.plugin.settings);
-      })
-  );
+new Setting(containerEl).setName("Enable feature").addToggle((toggle) =>
+	toggle.setValue(this.plugin.settings.enabled).onChange(async (value) => {
+		this.plugin.settings.enabled = value;
+		await this.plugin.saveData(this.plugin.settings);
+	})
+);
 ```
 
 ---
@@ -576,36 +593,35 @@ new Setting(containerEl)
 **Root Cause**: Expression body arrow functions return the result of the expression. When you chain methods like `setting.setName(...).addToggle(...)`, the expression returns the `Setting` object (for method chaining), but `addSetting` expects a callback that returns `void`.
 
 **❌ Wrong - Expression Body (Returns Setting)**:
+
 ```typescript
-group.addSetting(setting =>
-  setting
-    .setName("Enable feature")
-    .addToggle(toggle => {
-      toggle.setValue(this.plugin.settings.enabled);
-      toggle.onChange(async (value) => {
-        this.plugin.settings.enabled = value;
-        await this.plugin.saveData(this.plugin.settings);
-      });
-    })
+group.addSetting((setting) =>
+	setting.setName("Enable feature").addToggle((toggle) => {
+		toggle.setValue(this.plugin.settings.enabled);
+		toggle.onChange(async (value) => {
+			this.plugin.settings.enabled = value;
+			await this.plugin.saveData(this.plugin.settings);
+		});
+	})
 );
 ```
 
 **✅ Correct - Block Body (Returns Void)**:
+
 ```typescript
-group.addSetting(setting => {
-  setting
-    .setName("Enable feature")
-    .addToggle(toggle => {
-      toggle.setValue(this.plugin.settings.enabled);
-      toggle.onChange(async (value) => {
-        this.plugin.settings.enabled = value;
-        await this.plugin.saveData(this.plugin.settings);
-      });
-    });
+group.addSetting((setting) => {
+	setting.setName("Enable feature").addToggle((toggle) => {
+		toggle.setValue(this.plugin.settings.enabled);
+		toggle.onChange(async (value) => {
+			this.plugin.settings.enabled = value;
+			await this.plugin.saveData(this.plugin.settings);
+		});
+	});
 });
 ```
 
 **Key Difference**:
+
 - **Expression body**: `setting => setting.setName(...)` - Returns the result of the chain (a `Setting` object)
 - **Block body**: `setting => { setting.setName(...); }` - Explicitly returns `void`
 
@@ -614,15 +630,14 @@ group.addSetting(setting => {
 **Note**: This may only fail with strict ESLint rules, but using block body is safer, clearer, and prevents potential type errors.
 
 **Direct Setting Usage (No Issue)**:
+
 ```typescript
 // ✅ This works fine - no addSetting callback
-new Setting(containerEl)
-  .setName("Enable feature")
-  .addToggle((toggle) =>
-    toggle.onChange(async (value) => {
-      await this.plugin.saveData(this.plugin.settings);
-    })
-  );
+new Setting(containerEl).setName("Enable feature").addToggle((toggle) =>
+	toggle.onChange(async (value) => {
+		await this.plugin.saveData(this.plugin.settings);
+	})
+);
 ```
 
 Most plugins use `new Setting(containerEl)` directly, which doesn't have this restriction. The issue only applies when using `SettingGroup` or the compatibility utility.
@@ -641,6 +656,7 @@ Most plugins use `new Setting(containerEl)` directly, which doesn't have this re
 **Common Mistake**: Adding eslint-disable comments instead of fixing the root cause. The disable comment should be on the EXACT line with the error, but it's better to fix the actual issue.
 
 **Debugging Steps**:
+
 1. Check which line the error is on (column number matters)
 2. If it's the `addSetting` callback, ensure it uses block body `{ }`
 3. If it's the `onChange` callback, ensure it's properly async or uses `void`
@@ -672,25 +688,27 @@ console.log(`Key1: ${settings.key1}, Key2: ${settings.key2}`);
 
 // ✅ Correct - For arrays of objects
 const items = [{ name: "item1" }, { name: "item2" }];
-console.log(`Items: ${items.map(item => item.name).join(", ")}`);
+console.log(`Items: ${items.map((item) => item.name).join(", ")}`);
 // Outputs: "Items: item1, item2"
 ```
 
 ### Common Patterns
 
 **Settings Display:**
+
 ```typescript
 // ❌ Wrong
-new Setting(containerEl)
-  .setDesc(`Current value: ${this.plugin.settings[key]}`);
+new Setting(containerEl).setDesc(`Current value: ${this.plugin.settings[key]}`);
 
 // ✅ Correct
-new Setting(containerEl)
-  .setDesc(`Current value: ${JSON.stringify(this.plugin.settings[key])}`);
+new Setting(containerEl).setDesc(
+	`Current value: ${JSON.stringify(this.plugin.settings[key])}`
+);
 
 // ✅ Better - If it's a simple value
-new Setting(containerEl)
-  .setDesc(`Current value: ${String(this.plugin.settings[key] || "")}`);
+new Setting(containerEl).setDesc(
+	`Current value: ${String(this.plugin.settings[key] || "")}`
+);
 ```
 
 ---
@@ -700,6 +718,7 @@ new Setting(containerEl)
 **Issue**: Avoid using `navigator` API to detect the operating system. Use the Platform API instead.
 
 **Error Messages**:
+
 - "Avoid using the navigator API to detect the operating system. Use the Platform API instead."
 - "`platform` is deprecated."
 
@@ -714,18 +733,18 @@ const isWindows = navigator.platform.includes("Win");
 import { Platform } from "obsidian";
 
 if (Platform.isMacOS) {
-  // Mac-specific code
+	// Mac-specific code
 } else if (Platform.isWin) {
-  // Windows-specific code
+	// Windows-specific code
 } else if (Platform.isLinux) {
-  // Linux-specific code
+	// Linux-specific code
 }
 
 // ✅ Correct - Check mobile
 if (this.app.isMobile) {
-  // Mobile-specific code
+	// Mobile-specific code
 } else {
-  // Desktop-specific code
+	// Desktop-specific code
 }
 ```
 
@@ -735,20 +754,36 @@ if (this.app.isMobile) {
 import { Platform } from "obsidian";
 
 // Check specific platform
-if (Platform.isMacOS) { /* ... */ }
-if (Platform.isWin) { /* ... */ }
-if (Platform.isLinux) { /* ... */ }
-if (Platform.isAndroidApp) { /* ... */ }
-if (Platform.isIOSApp) { /* ... */ }
+if (Platform.isMacOS) {
+	/* ... */
+}
+if (Platform.isWin) {
+	/* ... */
+}
+if (Platform.isLinux) {
+	/* ... */
+}
+if (Platform.isAndroidApp) {
+	/* ... */
+}
+if (Platform.isIOSApp) {
+	/* ... */
+}
 
 // Check mobile vs desktop
-if (this.app.isMobile) { /* ... */ }
+if (this.app.isMobile) {
+	/* ... */
+}
 
 // Check desktop platform
 if (Platform.isDesktop) {
-  if (Platform.isMacOS) { /* Mac */ }
-  else if (Platform.isWin) { /* Windows */ }
-  else if (Platform.isLinux) { /* Linux */ }
+	if (Platform.isMacOS) {
+		/* Mac */
+	} else if (Platform.isWin) {
+		/* Windows */
+	} else if (Platform.isLinux) {
+		/* Linux */
+	}
 }
 ```
 
@@ -786,19 +821,19 @@ Or configure your IDE to remove unused imports on save.
 
 ## Quick Reference: Common Fixes Summary
 
-| Issue | Quick Fix |
-|-------|-----------|
-| Promise not awaited | Add `await` or `void` operator |
-| Command ID includes plugin ID | Remove plugin ID prefix |
-| Command name includes plugin name | Remove plugin name prefix |
-| Not sentence case | Use sentence case (first word capitalized) |
-| Creating style elements | Move CSS to `styles.css` |
-| Direct style manipulation | Use CSS classes or `setCssProps()` |
-| Unnecessary type assertion | Remove `as Type` assertion |
-| Promise in void context | Add `void` operator or make async |
-| Object stringification | Use `JSON.stringify()` or access properties |
-| Navigator API | Use `Platform` from Obsidian |
-| Unused import | Remove unused import |
+| Issue                             | Quick Fix                                   |
+| --------------------------------- | ------------------------------------------- |
+| Promise not awaited               | Add `await` or `void` operator              |
+| Command ID includes plugin ID     | Remove plugin ID prefix                     |
+| Command name includes plugin name | Remove plugin name prefix                   |
+| Not sentence case                 | Use sentence case (first word capitalized)  |
+| Creating style elements           | Move CSS to `styles.css`                    |
+| Direct style manipulation         | Use CSS classes or `setCssProps()`          |
+| Unnecessary type assertion        | Remove `as Type` assertion                  |
+| Promise in void context           | Add `void` operator or make async           |
+| Object stringification            | Use `JSON.stringify()` or access properties |
+| Navigator API                     | Use `Platform` from Obsidian                |
+| Unused import                     | Remove unused import                        |
 
 ---
 
@@ -816,27 +851,25 @@ Update your `.eslintrc` file:
 
 ```json
 {
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "env": { "node": true },
-  "plugins": [
-    "@typescript-eslint",
-    "obsidianmd"
-  ],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "parserOptions": {
-    "sourceType": "module"
-  }
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"env": { "node": true },
+	"plugins": ["@typescript-eslint", "obsidianmd"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
+	"parserOptions": {
+		"sourceType": "module"
+	}
 }
 ```
 
 ### Version Compatibility Note
 
 If you encounter dependency conflicts, you may need to:
+
 - Update TypeScript to 4.8.4 or higher
 - Update `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to compatible versions
 - Install missing peer dependencies like `@typescript-eslint/utils` or `@eslint/json`
@@ -869,4 +902,3 @@ npx eslint src/
 - [common-pitfalls.md](common-pitfalls.md) - More common mistakes and gotchas
 - [build-workflow.md](build-workflow.md) - Build commands and workflow
 - [release-readiness.md](release-readiness.md) - Release checklist
-

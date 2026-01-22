@@ -8,6 +8,7 @@ Applicability: Both
 # References
 
 ## Official Repositories
+
 - [Obsidian sample plugin](https://github.com/obsidianmd/obsidian-sample-plugin)
 - [Obsidian API](https://github.com/obsidianmd/obsidian-api)
 - [Obsidian developer docs](https://github.com/obsidianmd/obsidian-developer-docs)
@@ -15,6 +16,7 @@ Applicability: Both
 - [Obsidian sample theme](https://github.com/obsidianmd/obsidian-sample-theme)
 
 ## Official Documentation
+
 - [API documentation](https://docs.obsidian.md)
 - [Developer policies](https://docs.obsidian.md/Developer+policies)
 - [Plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines)
@@ -26,6 +28,5 @@ Applicability: Both
 - [Supporting Pop-Out Windows guide](https://docs.obsidian.md/plugins/guides/supporting-pop-out-windows) - Cross-window compatibility for plugins (available since Obsidian v0.15.0)
 
 ## Community Resources
+
 - [obsidian-skills](https://github.com/kepano/obsidian-skills) - Claude Skills for Obsidian (comprehensive syntax documentation source)
-
-

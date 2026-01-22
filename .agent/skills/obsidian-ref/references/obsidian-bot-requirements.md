@@ -10,6 +10,7 @@ Applicability: Plugin
 **Purpose**: This is the **authoritative source** for Obsidian bot review requirements. It outlines requirements enforced by the Obsidian review bot that may differ from local linting. Use this as a reference when preparing your plugin for submission.
 
 **Related documentation**:
+
 - [linting-fixes-guide.md](linting-fixes-guide.md) - Step-by-step fix procedures
 - [common-pitfalls.md](common-pitfalls.md) - General development pitfalls
 - [release-readiness.md](release-readiness.md) - Pre-submission checklist
@@ -22,7 +23,7 @@ Your `eslint.config.mjs` should include these rules to match the bot:
 rules: {
   // Restrict console to only warn, error, debug (Obsidian bot requirement)
   "no-console": ["error", { "allow": ["warn", "error", "debug"] }],
-  
+
   // Require await in async functions (Obsidian bot requirement)
   "@typescript-eslint/require-await": "error",
 }
@@ -39,34 +40,37 @@ These rules cannot be disabled with eslint-disable comments. If you encounter th
 ### Examples
 
 **Static Style Assignment** (cannot disable):
+
 ```ts
 // ❌ Wrong - Cannot disable this rule
 // eslint-disable-next-line obsidianmd/no-static-styles-assignment
-element.style.cssText = 'color: red;';
+element.style.cssText = "color: red;";
 
 // ✅ Correct - Use setCssProperties or CSS classes
-import { setCssProps } from 'obsidian';
-setCssProps(element, { color: 'red' });
+import { setCssProps } from "obsidian";
+setCssProps(element, { color: "red" });
 // Or:
-element.addClass('my-custom-class');
+element.addClass("my-custom-class");
 ```
 
 **No Explicit Any** (cannot disable):
+
 ```ts
 // ❌ Wrong - Cannot disable this rule
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function process(data: any) { }
+function process(data: any) {}
 
 // ✅ Correct - Use unknown with type guards
 function process(data: unknown) {
-  if (typeof data === 'object' && data !== null && 'value' in data) {
-    return (data as { value: string }).value;
-  }
-  throw new Error('Invalid data');
+	if (typeof data === "object" && data !== null && "value" in data) {
+		return (data as { value: string }).value;
+	}
+	throw new Error("Invalid data");
 }
 ```
 
 **UI Sentence Case** (cannot disable in code):
+
 ```ts
 // ❌ Wrong - Cannot disable this rule in code
 // eslint-disable-next-line obsidianmd/ui/sentence-case  // Bot will reject this!
@@ -93,12 +97,14 @@ All eslint-disable comments must:
 ### Format
 
 **Wrong** (no description):
+
 ```ts
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const data = await fetchExternalData();
 ```
 
 **Correct** (with description):
+
 ```ts
 // External API returns unknown type - reason: External API
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -106,6 +112,7 @@ const data = await fetchExternalData();
 ```
 
 **Wrong** (blank line between comment and error):
+
 ```ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -113,6 +120,7 @@ const data: any = fetchData();
 ```
 
 **Correct** (comment directly before error):
+
 ```ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const data: any = fetchData();
@@ -123,6 +131,7 @@ const data: any = fetchData();
 Remove any eslint-disable directives that aren't actually needed. The bot will flag unused disables.
 
 **Problem**: Disabling a rule that isn't being violated:
+
 ```ts
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const value = this.settings.enabled; // This line doesn't actually violate the rule
@@ -183,9 +192,11 @@ The `obsidianmd/ui/sentence-case` rule cannot be disabled in code, but the Obsid
 - Rephrasing would make the text less clear or accurate
 
 ### How to use `/skip`
+
 In the bot review comment, use: `/skip False positive: [explanation]`
 
 **Example**:
+
 ```markdown
 /skip False positive: "Astro" is a proper noun (framework name) and must be capitalized
 ```

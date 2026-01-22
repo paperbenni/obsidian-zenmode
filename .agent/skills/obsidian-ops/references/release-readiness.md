@@ -11,6 +11,7 @@ Update frequency: Check Obsidian Developer Policies and Plugin Guidelines for up
 **For AI Agents**: When a user asks about release readiness, run through this checklist systematically. Perform automated checks where possible, and ask the user interactively for items that require their input.
 
 **Related documentation**:
+
 - [obsidian-bot-requirements.md](obsidian-bot-requirements.md) - Bot requirements (authoritative source)
 - [versioning-releases.md](versioning-releases.md) - Versioning and release process
 - [common-pitfalls.md](common-pitfalls.md) - Common development pitfalls
@@ -28,8 +29,8 @@ These checks can be performed automatically by reading files and scanning code:
 ### File Requirements
 
 - [ ] **`main.js`** exists (compiled output)
-  - Check `main.js` in root (created by `pnpm build` or `pnpm dev`)
-  - **Note**: All builds output to `main.js` in the root directory
+    - Check `main.js` in root (created by `pnpm build` or `pnpm dev`)
+    - **Note**: All builds output to `main.js` in the root directory
 - [ ] **`manifest.json`** exists in project root with valid JSON structure
 - [ ] **`styles.css`** exists (if plugin uses custom styles) - optional but should be included if present
 - [ ] **`LICENSE`** file exists in project root
@@ -47,10 +48,10 @@ These checks can be performed automatically by reading files and scanning code:
 ### Version Consistency
 
 - [ ] **GitHub release tag**: Matches `manifest.json` version exactly (no "v" prefix)
-  - **Correct**: If `manifest.json` has `"version": "0.1.0"`, tag must be `0.1.0` (not `v0.1.0`)
-  - **Wrong**: `v0.1.0` (with "v" prefix) - this will NOT match and can cause issues
-  - If checking before release: Verify version format is ready
-  - If checking after release: Verify tag matches manifest version exactly
+    - **Correct**: If `manifest.json` has `"version": "0.1.0"`, tag must be `0.1.0` (not `v0.1.0`)
+    - **Wrong**: `v0.1.0` (with "v" prefix) - this will NOT match and can cause issues
+    - If checking before release: Verify version format is ready
+    - If checking after release: Verify tag matches manifest version exactly
 
 ### Code Quality Checks
 
@@ -62,11 +63,11 @@ These checks can be performed automatically by reading files and scanning code:
 - [ ] **Console logging**: Only `console.warn()`, `console.error()`, or `console.debug()` - no `console.log()` in production code
 - [ ] **Listener cleanup**: All event listeners registered using `registerEvent()`, `registerDomEvent()`, `registerInterval()`
 - [ ] **ESLint configuration matches Obsidian bot**:
-  - [ ] `no-console` rule configured to only allow warn/error/debug
-  - [ ] `@typescript-eslint/require-await` enabled
-  - [ ] No disallowed rule disables present (no-static-styles-assignment, no-explicit-any, ui/sentence-case)
-  - [ ] All disable comments have descriptions
-  - [ ] No unused eslint-disable directives
+    - [ ] `no-console` rule configured to only allow warn/error/debug
+    - [ ] `@typescript-eslint/require-await` enabled
+    - [ ] No disallowed rule disables present (no-static-styles-assignment, no-explicit-any, ui/sentence-case)
+    - [ ] All disable comments have descriptions
+    - [ ] No unused eslint-disable directives
 
 ### README.md Content
 
@@ -100,9 +101,9 @@ These checks require user input or confirmation:
 - [ ] **Release created**: GitHub release exists for the version
 - [ ] **Required files attached**: `main.js`, `manifest.json`, `styles.css` (if present) attached as **individual binary assets** (not just in source.zip)
 - [ ] **Release tag format**: The release tag must exactly match `manifest.json`'s `version` field **WITHOUT** a leading "v" prefix
-  - **Correct**: If `manifest.json` has `"version": "0.1.0"`, tag must be `0.1.0` (not `v0.1.0`)
-  - **Wrong**: `v0.1.0` (with "v" prefix) - this will NOT match and can cause issues
-  - The release name can be descriptive, but the tag itself must be the version number without "v" prefix
+    - **Correct**: If `manifest.json` has `"version": "0.1.0"`, tag must be `0.1.0` (not `v0.1.0`)
+    - **Wrong**: `v0.1.0` (with "v" prefix) - this will NOT match and can cause issues
+    - The release name can be descriptive, but the tag itself must be the version number without "v" prefix
 
 ### Community Plugin Registration
 
@@ -117,15 +118,15 @@ These checks require user input or confirmation:
 
 - [ ] **Read Developer Policies**: User confirms they have read https://docs.obsidian.md/Developer+policies
 - [ ] **No prohibited features**:
-  - [ ] No code obfuscation
-  - [ ] No dynamic ads
-  - [ ] No client-side telemetry (unless explicitly opt-in and disclosed)
-  - [ ] No self-updating mechanisms
+    - [ ] No code obfuscation
+    - [ ] No dynamic ads
+    - [ ] No client-side telemetry (unless explicitly opt-in and disclosed)
+    - [ ] No self-updating mechanisms
 - [ ] **Mandatory disclosures** (if applicable):
-  - [ ] Payments required: Disclosed in README and settings
-  - [ ] User accounts required: Disclosed in README and settings
-  - [ ] Network usage: Disclosed in README and settings
-  - [ ] Files outside vault: Disclosed in README and settings
+    - [ ] Payments required: Disclosed in README and settings
+    - [ ] User accounts required: Disclosed in README and settings
+    - [ ] Network usage: Disclosed in README and settings
+    - [ ] Files outside vault: Disclosed in README and settings
 - [ ] **Licensing**: LICENSE file present and compliant with any third-party code licenses
 
 ### Plugin Guidelines Adherence
@@ -157,6 +158,7 @@ For reference, key points from [Developer Policies](https://docs.obsidian.md/Dev
 ### Mandatory Disclosures
 
 If your plugin requires any of the following, you **must** disclose it clearly:
+
 - Payments or subscriptions
 - User accounts
 - Network usage (API calls, external services)
@@ -184,29 +186,29 @@ For reference, key points from [Plugin Guidelines](https://docs.obsidian.md/Plug
 When user asks "is my plugin ready for release?" or similar:
 
 1. **Run automated checks**:
-   - Check file existence (`main.js`, `manifest.json`, `styles.css`, `LICENSE`, `README.md`)
-   - Validate `manifest.json` structure and required fields
-   - Check version format and consistency
-   - Scan code for prohibited patterns (eval, innerHTML misuse, obfuscation, etc.)
-   - Verify README.md has basic content
+    - Check file existence (`main.js`, `manifest.json`, `styles.css`, `LICENSE`, `README.md`)
+    - Validate `manifest.json` structure and required fields
+    - Check version format and consistency
+    - Scan code for prohibited patterns (eval, innerHTML misuse, obfuscation, etc.)
+    - Verify README.md has basic content
 
 2. **Present interactive checklist**:
-   - Ask about platform testing (Windows, macOS, Linux, Android, iOS)
-   - Ask about GitHub release status and file attachments
-   - Ask about community-plugins.json id matching (if applicable)
-   - Ask about README.md quality (purpose and usage instructions)
-   - Ask about Developer Policies adherence
-   - Ask about Plugin Guidelines adherence
-   - Ask about third-party code license compliance and attribution
+    - Ask about platform testing (Windows, macOS, Linux, Android, iOS)
+    - Ask about GitHub release status and file attachments
+    - Ask about community-plugins.json id matching (if applicable)
+    - Ask about README.md quality (purpose and usage instructions)
+    - Ask about Developer Policies adherence
+    - Ask about Plugin Guidelines adherence
+    - Ask about third-party code license compliance and attribution
 
 3. **Report results**:
-   - Show pass/fail/warning status for each item
-   - Provide actionable guidance for any failures
-   - Summarize overall readiness status
+    - Show pass/fail/warning status for each item
+    - Provide actionable guidance for any failures
+    - Summarize overall readiness status
 
 4. **Provide next steps**:
-   - If ready: Guide user through release process (see [versioning-releases.md](versioning-releases.md))
-   - If not ready: List specific items to address before release
+    - If ready: Guide user through release process (see [versioning-releases.md](versioning-releases.md))
+    - If not ready: List specific items to address before release
 
 ## Related Documentation
 
@@ -217,4 +219,3 @@ When user asks "is my plugin ready for release?" or similar:
 - [ux-copy.md](ux-copy.md) - UI text conventions
 - [common-pitfalls.md](common-pitfalls.md) - Common mistakes to avoid
 - [build-workflow.md](build-workflow.md) - Build commands (must run before release)
-

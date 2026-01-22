@@ -14,6 +14,7 @@ To provide guidance on project-specific structures and tasks that differ from ge
 ## When to Use
 
 Load this skill when:
+
 - Understanding the repository's unique architecture.
 - Performing recurring maintenance tasks.
 - Following project-specific coding conventions.
