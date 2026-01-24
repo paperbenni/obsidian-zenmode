@@ -20,6 +20,7 @@ export default class ZenMode extends Plugin {
 	private visualViewportResizeHandler: (() => void) | null = null;
 	private _hasShownInitialHighlight: boolean = false;
 	private _highlightTimeouts: number[] = [];
+	private _wasZenMode: boolean = false;
 
 	/**
 	 * Called when the plugin is loaded.
@@ -28,6 +29,9 @@ export default class ZenMode extends Plugin {
 	async onload() {
 		// load settings
 		await this.loadSettings();
+
+		// Initialize zen mode tracking
+		this._wasZenMode = this.settings.zenMode;
 
 		// add the settings tab
 		this.addSettingTab(new ZenModeSettingTab(this.app, this));
@@ -112,6 +116,15 @@ export default class ZenMode extends Plugin {
 				this.visualViewportResizeHandler
 			);
 		}
+
+		// Exit zen mode if active to restore UI state
+		if (this.settings.zenMode) {
+			this.settings.zenMode = false;
+			this.updateStyle();
+			this.setSidebarVisibility();
+			// Trigger UI refresh to ensure layout updates
+			window.dispatchEvent(new Event("resize"));
+		}
 	}
 
 	/**
@@ -148,6 +161,11 @@ export default class ZenMode extends Plugin {
 	 * When exiting zen mode, restores sidebars to their previous state.
 	 */
 	setSidebarVisibility() {
+		// Only run sidebar logic when transitioning into or out of zen mode
+		if (this.settings.zenMode === this._wasZenMode) {
+			return;
+		}
+
 		//collapse sidebars if zen mode is active
 		const app = this.app;
 
@@ -178,6 +196,9 @@ export default class ZenMode extends Plugin {
 				app.workspace.rightSplit.collapse();
 			}
 		}
+
+		// Update tracking after performing sidebar operations
+		this._wasZenMode = this.settings.zenMode;
 	}
 
 	/**
