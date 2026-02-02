@@ -12,19 +12,20 @@ One-page cheat sheet for common Obsidian theme development tasks.
 
 **One-word or short commands that trigger automatic actions:**
 
-| Command | Action |
-|---------|--------|
-| `build` | Run build command (varies by theme: `npx grunt build`, `npm run build`, etc.) |
-| `sync` or `quick sync` | Pull latest changes from all 6 core `.ref` repos |
-| `what's the latest` or `check updates` | Check what's new in reference repos (read-only, then ask to pull) |
-| `release ready?` or `is my theme ready for release?` | Run comprehensive release readiness checklist |
-| `summarize` | Generate git commit message from all changed files |
-| `summarize for release` | Generate markdown release notes for GitHub |
-| `bump the version` or `bump version` | Bump version by 0.0.1 (patch) by default, or specify: `patch`, `minor`, `major`, or exact version |
-| `add ref [name]` | Add a reference project (external URL or local path) |
-| `check API [feature]` | Look up a feature in `.ref/obsidian-api/obsidian.d.ts` |
+| Command                                              | Action                                                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `build`                                              | Run build command (varies by theme: `npx grunt build`, `npm run build`, etc.)                     |
+| `sync` or `quick sync`                               | Pull latest changes from all 6 core `.ref` repos                                                  |
+| `what's the latest` or `check updates`               | Check what's new in reference repos (read-only, then ask to pull)                                 |
+| `release ready?` or `is my theme ready for release?` | Run comprehensive release readiness checklist                                                     |
+| `summarize`                                          | Generate git commit message from all changed files                                                |
+| `summarize for release`                              | Generate markdown release notes for GitHub                                                        |
+| `bump the version` or `bump version`                 | Bump version by 0.0.1 (patch) by default, or specify: `patch`, `minor`, `major`, or exact version |
+| `add ref [name]`                                     | Add a reference project (external URL or local path)                                              |
+| `check API [feature]`                                | Look up a feature in `.ref/obsidian-api/obsidian.d.ts`                                            |
 
 **Usage examples:**
+
 - `build` → Runs build command automatically
 - `sync` → Pulls latest from all core repos automatically
 - `bump the version` → Bumps version by 0.0.1 (patch) in manifest.json
@@ -41,6 +42,7 @@ One-page cheat sheet for common Obsidian theme development tasks.
 **Simple CSS themes**: No build step required - just edit `theme.css` directly.
 
 **Complex themes with build tools**:
+
 ```powershell
 npx grunt build  # For themes using Grunt
 npm run build    # For themes using npm scripts
@@ -52,6 +54,7 @@ npx grunt        # Watch mode (auto-rebuild on changes)
 ## File Paths
 
 **Theme location** (in vault):
+
 ```
 <Vault>/.obsidian/themes/<theme-name>/
   ├── theme.css        # Compiled theme CSS
@@ -63,20 +66,22 @@ npx grunt        # Watch mode (auto-rebuild on changes)
 ## CSS Patterns
 
 **CSS Variables** (for theming):
+
 ```css
 :root {
-  --color-base-00: #ffffff;
-  --color-base-10: #f7f6f3;
-  --color-text-normal: #383a42;
+	--color-base-00: #ffffff;
+	--color-base-10: #f7f6f3;
+	--color-text-normal: #383a42;
 }
 ```
 
 **Dark Mode**:
+
 ```css
 .theme-dark {
-  --color-base-00: #1e1e1e;
-  --color-base-10: #252525;
-  --color-text-normal: #dcddde;
+	--color-base-00: #1e1e1e;
+	--color-base-10: #252525;
+	--color-text-normal: #dcddde;
 }
 ```
 
@@ -85,6 +90,7 @@ See Obsidian's CSS variables documentation for complete variable list.
 ## Git Workflow
 
 **Commit message format** (from [summarize-commands.md](summarize-commands.md)):
+
 ```
 [Summary of changes]
 - [detailed item 1]
@@ -92,19 +98,23 @@ See Obsidian's CSS variables documentation for complete variable list.
 ```
 
 **Release notes format** (markdown):
+
 ```markdown
 ### Release v1.2.0 - Title
 
 ### Features
+
 - Feature description
 
 ### Improvements
+
 - Improvement description
 ```
 
 ## Release Preparation
 
 **Before releasing**:
+
 - Run release readiness check: See [release-readiness.md](release-readiness.md)
 - Verify all checklist items (platform testing, files, policies, etc.)
 - Ensure LICENSE file exists and third-party code is properly attributed
@@ -114,6 +124,7 @@ See [versioning-releases.md](versioning-releases.md) for release process.
 ## Sync Reference Repos
 
 **Quick pull all 6 core repos** (from [quick-sync-guide.md](quick-sync-guide.md)):
+
 ```bash
 # Navigate to central .ref location (adjust path as needed)
 cd ../.ref/obsidian-dev  # or cd ~/Development/.ref/obsidian-dev
@@ -136,6 +147,7 @@ cd eslint-plugin && git pull && cd ..
 ## Testing
 
 **Manual installation**:
+
 1. Build theme (if using build tools) or ensure `theme.css` is ready
 2. Copy `manifest.json` and `theme.css` to vault `.obsidian/themes/<theme-name>/`
 3. Select theme in Obsidian: **Settings → Appearance → Themes**
@@ -146,6 +158,7 @@ See [testing.md](testing.md) for details.
 ## Common File Structure
 
 **Simple CSS theme**:
+
 ```
 theme.css          # Source CSS (edit directly)
 manifest.json
@@ -153,6 +166,7 @@ package.json
 ```
 
 **Complex theme with build tools**:
+
 ```
 src/
   scss/
@@ -166,4 +180,3 @@ Gruntfile.js       # Build configuration (if using Grunt)
 ```
 
 See [file-conventions.md](file-conventions.md) for details.
-

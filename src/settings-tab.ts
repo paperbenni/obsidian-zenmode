@@ -8,6 +8,7 @@ import type ZenMode from "./main";
  */
 export class ZenModeSettingTab extends PluginSettingTab {
 	plugin: ZenMode;
+	public icon = "lucide-expand";
 	/**
 	 * Creates a new settings tab instance.
 	 * @param app - The Obsidian app instance
@@ -130,6 +131,36 @@ export class ZenModeSettingTab extends PluginSettingTab {
 						.setValue(this.plugin.settings.hideStatusBar)
 						.onChange((value) => {
 							this.plugin.settings.hideStatusBar = value;
+							void this.plugin.saveSettings();
+							this.plugin.refresh();
+						})
+				);
+		});
+
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Hide linked mentions in zen mode")
+				.setDesc("Hide linked mentions when zen mode is active.")
+				.addToggle((toggle) =>
+					toggle
+						.setValue(this.plugin.settings.hideLinkedMentions)
+						.onChange((value) => {
+							this.plugin.settings.hideLinkedMentions = value;
+							void this.plugin.saveSettings();
+							this.plugin.refresh();
+						})
+				);
+		});
+
+		generalGroup.addSetting((setting) => {
+			setting
+				.setName("Hide scroll bar in zen mode")
+				.setDesc("Hide scroll bar when zen mode is active.")
+				.addToggle((toggle) =>
+					toggle
+						.setValue(this.plugin.settings.hideScrollBar)
+						.onChange((value) => {
+							this.plugin.settings.hideScrollBar = value;
 							void this.plugin.saveSettings();
 							this.plugin.refresh();
 						})

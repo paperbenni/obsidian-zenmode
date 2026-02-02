@@ -26,6 +26,10 @@ export interface ZenModeSettings {
 	focusedFileMode: boolean;
 	/** Whether to hide the status bar when zen mode is active. */
 	hideStatusBar: boolean;
+	/** Whether to hide linked mentions in the footer when zen mode is active. */
+	hideLinkedMentions: boolean;
+	/** Whether to hide scroll bars when zen mode is active. */
+	hideScrollBar: boolean;
 }
 
 /**
@@ -44,4 +48,6 @@ export const DEFAULT_SETTINGS: ZenModeSettings = {
 	bottomPadding: 0,
 	focusedFileMode: false,
 	hideStatusBar: false,
+	hideLinkedMentions: false,
+	hideScrollBar: false,
 };

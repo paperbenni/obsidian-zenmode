@@ -8,13 +8,14 @@ Update frequency: Check Obsidian Sample Theme repo for updates
 
 - **Organize CSS/SCSS into logical files**: Split styles into separate files for maintainability.
 - **Theme structure patterns**:
-  - **Simple CSS theme** (recommended for simple themes): `theme.css` in project root, no build step required
-  - **Complex theme with build tools** (for themes using SCSS, Grunt, etc.): `src/scss/` directory with SCSS source files that compile to `theme.css`
-  - **CRITICAL**: Never have both `theme.css` as source AND `src/scss/` - choose one pattern
+    - **Simple CSS theme** (recommended for simple themes): `theme.css` in project root, no build step required
+    - **Complex theme with build tools** (for themes using SCSS, Grunt, etc.): `src/scss/` directory with SCSS source files that compile to `theme.css`
+    - **CRITICAL**: Never have both `theme.css` as source AND `src/scss/` - choose one pattern
 
-### Simple CSS Theme Structure
+## Simple CSS Theme Structure
 
 **Recommended for simple themes** (like the sample theme template):
+
 ```
 theme.css          # ✅ Source CSS file (edit directly)
 manifest.json
@@ -25,9 +26,10 @@ package.json
 - Changes take effect when Obsidian reloads the theme
 - Perfect for learning and simple themes
 
-### Complex Theme Structure (SCSS + Build Tools)
+## Complex Theme Structure (SCSS + Build Tools)
 
 **For themes using SCSS, Grunt, npm scripts, or other build tools**:
+
 ```
 src/
   scss/            # ✅ SCSS source files
@@ -47,7 +49,7 @@ package.json
 - Run build command after making changes (see [build-workflow.md](build-workflow.md))
 - **Example**: The `obsidian-oxygen` theme uses this pattern with Grunt
 
-### Wrong Structure (Common Mistakes)
+## Wrong Structure (Common Mistakes)
 
 ```
 theme.css         # ❌ DON'T have both
@@ -61,5 +63,3 @@ src/
 - **Do not commit build artifacts**: Never commit `node_modules/`, intermediate compiled CSS files (like `src/css/main.css`), or other generated files. Only commit `theme.css` (the final output).
 - Keep themes lightweight. Avoid complex build processes unless necessary.
 - Release artifacts: `manifest.json` and `theme.css` must be at the top level of the theme folder in the vault.
-
-

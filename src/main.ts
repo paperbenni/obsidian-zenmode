@@ -21,6 +21,7 @@ export default class ZenMode extends Plugin {
 	private _hasShownInitialHighlight: boolean = false;
 	private _highlightTimeouts: number[] = [];
 	private _wasZenMode: boolean = false;
+	private _tabContainersCache: HTMLElement[] | null = null;
 
 	/**
 	 * Called when the plugin is loaded.
@@ -56,6 +57,14 @@ export default class ZenMode extends Plugin {
 			})
 		);
 
+		// Register event listener for layout changes to invalidate tab container cache
+		this.registerEvent(
+			this.app.workspace.on("layout-change", () => {
+				this._tabContainersCache = null;
+				void this.updateFocusedFileMode();
+			})
+		);
+
 		// Register ESC key to exit Zen mode
 		this.registerDomEvent(document, "keydown", (evt: KeyboardEvent) => {
 			if (evt.key === "Escape" && this.settings.zenMode) {
@@ -65,8 +74,8 @@ export default class ZenMode extends Plugin {
 				if (target) {
 					const cmEditor = target.closest(".cm-editor");
 					if (cmEditor) {
-						// Check if vim mode is enabled in Obsidian settings
-						// Note: vault.config is not in public API types, but exists at runtime
+						// Note: vault.config is private API — may break in future Obsidian versions.
+						// If this stops working, fall back to checking for vim-mode plugin instead.
 						const vault = this.app
 							.vault as typeof this.app.vault & {
 							config?: { vimMode?: boolean };
@@ -229,9 +238,19 @@ export default class ZenMode extends Plugin {
 				"zenmode-hide-status-bar",
 				this.settings.hideStatusBar
 			);
+			document.body.classList.toggle(
+				"zenmode-hide-linked-mentions",
+				this.settings.hideLinkedMentions
+			);
+			document.body.classList.toggle(
+				"zenmode-hide-scroll-bar",
+				this.settings.hideScrollBar
+			);
 		} else {
 			document.body.classList.remove("zenmode-hide-properties");
 			document.body.classList.remove("zenmode-hide-status-bar");
+			document.body.classList.remove("zenmode-hide-linked-mentions");
+			document.body.classList.remove("zenmode-hide-scroll-bar");
 		}
 
 		if (this.settings.zenMode) {
@@ -336,6 +355,12 @@ export default class ZenMode extends Plugin {
 				this.hasButton = true;
 			}
 			this.buttonContainer!.classList.add("zenmode-button-visible");
+
+			// Always apply desktop offset for button stability
+			this.buttonContainer!.classList.toggle(
+				"zenmode-button-moved-up",
+				!isMobile
+			);
 
 			// Apply auto-hide class for desktop hover behavior
 			// Only applies when exitButtonVisibility is "always" and on desktop
@@ -530,7 +555,15 @@ export default class ZenMode extends Plugin {
 	 * Updates focused file mode visibility.
 	 * When enabled, hides all workspace tab containers except the one containing the active leaf,
 	 * showing only the currently focused file. When disabled, restores all tab containers.
-	 * Uses multiple fallback methods to handle pinned tabs and edge cases.
+	 *
+	 * This method uses several fallback strategies to identify the active tab container:
+	 * 1. Pinned Tab Check (Method 0): Obsidian creates new tabs if the active one is pinned.
+	 *    We first check all containers for any pinned tabs to ensure we track the intended workspace.
+	 * 2. Recent Leaf (Method 1): Uses `getMostRecentLeaf()` to find where the user is currently working.
+	 * 3. DOM Detection (Method 1b): If API methods fail, scans the DOM for `.workspace-tab-header.is-active`.
+	 * 4. Visibility Fallback: If no active status is found, falls back to the first visible tab container.
+	 *
+	 * Uses caching for tab container DOM elements to avoid expensive re-scans on every leaf change.
 	 */
 	async updateFocusedFileMode() {
 		if (!this.settings.zenMode || !this.settings.focusedFileMode) {
@@ -551,9 +584,13 @@ export default class ZenMode extends Plugin {
 		// This prevents getLeaf(false) from creating a new tab
 		await this.revealPinnedTabIfExists();
 
-		const allTabContainers = Array.from(
-			document.querySelectorAll(".workspace-tabs")
-		);
+		if (!this._tabContainersCache) {
+			this._tabContainersCache = Array.from(
+				document.querySelectorAll(".workspace-tabs")
+			) as HTMLElement[];
+		}
+
+		const allTabContainers = this._tabContainersCache;
 
 		// Try multiple methods to find the active tab container
 		let activeTabContainer: HTMLElement | null = null;

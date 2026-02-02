@@ -35,5 +35,3 @@ When reviewing or creating a `manifest.json` file, ensure:
 - [ ] JSON syntax is valid (proper quotes, commas, brackets)
 - [ ] All string values are properly quoted
 - [ ] No plugin-specific fields (`id`, `isDesktopOnly`) are present
-
-
