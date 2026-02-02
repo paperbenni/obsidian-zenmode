@@ -7,7 +7,6 @@ Update frequency: Check periodically for new resources
 # References
 
 ## Official Repositories
-
 - Obsidian sample plugin: https://github.com/obsidianmd/obsidian-sample-plugin
 - Obsidian API: https://github.com/obsidianmd/obsidian-api
 - Obsidian developer docs: https://github.com/obsidianmd/obsidian-developer-docs
@@ -15,7 +14,6 @@ Update frequency: Check periodically for new resources
 - Obsidian sample theme: https://github.com/obsidianmd/obsidian-sample-theme
 
 ## Official Documentation
-
 - API documentation: https://docs.obsidian.md
 - Developer policies: https://docs.obsidian.md/Developer+policies
 - Plugin guidelines: https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines
@@ -30,3 +28,5 @@ The official Obsidian developer documentation is maintained on a best-effort bas
 - **Look at popular plugins/themes** for patterns that work but aren't officially documented
 
 Be aware that undocumented features may change between Obsidian versions without notice. When possible, prefer documented APIs and CSS variables for stability.
+
+

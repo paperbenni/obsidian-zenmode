@@ -8,15 +8,14 @@ Update frequency: Check Obsidian Sample Theme repo for updates
 
 - **Organize CSS/SCSS into logical files**: Split styles into separate files for maintainability.
 - **Theme structure patterns**:
-    - **Simple CSS theme** (recommended for simple themes): `theme.css` in project root, no build step required
-    - **Complex theme with build tools** (for themes using SCSS, Grunt, etc.): `src/scss/` directory with SCSS source files that compile to `theme.css`
-    - **CRITICAL**: Never have both `theme.css` as source AND `src/scss/` - choose one pattern
+  - **Simple CSS theme** (recommended for simple themes): `theme.css` in project root, no build step required
+  - **Complex theme with build tools** (for themes using SCSS, Grunt, etc.): `src/scss/` directory with SCSS source files that compile to `theme.css`
+  - **CRITICAL**: Never have both `theme.css` as source AND `src/scss/` - choose one pattern
 
 ## Simple CSS Theme Structure
 
 **Recommended for simple themes** (like the sample theme template):
-
-```
+```text
 theme.css          # ✅ Source CSS file (edit directly)
 manifest.json
 package.json
@@ -29,8 +28,7 @@ package.json
 ## Complex Theme Structure (SCSS + Build Tools)
 
 **For themes using SCSS, Grunt, npm scripts, or other build tools**:
-
-```
+```text
 src/
   scss/            # ✅ SCSS source files
     index.scss
@@ -51,7 +49,7 @@ package.json
 
 ## Wrong Structure (Common Mistakes)
 
-```
+```text
 theme.css         # ❌ DON'T have both
 src/
   scss/          # ❌ This causes confusion about which is the source
@@ -63,3 +61,5 @@ src/
 - **Do not commit build artifacts**: Never commit `node_modules/`, intermediate compiled CSS files (like `src/css/main.css`), or other generated files. Only commit `theme.css` (the final output).
 - Keep themes lightweight. Avoid complex build processes unless necessary.
 - Release artifacts: `manifest.json` and `theme.css` must be at the top level of the theme folder in the vault.
+
+

@@ -15,7 +15,7 @@ Follow Obsidian's **Developer Policies** (https://docs.obsidian.md/Developer+pol
 - **Code obfuscation**: CSS must be readable and not minified/obfuscated
 - **Dynamic ads**: No dynamic advertising
 - **Client-side telemetry**: No hidden telemetry. If you collect optional analytics, require explicit opt-in and document clearly in `README.md`
-- **Self-updating mechanisms**: No automatic code updates outside of normal releases. Never execute remote code, fetch and eval scripts, or auto-update code
+- **Self-updating mechanisms**: No automatic code updates outside normal releases. Never execute remote code, fetch and eval scripts, or auto-update code
 
 ### Mandatory Disclosures
 
@@ -57,3 +57,5 @@ Themes are CSS-only and have minimal security surface area, but still follow pri
 - [manifest.md](manifest.md) - Manifest requirements (includes security-related fields)
 - [Developer Policies](https://docs.obsidian.md/Developer+policies) - Official Obsidian Developer Policies
 - [Theme Guidelines](https://docs.obsidian.md/Themes/Releasing/Theme+guidelines) - Official Theme Guidelines
+
+

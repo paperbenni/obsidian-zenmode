@@ -11,7 +11,6 @@ Update frequency: Check Obsidian community discussions for updates
 Obsidian applies CSS classes to the body element based on the current platform. Use these for platform-specific styling:
 
 ### Device Type Classes
-
 - `.is-mobile` - Applied on any mobile device (iOS or Android)
 - `.is-tablet` - Applied on tablet-sized mobile devices
 - `.is-phone` - Applied on phone-sized mobile devices
@@ -20,7 +19,6 @@ Obsidian applies CSS classes to the body element based on the current platform. 
 **Note**: There is no `.is-desktop` class. To target desktop, use `:not(.is-mobile)`.
 
 ### Operating System Classes (Desktop Only)
-
 - `.mod-windows` - Windows
 - `.mod-macos` - macOS
 - `.mod-linux` - Linux
@@ -28,35 +26,34 @@ Obsidian applies CSS classes to the body element based on the current platform. 
 **Note**: There are no `.mod-ios` or `.mod-android` CSS classes. For iOS, use `.is-ios`. For Android, use `.is-mobile:not(.is-ios)`.
 
 ### Example Usage
-
 ```css
 /* Desktop-only styling (no .is-desktop class exists) */
 body:not(.is-mobile) .my-sidebar {
-	width: 300px;
+  width: 300px;
 }
 
 /* Mobile adjustments */
 .is-mobile .my-sidebar {
-	width: 100%;
-	position: fixed;
+  width: 100%;
+  position: fixed;
 }
 
 /* iOS-specific fixes */
 .is-mobile.is-ios .my-element {
-	-webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Tablet vs phone */
 .is-tablet .my-modal {
-	width: 600px;
+  width: 600px;
 }
 .is-phone .my-modal {
-	width: 100%;
+  width: 100%;
 }
 
 /* OS-specific (desktop only) */
 .mod-macos .titlebar {
-	padding-left: 80px; /* Space for traffic lights */
+  padding-left: 80px; /* Space for traffic lights */
 }
 ```
 
@@ -65,24 +62,24 @@ body:not(.is-mobile) .my-sidebar {
 For JavaScript/TypeScript, use the `Platform` object from the Obsidian API:
 
 ```typescript
-import { Platform } from "obsidian";
+import { Platform } from 'obsidian';
 
 // Device type
-Platform.isDesktop; // UI is in desktop mode
-Platform.isMobile; // UI is in mobile mode
-Platform.isPhone; // Mobile with limited screen space
-Platform.isTablet; // Mobile with larger screen space
+Platform.isDesktop    // UI is in desktop mode
+Platform.isMobile     // UI is in mobile mode
+Platform.isPhone      // Mobile with limited screen space
+Platform.isTablet     // Mobile with larger screen space
 
 // App type
-Platform.isDesktopApp; // Electron desktop app
-Platform.isMobileApp; // Capacitor mobile app
-Platform.isIosApp; // iOS app
-Platform.isAndroidApp; // Android app
+Platform.isDesktopApp // Electron desktop app
+Platform.isMobileApp  // Capacitor mobile app
+Platform.isIosApp     // iOS app
+Platform.isAndroidApp // Android app
 
 // Operating system
-Platform.isMacOS; // macOS (or iOS/iPadOS)
-Platform.isWin; // Windows
-Platform.isLinux; // Linux
+Platform.isMacOS      // macOS (or iOS/iPadOS)
+Platform.isWin        // Windows
+Platform.isLinux      // Linux
 ```
 
 ## Touch Considerations
@@ -98,3 +95,5 @@ Platform.isLinux; // Linux
 - Verify landscape and portrait orientations
 - Check that modals and popups are usable on smaller screens
 - Test with on-screen keyboard visible (ensure inputs aren't obscured)
+
+

@@ -14,7 +14,6 @@ To ensure reliable builds, consistent reference materials, and safe release proc
 ## Scope
 
 This skill covers:
-
 - Build and lint workflows
 - Syncing reference documentation from external sources
 - Version management and release preparation

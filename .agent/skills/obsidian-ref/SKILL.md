@@ -14,7 +14,6 @@ To provide a central source of truth for API usage, file formats, and design sta
 ## Scope
 
 This skill covers:
-
 - `manifest.json` requirements and validation
 - Obsidian API details and documentation
 - Obsidian-specific file formats (Markdown, Properties, Canvas)

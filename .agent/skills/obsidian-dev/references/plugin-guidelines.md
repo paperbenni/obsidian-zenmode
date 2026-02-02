@@ -43,11 +43,11 @@ Building DOM from user input using these methods poses security risks (XSS).
 containerEl.innerHTML = `<div class="my-class">${userInput}</div>`;
 
 // DO this instead - use DOM API or Obsidian helpers
-const div = containerEl.createDiv({ cls: "my-class" });
+const div = containerEl.createDiv({ cls: 'my-class' });
 div.setText(userInput);
 
 // Or use createEl, createSpan
-const span = createSpan({ cls: "highlight", text: userInput });
+const span = createSpan({ cls: 'highlight', text: userInput });
 ```
 
 To clear element contents, use `el.empty()`.
@@ -60,14 +60,14 @@ Use `registerEvent()`, `addCommand()`, and other registration methods for automa
 
 ```typescript
 export default class MyPlugin extends Plugin {
-	onload() {
-		// This is automatically cleaned up on unload
-		this.registerEvent(
-			this.app.vault.on("create", (file) => {
-				// handle file creation
-			})
-		);
-	}
+  onload() {
+    // This is automatically cleaned up on unload
+    this.registerEvent(
+      this.app.vault.on('create', (file) => {
+        // handle file creation
+      })
+    );
+  }
 }
 ```
 
@@ -86,35 +86,29 @@ Default hotkeys cause conflicts between plugins and may override user configurat
 ```typescript
 // Use 'callback' for unconditional commands
 this.addCommand({
-	id: "my-command",
-	name: "My command",
-	callback: () => {
-		/* always runs */
-	},
+  id: 'my-command',
+  name: 'My command',
+  callback: () => { /* always runs */ }
 });
 
 // Use 'checkCallback' for conditional commands
 this.addCommand({
-	id: "conditional-command",
-	name: "Conditional command",
-	checkCallback: (checking) => {
-		if (someCondition) {
-			if (!checking) {
-				/* execute */
-			}
-			return true;
-		}
-		return false;
-	},
+  id: 'conditional-command',
+  name: 'Conditional command',
+  checkCallback: (checking) => {
+    if (someCondition) {
+      if (!checking) { /* execute */ }
+      return true;
+    }
+    return false;
+  }
 });
 
 // Use 'editorCallback' for commands requiring an active editor
 this.addCommand({
-	id: "editor-command",
-	name: "Editor command",
-	editorCallback: (editor, view) => {
-		/* has editor context */
-	},
+  id: 'editor-command',
+  name: 'Editor command',
+  editorCallback: (editor, view) => { /* has editor context */ }
 });
 ```
 
@@ -125,11 +119,11 @@ this.addCommand({
 Use `getActiveViewOfType()` instead:
 
 ```typescript
-import { MarkdownView } from "obsidian";
+import { MarkdownView } from 'obsidian';
 
 const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 if (view) {
-	// Safe to use view
+  // Safe to use view
 }
 ```
 
@@ -138,7 +132,7 @@ For the active editor:
 ```typescript
 const editor = this.app.workspace.activeEditor?.editor;
 if (editor) {
-	// Safe to use editor
+  // Safe to use editor
 }
 ```
 
@@ -146,16 +140,16 @@ if (editor) {
 
 ```typescript
 // DON'T do this - can cause memory leaks
-this.registerView(MY_VIEW_TYPE, () => (this.view = new MyCustomView()));
+this.registerView(MY_VIEW_TYPE, () => this.view = new MyCustomView());
 
 // DO this instead
 this.registerView(MY_VIEW_TYPE, (leaf) => new MyCustomView(leaf));
 
 // Access views when needed
 for (const leaf of this.app.workspace.getLeavesOfType(MY_VIEW_TYPE)) {
-	if (leaf.view instanceof MyCustomView) {
-		// use the view
-	}
+  if (leaf.view instanceof MyCustomView) {
+    // use the view
+  }
 }
 ```
 
@@ -164,7 +158,6 @@ for (const leaf of this.app.workspace.getLeavesOfType(MY_VIEW_TYPE)) {
 ### Prefer Vault API over Adapter API
 
 The Vault API (`app.vault`) has advantages over the Adapter API (`app.vault.adapter`):
-
 - **Performance**: Caching layer speeds up reads for known files
 - **Safety**: Serial file operations prevent race conditions
 
@@ -176,7 +169,7 @@ await this.app.vault.modify(file, newContent);
 
 // DO this instead - atomic and conflict-safe
 await this.app.vault.process(file, (content) => {
-	return content.replace("old", "new");
+  return content.replace('old', 'new');
 });
 ```
 
@@ -186,7 +179,7 @@ Don't parse YAML manually. This method is atomic and ensures consistent formatti
 
 ```typescript
 await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
-	frontmatter["my-property"] = "value";
+  frontmatter['my-property'] = 'value';
 });
 ```
 
@@ -197,7 +190,7 @@ Note: Obsidian calls this "properties" in the UI, though the API method name use
 Always normalize paths from user input or constructed in code:
 
 ```typescript
-import { normalizePath } from "obsidian";
+import { normalizePath } from 'obsidian';
 
 const path = normalizePath(userInput);
 // Cleans up slashes, removes leading/trailing slashes,
@@ -208,7 +201,7 @@ const path = normalizePath(userInput);
 
 ```typescript
 // DON'T do this - inefficient for large vaults
-const file = this.app.vault.getFiles().find((f) => f.path === filePath);
+const file = this.app.vault.getFiles().find(f => f.path === filePath);
 
 // DO this instead
 const file = this.app.vault.getFileByPath(filePath);
@@ -225,8 +218,8 @@ When editing the active note, use the Editor interface to preserve cursor positi
 ```typescript
 const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 if (view) {
-	const editor = view.editor;
-	editor.replaceRange("new text", { line: 0, ch: 0 });
+  const editor = view.editor;
+  editor.replaceRange('new text', { line: 0, ch: 0 });
 }
 ```
 
@@ -245,10 +238,10 @@ Don't use HTML heading elements - they cause inconsistent styling:
 
 ```typescript
 // DON'T do this
-containerEl.createEl("h2", { text: "My Section" });
+containerEl.createEl('h2', { text: 'My Section' });
 
 // DO this instead
-new Setting(containerEl).setName("My section").setHeading();
+new Setting(containerEl).setName('My section').setHeading();
 ```
 
 ### Avoid "settings" in settings headings
@@ -264,19 +257,19 @@ Since everything in the settings tab is a setting, avoid redundancy:
 
 ```typescript
 // DON'T do this - impossible for themes/snippets to override
-el.style.color = "white";
-el.style.backgroundColor = "red";
+el.style.color = 'white';
+el.style.backgroundColor = 'red';
 
 // DO this instead - use CSS classes
-const el = containerEl.createDiv({ cls: "my-plugin-warning" });
+const el = containerEl.createDiv({ cls: 'my-plugin-warning' });
 ```
 
 Then in `styles.css`:
 
 ```css
 .my-plugin-warning {
-	color: var(--text-normal);
-	background-color: var(--background-modifier-error);
+  color: var(--text-normal);
+  background-color: var(--background-modifier-error);
 }
 ```
 
@@ -289,12 +282,12 @@ Then in `styles.css`:
 ```typescript
 // Prefer this
 async function fetchData(): Promise<string | null> {
-	try {
-		const res = await requestUrl("https://example.com");
-		return res.text;
-	} catch (e) {
-		console.error(e);
-		return null;
-	}
+  try {
+    const res = await requestUrl('https://example.com');
+    return res.text;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 ```
