@@ -42,7 +42,17 @@ ZenMode injects the `zenmode-active` class on the `body` element when zen mode i
 
 ## Development
 
-npm version minor/major/patch
+- `pnpm install` - Install dependencies
+- `pnpm dev` - Start development build in watch mode
+- `pnpm build` - Build production version
+- `pnpm lint` / `pnpm lint:fix` - Run linting
+- `pnpm version minor/major/patch` - Bump version
+
+## Recommended Skills
+
+If you are using an AI coding agent, we recommend using these skills for the best development experience:
+
+- [obsidian-dev-skills](https://github.com/davidvkimball/obsidian-dev-skills)
 
 ## TODO
 
