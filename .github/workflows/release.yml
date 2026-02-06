@@ -5,22 +5,29 @@ on:
         tags:
             - "*"
 
+permissions:
+    contents: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
 
             - name: Use Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: "18.x"
+                  cache: "pnpm"
 
             - name: Build plugin
               run: |
-                  npm install
-                  npm run build
+                  pnpm install
+                  pnpm run build
 
             - name: Create release
               env:
