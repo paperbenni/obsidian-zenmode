@@ -53,7 +53,9 @@ export default class ZenMode extends Plugin {
 		// Register event listener for active leaf changes (for focused file mode)
 		this.registerEvent(
 			this.app.workspace.on("active-leaf-change", () => {
-				void this.updateFocusedFileMode();
+				if (this.settings.zenMode && this.settings.focusedFileMode) {
+					void this.updateFocusedFileMode();
+				}
 			})
 		);
 
@@ -61,7 +63,9 @@ export default class ZenMode extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on("layout-change", () => {
 				this._tabContainersCache = null;
-				void this.updateFocusedFileMode();
+				if (this.settings.zenMode && this.settings.focusedFileMode) {
+					void this.updateFocusedFileMode();
+				}
 			})
 		);
 
