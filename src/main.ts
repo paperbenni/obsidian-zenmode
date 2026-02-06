@@ -586,8 +586,8 @@ export default class ZenMode extends Plugin {
 
 		if (!this._tabContainersCache) {
 			this._tabContainersCache = Array.from(
-				document.querySelectorAll(".workspace-tabs")
-			) as HTMLElement[];
+				document.querySelectorAll<HTMLElement>(".workspace-tabs")
+			);
 		}
 
 		const allTabContainers = this._tabContainersCache;
@@ -598,7 +598,7 @@ export default class ZenMode extends Plugin {
 		// Method 0: PRIORITY - Check ALL containers for pinned tabs FIRST
 		// If a pinned tab exists, we MUST use its container, not the "active" one
 		for (const container of allTabContainers) {
-			const el = container as HTMLElement;
+			const el = container;
 			// Check all tab headers in this container for pinned state
 			// Use STRICT checks only - class "is-pinned" or data-pinned="true" attribute
 			const pinnedTabs = Array.from(
@@ -638,7 +638,7 @@ export default class ZenMode extends Plugin {
 
 		// Hide all workspace-tabs containers except the one containing the active leaf
 		allTabContainers.forEach((tabContainer) => {
-			const el = tabContainer as HTMLElement;
+			const el = tabContainer;
 			if (tabContainer === activeTabContainer) {
 				// Show and expand the active tab container
 				el.classList.remove("zenmode-tab-hidden");
