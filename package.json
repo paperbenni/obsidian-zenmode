@@ -1,6 +1,6 @@
 {
 	"name": "zenmode",
-	"version": "1.6.5",
+	"version": "1.6.6",
 	"description": "Zen Mode",
 	"main": "main.js",
 	"type": "module",
@@ -24,7 +24,7 @@
 		"eslint": "^9.39.1",
 		"eslint-plugin-obsidianmd": "0.1.9",
 		"globals": "14.0.0",
-		"obsidian": "1.10.3",
+		"obsidian": "^1.11.0",
 		"prettier": "^3.6.2",
 		"tslib": "2.4.0",
 		"typescript": "5.8.3",
