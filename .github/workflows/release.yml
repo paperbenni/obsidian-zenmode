@@ -28,7 +28,7 @@ jobs:
 
             - name: Build plugin
               run: |
-                  pnpm install
+                  pnpm install --frozen-lockfile
                   pnpm run build
 
             - name: Attest build provenance
