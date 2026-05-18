@@ -7,6 +7,8 @@ on:
 
 permissions:
     contents: write
+    id-token: write
+    attestations: write
 
 jobs:
     build:
@@ -28,6 +30,14 @@ jobs:
               run: |
                   pnpm install
                   pnpm run build
+
+            - name: Attest build provenance
+              uses: actions/attest-build-provenance@v2
+              with:
+                  subject-path: |
+                      main.js
+                      manifest.json
+                      styles.css
 
             - name: Create release
               env:
