@@ -1,5 +1,5 @@
-import { App, PluginSettingTab } from "obsidian";
-import { createSettingsGroup } from "./utils/settings-compat";
+import { App, PluginSettingTab, SettingGroup } from "obsidian";
+
 import type ZenMode from "./main";
 
 /**
@@ -29,11 +29,7 @@ export class ZenModeSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		// Create settings group (no heading - all settings are general)
-		const generalGroup = createSettingsGroup(
-			containerEl,
-			undefined,
-			"zenmode"
-		);
+		const generalGroup = new SettingGroup(containerEl);
 
 		generalGroup.addSetting((setting) => {
 			setting
