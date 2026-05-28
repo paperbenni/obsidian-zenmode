@@ -44,7 +44,9 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
+                  tag="${tag#v}"
 
                   gh release create "$tag" \
+                    --target="${GITHUB_SHA}" \
                     --title="$tag" \
                     main.js manifest.json styles.css
