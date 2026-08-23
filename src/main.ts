@@ -100,12 +100,25 @@ export default class ZenMode extends Plugin {
 						return;
 					}
 				}
-				// Only exit if no modal is open (to avoid interfering with Obsidian modals)
-				const activeModal = document.querySelector(".modal");
-				if (!activeModal) {
-					void this.toggleZenMode();
-					evt.preventDefault();
+				// Only exit if no modal/prompt/suggestion is open (to avoid interfering with Obsidian modals)
+				// Check both the event target and the DOM to handle race conditions where
+				// Obsidian's own Esc handler may have already detached the overlay before we run.
+				const targetEl = evt.target as HTMLElement | null;
+				if (
+					targetEl?.closest(
+						".modal, .prompt, .suggestion-container, .menu, .popover"
+					)
+				) {
+					return;
 				}
+				const hasOpenOverlay = document.querySelector(
+					".modal, .prompt, .suggestion-container, .menu, .popover, .modal-container"
+				);
+				if (hasOpenOverlay) {
+					return;
+				}
+				void this.toggleZenMode();
+				evt.preventDefault();
 			}
 		});
 
