@@ -1,6 +1,6 @@
 {
   "name": "zenmode",
-  "version": "1.6.10",
+  "version": "1.6.11",
   "description": "Zen Mode",
   "main": "main.js",
   "type": "module",
