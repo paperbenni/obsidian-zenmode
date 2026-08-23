@@ -165,6 +165,21 @@ export class ZenModeSettingTab extends PluginSettingTab {
 
 		generalGroup.addSetting((setting) => {
 			setting
+				.setName("Disable spellcheck in zen mode")
+				.setDesc("Hide spellcheck underlines when zen mode is active.")
+				.addToggle((toggle) =>
+					toggle
+						.setValue(this.plugin.settings.hideSpellcheck)
+						.onChange((value) => {
+							this.plugin.settings.hideSpellcheck = value;
+							void this.plugin.saveSettings();
+							this.plugin.refresh();
+						})
+				);
+		});
+
+		generalGroup.addSetting((setting) => {
+			setting
 				.setName("Top padding")
 				.setDesc("Top padding in pixels (0-100).")
 				.addSlider((slider) =>

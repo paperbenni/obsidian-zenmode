@@ -263,11 +263,16 @@ export default class ZenMode extends Plugin {
 				"zenmode-hide-scroll-bar",
 				this.settings.hideScrollBar
 			);
+			document.body.classList.toggle(
+				"zenmode-hide-spellcheck",
+				this.settings.hideSpellcheck
+			);
 		} else {
 			document.body.classList.remove("zenmode-hide-properties");
 			document.body.classList.remove("zenmode-hide-status-bar");
 			document.body.classList.remove("zenmode-hide-linked-mentions");
 			document.body.classList.remove("zenmode-hide-scroll-bar");
+			document.body.classList.remove("zenmode-hide-spellcheck");
 		}
 
 		if (this.settings.zenMode) {

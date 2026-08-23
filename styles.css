@@ -214,3 +214,12 @@ body:not(.is-mobile) .zenmode-button-auto-hide.zenmode-button-fade-out button {
 .zenmode-hide-scroll-bar ::-webkit-scrollbar {
 	display: none !important;
 }
+
+/* Hide spellcheck - conditional based on hideSpellcheck setting */
+.zenmode-hide-spellcheck ::spelling-error,
+.zenmode-hide-spellcheck ::grammar-error {
+	text-decoration: none !important;
+}
+.zenmode-hide-spellcheck .cm-spell-error {
+	text-decoration: none !important;
+}

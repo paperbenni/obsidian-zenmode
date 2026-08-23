@@ -30,6 +30,8 @@ export interface ZenModeSettings {
 	hideLinkedMentions: boolean;
 	/** Whether to hide scroll bars when zen mode is active. */
 	hideScrollBar: boolean;
+	/** Whether to hide spellcheck errors when zen mode is active. */
+	hideSpellcheck: boolean;
 }
 
 /**
@@ -50,4 +52,5 @@ export const DEFAULT_SETTINGS: ZenModeSettings = {
 	hideStatusBar: false,
 	hideLinkedMentions: false,
 	hideScrollBar: false,
+	hideSpellcheck: false,
 };
