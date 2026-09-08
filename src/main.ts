@@ -93,7 +93,7 @@ export default class ZenMode extends Plugin {
 					// Don't exit compact mode with escape in an excalidraw textboxes as they use the escape hotkey to leave out of itself.
 					// The resulting behaviour is very confusing. (Textbox is still focus but the zenmode disables)
 					if (
-						target instanceof HTMLTextAreaElement &&
+						target.instanceOf(HTMLTextAreaElement) &&
 						target.className &&
 						target.className.includes("excalidraw")
 					) {
@@ -131,7 +131,7 @@ export default class ZenMode extends Plugin {
 	 */
 	onunload() {
 		// Clear any pending animation timeouts
-		this._highlightTimeouts.forEach((id) => clearTimeout(id));
+		this._highlightTimeouts.forEach((id) => window.clearTimeout(id));
 		if (this.buttonContainer) {
 			this.buttonContainer.remove();
 		}
@@ -296,8 +296,7 @@ export default class ZenMode extends Plugin {
 	 * The button allows users to exit zen mode and adjusts position for mobile navigation bars.
 	 */
 	createButton() {
-		this.buttonContainer = document.createElement("div");
-		this.buttonContainer.classList.add("zenmode-button");
+		this.buttonContainer = createDiv({ cls: "zenmode-button" });
 
 		this.button = new ButtonComponent(this.buttonContainer);
 		this.button.setIcon("shrink");
@@ -461,8 +460,7 @@ export default class ZenMode extends Plugin {
 		if (!leafContainer) return null;
 
 		const tabContainer = leafContainer.closest(".workspace-tabs");
-		if (!tabContainer || !(tabContainer instanceof HTMLElement))
-			return null;
+		if (!tabContainer || !tabContainer.instanceOf(HTMLElement)) return null;
 
 		return tabContainer;
 	}
@@ -495,7 +493,7 @@ export default class ZenMode extends Plugin {
 					isPinned = true;
 				} else if (leafWithPinned.view?.getState) {
 					const state = leafWithPinned.view.getState();
-					if ((state as { pinned?: boolean }).pinned === true) {
+					if (state.pinned === true) {
 						isPinned = true;
 					}
 				}
@@ -510,7 +508,7 @@ export default class ZenMode extends Plugin {
 						leafWithContainer.containerEl.querySelector(
 							".workspace-tab-header"
 						);
-					if (tabHeader && tabHeader instanceof HTMLElement) {
+					if (tabHeader && tabHeader.instanceOf(HTMLElement)) {
 						// Check if tab has pinned class or attribute
 						if (
 							tabHeader.classList.contains("is-pinned") ||
@@ -526,8 +524,8 @@ export default class ZenMode extends Plugin {
 					void this.app.workspace.revealLeaf(leaf);
 					// Wait for the reveal to take effect using requestAnimationFrame for better timing
 					await new Promise<void>((resolve) => {
-						requestAnimationFrame(() => {
-							requestAnimationFrame(() => resolve());
+						window.requestAnimationFrame(() => {
+							window.requestAnimationFrame(() => resolve());
 						});
 					});
 					return;
@@ -549,7 +547,7 @@ export default class ZenMode extends Plugin {
 		);
 		if (activeTabHeader) {
 			const tabContainer = activeTabHeader.closest(".workspace-tabs");
-			if (tabContainer && tabContainer instanceof HTMLElement) {
+			if (tabContainer && tabContainer.instanceOf(HTMLElement)) {
 				return tabContainer;
 			}
 		}
@@ -714,7 +712,7 @@ export default class ZenMode extends Plugin {
 						await document.documentElement.requestFullscreen();
 						// Wait for next frame to ensure fullscreen transition is smooth
 						await new Promise((resolve) =>
-							requestAnimationFrame(resolve)
+							window.requestAnimationFrame(resolve)
 						);
 					} catch {
 						// Fullscreen might fail (e.g., user cancelled), continue anyway
@@ -732,7 +730,7 @@ export default class ZenMode extends Plugin {
 						await document.exitFullscreen();
 						// Wait for DOM updates to complete
 						await new Promise((resolve) =>
-							requestAnimationFrame(resolve)
+							window.requestAnimationFrame(resolve)
 						);
 					} catch {
 						// Fullscreen exit might fail, continue anyway
