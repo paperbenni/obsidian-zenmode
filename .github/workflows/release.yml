@@ -5,29 +5,48 @@ on:
         tags:
             - "*"
 
+permissions:
+    contents: write
+    id-token: write
+    attestations: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
 
             - name: Use Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: "18.x"
+                  cache: "pnpm"
 
             - name: Build plugin
               run: |
-                  npm install
-                  npm run build
+                  pnpm install --frozen-lockfile
+                  pnpm run build
+
+            - name: Attest build provenance
+              uses: actions/attest-build-provenance@v2
+              with:
+                  subject-path: |
+                      main.js
+                      manifest.json
+                      styles.css
 
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
+                  tag="${tag#v}"
 
                   gh release create "$tag" \
+                    --target="${GITHUB_SHA}" \
                     --title="$tag" \
                     main.js manifest.json styles.css
