@@ -70,21 +70,9 @@ body.zenmode-active[data-zen-focused-file="true"]
 	display: none;
 }
 
-/* Draggable strip (leave OS window buttons untouched) */
+/* Hide the titlebar completely in zen mode */
 body:not(.is-mobile).zenmode-active .titlebar {
-	display: block;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	z-index: 10;
-	background: transparent;
-	-webkit-app-region: drag;
-}
-
-/* Make interactive elements inside titlebar not draggable */
-body:not(.is-mobile).zenmode-active .titlebar * {
-	-webkit-app-region: no-drag;
+	display: none;
 }
 
 .zenmode-button {
