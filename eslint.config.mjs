@@ -1,8 +1,11 @@
 // eslint.config.mjs
 import tsparser from "@typescript-eslint/parser";
+import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
 import obsidianmd from "eslint-plugin-obsidianmd";
 import globals from "globals";
+
+const nodeScripts = ["esbuild.config.mjs", "version-bump.mjs"];
 
 export default defineConfig([
 	{
@@ -15,7 +18,10 @@ export default defineConfig([
 			".ref/**",
 		],
 	},
-	...obsidianmd.configs.recommended,
+	...obsidianmd.configs.recommended.map((config) => ({
+		...config,
+		ignores: [...(config.ignores ?? []), ...nodeScripts],
+	})),
 	{
 		files: ["**/*.ts"],
 		languageOptions: {
@@ -72,15 +78,11 @@ export default defineConfig([
 		},
 	},
 	{
-		files: ["**/*.mjs"],
+		// Build and release scripts use Node.js rules instead of plugin runtime rules.
+		files: nodeScripts,
+		extends: [js.configs.recommended],
 		languageOptions: {
-			globals: {
-				console: "readonly",
-				process: "readonly",
-				Buffer: "readonly",
-				__dirname: "readonly",
-				__filename: "readonly",
-			},
+			globals: globals.node,
 		},
 	},
 ]);
