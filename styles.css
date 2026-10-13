@@ -8,6 +8,8 @@
 /* Desktop view header */
 .zenmode-active .view-header-nav-buttons,
 .zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-left,
+/* Obsidian 1.14+ names the left ribbon .mod-primary */
+.zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-primary,
 .zenmode-active div.workspace-tab-container>div>div>div.view-header,
 /* Hide tooltips */
 .zenmode-active .tooltip,
