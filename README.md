@@ -33,6 +33,10 @@ switch from an editing friendly experience to a viewing friendly experience.
 In addition to hiding all UI, zen mode also collapses and restores the side bars
 when being toggled.
 
+When Obsidian requests title focus (for example, when creating a note or using an
+`obsidian://new` URL), Zen Mode temporarily reveals the note header if the inline
+title is unavailable. The header hides again when focus leaves its title.
+
 ![desktop_nozen](./images/nozen_desktop.png)
 ![desktop_zen](./images/zen_desktop.png)
 

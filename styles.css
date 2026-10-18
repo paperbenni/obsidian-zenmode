@@ -3,19 +3,49 @@
 /* Hide navbar */
 .zenmode-active .mobile-navbar,
 .zenmode-active .pdf-toolbar,
-/* Mobile view header */
-.zenmode-active div.app-container>div.horizontal-main-container>div>div.workspace-split.mod-vertical.mod-root.mod-visible>div>div.workspace-tab-container>div>div>div.view-header,
 /* Desktop view header */
 .zenmode-active .view-header-nav-buttons,
 .zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-left,
 /* Obsidian 1.14+ names the left ribbon .mod-primary */
 .zenmode-active div.workspace-ribbon.side-dock-ribbon.mod-primary,
-.zenmode-active div.workspace-tab-container>div>div>div.view-header,
+/* Markdown headers stay focusable for Obsidian's rename requests. */
+.zenmode-active .workspace-leaf-content:not([data-type="markdown"]) > .view-header,
 /* Hide tooltips */
 .zenmode-active .tooltip,
 /* Hide status bar - conditional based on hideStatusBar setting */
 body.zenmode-hide-status-bar .status-bar {
 	display: none;
+}
+
+/* Obsidian checks titleEl.offsetParent before focusing a title. Using display:
+   none here causes URI `new` actions (including append) to open a rename dialog
+   when the inline title is unavailable. Collapse the header instead, and let
+   Obsidian's normal header styling return while its title is focused. */
+.zenmode-active .workspace-leaf-content[data-type="markdown"] > .view-header {
+	display: flex;
+	flex-shrink: 0;
+}
+
+/* Phones normally hide this container when inline titles are enabled, even
+   when Zen Mode's hide-inline-title option makes that title unavailable. */
+.zenmode-active
+	.workspace-leaf-content[data-type="markdown"]
+	> .view-header
+	> .view-header-title-container {
+	display: flex;
+}
+
+.zenmode-active
+	.workspace-leaf-content[data-type="markdown"]
+	> .view-header:not(:has(.view-header-title:focus)) {
+	height: 0;
+	min-height: 0;
+	padding-block: 0;
+	margin-block: 0;
+	border-block-width: 0;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
 }
 
 /* Hide sidebar buttons */
